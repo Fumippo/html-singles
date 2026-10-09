@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>TYPE//LAB — Personal Typing Analyzer</title>
+<style>
+:root{--bg:#080e1c;--panel:#111b2e;--panel2:#152238;--border:#293951;--text:#eef5ff;--muted:#99abc4;--teal:#64e4cf;--blue:#7bb1ff;--yellow:#f6ce79;--red:#ff8395;--radius:17px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;background:radial-gradient(ellipse at 50% -170px,#1f3759 0,transparent 65%),var(--bg);min-height:100vh}button,select,input,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.4;cursor:not-allowed}button:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
+.shell{max-width:1100px;margin:0 auto;padding:28px 20px 80px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:26px}.logo{font-weight:900;letter-spacing:.09em;font-size:clamp(24px,4vw,34px)}.logo span{color:var(--teal)}.sublogo{margin-top:3px;color:var(--muted);font-size:12px;letter-spacing:.16em}.tag{border:1px solid var(--border);padding:9px 12px;border-radius:100px;font-size:12px;color:var(--muted)}.layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:18px}.panel{background:linear-gradient(145deg,rgba(23,37,59,.97),rgba(15,25,43,.98));border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 15px 40px #0002}.play{padding:25px}.side{padding:22px;align-self:start}.eyebrow{color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase}.section-title{font-size:19px;margin:8px 0 16px}.mode-row{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0 18px}.mode{border:1px solid #3b4e69;background:#15243a;color:#c1d0e4;padding:10px 16px;border-radius:11px;font-weight:800;transition:.15s}.mode[aria-pressed="true"]{background:var(--teal);color:#062020;border-color:var(--teal);box-shadow:0 0 0 3px #64e4cf16}.mode:not(:disabled):hover{transform:translateY(-1px)}.statstrip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.stat{background:#0d182b;border:1px solid #263953;border-radius:12px;padding:14px 11px}.stat-label{display:block;color:var(--muted);font-size:11px;margin-bottom:6px;font-weight:750;letter-spacing:.06em}.stat-value{font-variant-numeric:tabular-nums;font-weight:850;font-size:clamp(19px,3vw,28px);white-space:nowrap}.stat-suffix{font-size:12px;color:var(--muted);margin-left:3px}.timebar{margin:23px 0 22px;display:flex;justify-content:space-between;align-items:center;gap:10px}.timer{font:900 clamp(39px,8vw,66px)/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:-.06em;color:#fff;font-variant-numeric:tabular-nums}.timer.danger{color:var(--red)}.timehint{font-size:12px;color:var(--muted);line-height:1.6;text-align:right}.progress{height:7px;border-radius:100px;background:#24374d;overflow:hidden}.progress>div{background:linear-gradient(90deg,var(--teal),var(--blue));height:100%;width:0%;transition:width .12s}.prompt{padding:23px 20px;margin:19px 0 8px;min-height:190px;background:#0a1525;border:1px solid #2b415a;border-radius:15px;position:relative}.prompt:before{content:"TEXT TO TYPE";position:absolute;right:17px;top:11px;font-size:10px;letter-spacing:.14em;color:#748ba7}.japanese{font-size:clamp(21px,3vw,28px);line-height:2.25;font-weight:750;margin-top:12px;max-height:172px;overflow:auto;overflow-wrap:anywhere;scrollbar-width:thin}.japanese rt{font-size:11px;font-weight:500;color:#a3bddb;user-select:none}.kana{font-size:15px;color:#a4bad1;line-height:1.65;margin-top:8px;min-height:23px;overflow-wrap:anywhere}.kana .done{color:#64c4a8}.roman{font:650 clamp(18px,2.5vw,24px)/1.8 ui-monospace,SFMono-Regular,Consolas,"Noto Sans Mono",monospace;letter-spacing:.035em;min-height:45px;margin-top:8px;overflow-wrap:anywhere}.roman .done{color:var(--teal)}.roman .next{color:#fff;background:#33536c;border-radius:4px;box-shadow:0 1px 0 var(--teal)}.roman .pending{color:#8498b0}.roman .ellipsis{color:#647d98}.roman.hidden{filter:blur(6px);user-select:none}.status{color:var(--muted);font-size:13px;min-height:24px;line-height:1.6;margin:12px 2px}.status.error{color:var(--red)}.prompt.flash{animation:flash .22s ease}@keyframes flash{0%,100%{border-color:#2b415a}35%{border-color:var(--red);background:#291725}}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}.btn{border-radius:11px;border:1px solid #3c5272;padding:11px 16px;font-weight:800;background:#1b2a43;color:#e8f2ff}.btn.primary{background:var(--teal);border-color:var(--teal);color:#05231e}.btn:hover:not(:disabled){filter:brightness(1.12)}.btn.ghost{background:transparent}.small{font-size:12px;color:var(--muted);line-height:1.65}.side-number{font-size:37px;font-weight:900;color:var(--teal);margin:2px 0;font-variant-numeric:tabular-nums}.divider{border:0;border-top:1px solid var(--border);margin:19px 0}.rank-big{font-size:34px;font-weight:950;line-height:1.25;overflow-wrap:anywhere}.rank-caption{font-size:12px;color:var(--muted);margin-top:6px}.rank-progress{margin:14px 0 10px}.side-line{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:8px 0;color:var(--muted)}.side-line b{color:var(--text)}.details{margin-top:18px;padding:0 21px}.details>summary{cursor:pointer;padding:20px 0;font-weight:800;list-style:none}.details>summary::-webkit-details-marker{display:none}.details>summary::before{content:"＋";color:var(--teal);margin-right:12px}.details[open]>summary::before{content:"－"}.inside{padding-bottom:22px}.control-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.field label{display:block;font-size:13px;font-weight:750;margin-bottom:7px}.field select,.field textarea{width:100%;border:1px solid #40516b;border-radius:9px;padding:10px;color:var(--text);background:#0b1525}.field textarea{resize:vertical;min-height:65px}.check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin:8px 0}.check input{accent-color:#64e4cf;width:16px;height:16px}.note{border-left:3px solid var(--teal);padding:8px 13px;color:var(--muted);font-size:12px;line-height:1.8;margin-top:15px;background:#101d30}.results{margin-top:18px;display:none}.results.active{display:block}.result-head{display:flex;gap:20px;justify-content:space-between;align-items:start;flex-wrap:wrap}.hero-score{font-size:clamp(42px,8vw,70px);font-weight:950;letter-spacing:-.055em;font-variant-numeric:tabular-nums;color:var(--teal)}.result-rank{font-size:24px;font-weight:900;margin:7px 0}.pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}.pill{background:#1a3047;border:1px solid #35516a;border-radius:100px;padding:6px 12px;font-size:12px;color:#d6ecfb}.result-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}.data-card{background:#0d192b;border:1px solid #283b53;border-radius:12px;padding:14px}.data-card strong{display:block;font-size:23px;font-variant-numeric:tabular-nums;margin-top:7px}.chart-card{background:#0b1729;border:1px solid #283b53;border-radius:13px;padding:18px;margin:15px 0}.chart-card h3{margin:0 0 9px;font-size:15px}.chart-card canvas{display:block;width:100%;height:205px}.analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.analysis-card{background:#0c1728;border:1px solid #2d415b;border-radius:12px;padding:15px}.analysis-card h3{font-size:15px;margin:0 0 12px}.analysis-card p,.analysis-card li{color:#b7c7da;font-size:13px;line-height:1.8}.analysis-card ul{padding-left:20px;margin:0}.key-row{display:flex;gap:5px;justify-content:center;margin:5px 0}.key{min-width:0;flex:1;max-width:44px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:6px;border:1px solid #314359;background:#26374c;color:#b4c4d9;font:700 12px ui-monospace,monospace;position:relative}.key.good{background:#1d5b53;border-color:#3e9e88;color:#bdffea}.key.mid{background:#614e2d;border-color:#a48646;color:#ffe5b3}.key.bad{background:#663143;border-color:#a85470;color:#ffcad3}.key small{position:absolute;bottom:1px;right:2px;font-size:8px;opacity:.7}.muted{color:var(--muted)}.history-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.history-list{max-height:250px;overflow:auto}.record{border-bottom:1px solid #293a52;padding:10px 2px;display:flex;justify-content:space-between;gap:9px;font-size:12px;color:var(--muted)}.record strong{color:var(--text)}.footer{font-size:12px;text-align:center;color:#778ba6;margin-top:29px}.status-banner{font-size:12px;border:1px solid #314961;padding:8px 11px;border-radius:9px;background:#10223a;margin-top:10px}.hidden-panel{display:none!important}@media(max-width:850px){.layout{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr;gap:10px}.side .divider{display:none}.side .wide{grid-column:span 2}.analysis-grid,.history-grid{grid-template-columns:1fr}}@media(max-width:560px){.shell{padding:18px 12px 50px}.play{padding:16px}.topbar{margin-bottom:17px}.tag{display:none}.statstrip{grid-template-columns:repeat(2,1fr)}.prompt{padding:21px 13px}.timebar{margin:20px 0 16px}.side{padding:17px}.result-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.control-grid{grid-template-columns:1fr}.details{padding:0 15px}.key{height:33px;font-size:11px}.japanese{max-height:140px}.chart-card{padding:10px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <div><div class="logo">TYPE<span>//</span>LAB</div><div class="sublogo">PERSONAL TYPING ANALYZER</div></div>
+    <div class="tag">100+ GRADES · LOCAL ONLY · NO ACCOUNT</div>
+  </header>
+  <div class="layout">
+    <main class="panel play" id="playArea">
+      <div class="eyebrow">01 / TYPING TEST</div>
+      <h1 class="section-title">タイピング測定</h1>
+      <div class="mode-row" id="modeRow" role="group" aria-label="モード選択">
+        <button class="mode" data-mode="30" aria-pressed="false">30秒</button>
+        <button class="mode" data-mode="60" aria-pressed="true">60秒 / 標準</button>
+        <button class="mode" data-mode="long" aria-pressed="false">長文</button>
+      </div>
+      <div class="statstrip" aria-label="測定中の数値">
+        <div class="stat"><span class="stat-label">NET KPM</span><span class="stat-value" id="liveKpm">0.0</span></div>
+        <div class="stat"><span class="stat-label">正確率</span><span class="stat-value" id="liveAcc">100.0<span class="stat-suffix">%</span></span></div>
+        <div class="stat"><span class="stat-label">ミス</span><span class="stat-value" id="liveMiss">0</span></div>
+        <div class="stat"><span class="stat-label">暫定スコア</span><span class="stat-value" id="liveScore">0.0</span></div>
+      </div>
+      <div class="timebar">
+        <div><div class="eyebrow" id="timerLabel">TIME LEFT</div><div class="timer" id="timer">60.0</div></div>
+        <div class="timehint" id="timeHint">入力開始で計測スタート<br>日本語入力（IME）はオフにしてください</div>
+      </div>
+      <div class="progress" aria-label="時間または文章の進捗"><div id="runProgress"></div></div>
+      <section class="prompt" id="promptBox" aria-label="タイピング課題">
+        <div class="japanese" id="japanese"></div>
+        <div class="kana" id="kana"></div>
+        <div class="roman" id="roman"></div>
+      </section>
+      <div id="status" class="status" role="status" aria-live="polite">英字キーで入力すると計測が始まります。</div>
+      <div class="actions">
+        <button class="btn primary" id="newBtn">別の問題 / リセット</button>
+        <button class="btn ghost" id="abortBtn" disabled>中止（Esc）</button>
+      </div>
+      <div class="status-banner">推奨：物理キーボード＋英数入力。計測中に別タブへ移ると、その回は無効になります。</div>
+    </main>
+    <aside class="panel side" aria-label="自己ベストとランク">
+      <div><div class="eyebrow">PERSONAL BEST / MODE</div><div class="side-number" id="sideBest">—</div><div class="small" id="sideMode">60秒の自己ベスト</div></div>
+      <div><div class="eyebrow">BEST GRADE</div><div class="rank-big" id="sideRank">—</div><div class="rank-caption" id="sideCount">保存記録：0回</div></div>
+      <hr class="divider"><div class="wide"><div class="eyebrow">GRADE SYSTEM</div><div class="side-line"><span>区分</span><b>20系統 × 5段階</b></div><div class="side-line"><span>昇格刻み</span><b>10点ごと</b></div><div class="side-line"><span>最高帯以降</span><b>無制限</b></div><div class="small">ランクは独自のスコア区分です。「上位何％」などの人口統計を意味しません。</div></div>
+    </aside>
+  </div>
+  <section class="panel results" id="results" aria-label="今回の測定結果">
+    <div style="padding:24px">
+      <div class="eyebrow">02 / PERFORMANCE REPORT</div>
+      <div class="result-head">
+        <div><div class="section-title">今回の結果</div><div class="hero-score" id="resultScore">0.0</div><div class="eyebrow">ADJUSTED KPM / TOTAL SCORE</div><div class="result-rank" id="resultRank"></div></div>
+        <div><div class="eyebrow">NEXT GRADE</div><div style="font-size:22px;font-weight:850;margin:8px 0" id="nextRank">—</div><div class="small" id="nextNeeded"></div><div class="progress rank-progress" style="width:min(260px,75vw)"><div id="rankProgress"></div></div><div class="pills" id="resultBadges"></div></div>
+      </div>
+      <div class="result-grid" id="resultMetrics"></div>
+      <div class="chart-card"><h3>打鍵速度の推移 <span class="small">（5秒区間の正解KPM）</span></h3><canvas id="speedChart" role="img" aria-label="5秒ごとの正解打鍵速度"></canvas></div>
+      <div class="analysis-grid">
+        <div class="analysis-card"><h3>診断と改善ポイント</h3><div id="diagnosis"></div></div>
+        <div class="analysis-card"><h3>キー別の傾向 <span class="small">（誤入力率・入力間隔）</span></h3><div id="keyboard"></div><p class="small">色は入力回数が十分あるキーのみ。遅さは前のキーからの間隔を基にした目安です。</p></div>
+        <div class="analysis-card"><h3>間隔が長いキーの組み合わせ</h3><div id="slowPairs"></div></div>
+        <div class="analysis-card"><h3>自己ベストとの比較</h3><div id="comparison"></div></div>
+      </div>
+      <div class="actions"><button class="btn primary" id="retryBtn">もう一度</button><button class="btn" id="homeBtn">測定画面へ戻る</button></div>
+    </div>
+  </section>
+  <details class="panel details" id="historyDetails">
+    <summary>記録・成長グラフ</summary>
+    <div class="inside"><div class="history-grid">
+      <div class="chart-card" style="margin:0"><h3>最近のスコア <span class="small" id="historyModeLabel"></span></h3><canvas id="historyChart" role="img" aria-label="過去の測定スコア推移"></canvas></div>
+      <div><h3 style="margin:0 0 9px">最近の記録</h3><div class="history-list" id="historyList"></div></div>
+    </div>
+    <div class="actions"><button class="btn" id="exportBtn">履歴をJSONで保存</button><button class="btn" id="importBtn">JSONから履歴を復元</button><input type="file" id="importFile" accept=".json,application/json" hidden><button class="btn ghost" id="clearBtn">記録をすべて削除</button></div>
+    <p class="small">記録はこのブラウザ内に保存されます。別端末には自動同期されません。ブラウザのデータ削除に備え、JSONでバックアップできます。</p></div>
+  </details>
+  <details class="panel details" id="settingsDetails">
+    <summary>表示設定・カスタム文章</summary>
+    <div class="inside"><div class="control-grid">
+      <div class="field"><label for="displayMode">問題の表示方法</label><select id="displayMode"><option value="full">全文＋ふりがな＋ローマ字</option><option value="standard">全文＋ローマ字</option><option value="blind">全文のみ（上級者向け）</option></select></div>
+      <div class="field"><label for="romanSize">ローマ字の文字サイズ</label><select id="romanSize"><option value="normal">標準</option><option value="large">大きめ</option></select></div>
+      <div class="field"><label for="customText">長文モード用：表示する文章</label><textarea id="customText" placeholder="例：今日は新しいことに挑戦する。"></textarea></div>
+      <div class="field"><label for="customReading">その文章の読み（ひらがな）</label><textarea id="customReading" placeholder="例：きょうはあたらしいことにちょうせんする。"></textarea></div>
+    </div>
+    <label class="check"><input type="checkbox" id="useCustom">長文モードでカスタム文章を使う</label>
+    <button class="btn" id="applyCustomBtn">文章を保存して問題に反映</button>
+    <div class="note">漢字の自動読み取りは行いません。カスタム文章の読みを自分で指定してください。句読点・空白は入力不要です。大文字の英字や数字を使う場合は、その文字を「読み」にも含めてください。</div>
+    </div>
+  </details>
+  <footer class="footer">TYPE//LAB — personal project · No tracking · No external libraries · GitHub Pages ready</footer>
+</div>
+<script>
+'use strict';
+(() => {
+  // ----- 定数 / 設定 -----------------------------------------------------
+  const $ = id => document.getElementById(id);
+  const STORE = 'type-lab-v1-records';
+  const PREFS = 'type-lab-v1-preferences';
+  const MAX_RECORDS = 200;
+  const TIERS = [
+    'F','E','D','C','B','A','S','SS','SSS','X',
+    'XX','XXX','MASTER','GRANDMASTER','LEGEND','MYTHIC',
+    'ASCENDANT','IMMORTAL','CELESTIAL','OMNISCIENT'
+  ];
+  const DIVISIONS = ['V','IV','III','II','I'];
+  const SKIP = new Set([... '。、，．！？!?「」『』（）()・ 　\n\t']);
+  const BASE = {
+    'あ':['a'],'い':['i'],'う':['u'],'え':['e'],'お':['o'],
+    'か':['ka'],'き':['ki'],'く':['ku'],'け':['ke'],'こ':['ko'],
+    'が':['ga'],'ぎ':['gi'],'ぐ':['gu'],'げ':['ge'],'ご':['go'],
+    'さ':['sa'],'し':['shi','si'],'す':['su'],'せ':['se'],'そ':['so'],
+    'ざ':['za'],'じ':['ji','zi'],'ず':['zu'],'ぜ':['ze'],'ぞ':['zo'],
+    'た':['ta'],'ち':['chi','ti'],'つ':['tsu','tu'],'て':['te'],'と':['to'],
+    'だ':['da'],'ぢ':['di','ji'],'づ':['du','zu'],'で':['de'],'ど':['do'],
+    'な':['na'],'に':['ni'],'ぬ':['nu'],'ね':['ne'],'の':['no'],
+    'は':['ha'],'ひ':['hi'],'ふ':['fu','hu'],'へ':['he'],'ほ':['ho'],
+    'ば':['ba'],'び':['bi'],'ぶ':['bu'],'べ':['be'],'ぼ':['bo'],
+    'ぱ':['pa'],'ぴ':['pi'],'ぷ':['pu'],'ぺ':['pe'],'ぽ':['po'],
+    'ま':['ma'],'み':['mi'],'む':['mu'],'め':['me'],'も':['mo'],
+    'や':['ya'],'ゆ':['yu'],'よ':['yo'],
+    'ら':['ra'],'り':['ri'],'る':['ru'],'れ':['re'],'ろ':['ro'],
+    'ん':['n','nn',"n'"],'わ':['wa'],'ゐ':['wi'],'ゑ':['we'],'を':['wo','o'],
+    'ぁ':['xa','la'],'ぃ':['xi','li'],'ぅ':['xu','lu'],'ぇ':['xe','le'],'ぉ':['xo','lo'],
+    'ゃ':['xya','lya'],'ゅ':['xyu','lyu'],'ょ':['xyo','lyo'],
+    'っ':['xtu','ltu','xtsu','ltsu'], 'ー':['-'],
+    'ゔ':['vu'],'ゎ':['xwa','lwa']
+  };
+  const PAIRS = {
+    'きゃ':['kya'],'きゅ':['kyu'],'きょ':['kyo'],
+    'ぎゃ':['gya'],'ぎゅ':['gyu'],'ぎょ':['gyo'],
+    'しゃ':['sha','sya'],'しゅ':['shu','syu'],'しょ':['sho','syo'],'しぇ':['she','sye'],
+    'じゃ':['ja','jya','zya'],'じゅ':['ju','jyu','zyu'],'じょ':['jo','jyo','zyo'],'じぇ':['je','jye','zye'],
+    'ちゃ':['cha','tya','cya'],'ちゅ':['chu','tyu','cyu'],'ちょ':['cho','tyo','cyo'],'ちぇ':['che','tye','cye'],
+    'ぢゃ':['dya'],'ぢゅ':['dyu'],'ぢょ':['dyo'],
+    'にゃ':['nya'],'にゅ':['nyu'],'にょ':['nyo'],
+    'ひゃ':['hya'],'ひゅ':['hyu'],'ひょ':['hyo'],
+    'びゃ':['bya'],'びゅ':['byu'],'びょ':['byo'],
+    'ぴゃ':['pya'],'ぴゅ':['pyu'],'ぴょ':['pyo'],
+    'みゃ':['mya'],'みゅ':['myu'],'みょ':['myo'],
+    'りゃ':['rya'],'りゅ':['ryu'],'りょ':['ryo'],
+    'ふぁ':['fa','fwa'],'ふぃ':['fi'],'ふぇ':['fe'],'ふぉ':['fo'],'ふゅ':['fyu'],
+    'てぃ':['thi'],'でぃ':['dhi'],'てゅ':['thu'],'でゅ':['dhu'],
+    'とぅ':['twu'],'どぅ':['dwu'],
+    'つぁ':['tsa'],'つぃ':['tsi'],'つぇ':['tse'],'つぉ':['tso'],
+    'うぃ':['wi'],'うぇ':['we'],'うぉ':['who'],
+    'くぁ':['kwa','qa'],'くぃ':['kwi','qi'],'くぇ':['kwe','qe'],'くぉ':['kwo','qo'],
+    'ぐぁ':['gwa'],'ぐぃ':['gwi'],'ぐぇ':['gwe'],'ぐぉ':['gwo'],
+    'ゔぁ':['va'],'ゔぃ':['vi'],'ゔぇ':['ve'],'ゔぉ':['vo'],'ゔゅ':['vyu']
+  };
+  const HIRAGANA = s => [...s].map(ch => {
+    const n = ch.charCodeAt(0);
+    return n >= 0x30A1 && n <= 0x30F6 ? String.fromCharCode(n - 0x60) : ch;
+  }).join('');
+  const safeText = v => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const round = (n, d=1) => Number.isFinite(n) ? n.toFixed(d) : '—';
+  const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
+  const P = parts => {
+    const segments = parts.map(s => Array.isArray(s) ? {t:s[0],r:s[1]} : {t:s,r:s});
+    return {segments, text:segments.map(x=>x.t).join(''), reading:segments.map(x=>x.r).join('')};
+  };
+  // 文章と読みをセットで管理。空白・句読点は採点対象外。
+  const SHORT = [
+    P([['今日','きょう'],'は',['晴','は'],'れです。']),
+    P([['明日','あした'],'も',['頑張','がんば'],'ります。']),
+    P([['学校','がっこう'],'の',['帰','かえ'],'りに',['本屋','ほんや'],'へ',['寄','よ'],'る。']),
+    P([['静','しず'],'かな',['夜','よる'],'に',['音楽','おんがく'],'を',['聴','き'],'く。']),
+    P([['新','あたら'],'しい',['キーボード','きーぼーど'],'で',['練習','れんしゅう'],'する。']),
+    P([['少','すこ'],'しずつ',['速','はや'],'く',['正確','せいかく'],'に',['打','う'],'つ。']),
+    P([['昨日','きのう'],'より',['今日','きょう'],'の',['自分','じぶん'],'を',['超','こ'],'える。']),
+    P([['小','ちい'],'さな',['進歩','しんぽ'],'も',['積','つ'],'み',['重','かさ'],'ねる。']),
+    P([['朝','あさ'],'の',['空気','くうき'],'がとても',['気持','きも'],'ちいい。']),
+    P([['図書館','としょかん'],'で',['面白','おもしろ'],'い',['小説','しょうせつ'],'を',['見','み'],'つけた。']),
+    P([['電車','でんしゃ'],'が',['駅','えき'],'に',['到着','とうちゃく'],'した。']),
+    P([['文章','ぶんしょう'],'を',['最後','さいご'],'まで',['読','よ'],'んで',['入力','にゅうりょく'],'する。']),
+    P([['予定','よてい'],'を',['確認','かくにん'],'して',['準備','じゅんび'],'を',['始','はじ'],'める。']),
+    P([['週末','しゅうまつ'],'に',['映画','えいが'],'を',['見','み'],'に',['行','い'],'く。']),
+    P([['難','むずか'],'しい',['問題','もんだい'],'に',['挑戦','ちょうせん'],'する。']),
+    P([['休憩','きゅうけい'],'を',['取','と'],'って',['集中力','しゅうちゅうりょく'],'を',['戻','もど'],'す。']),
+    P(['きっと',['次','つぎ'],'はもっと',['上手','じょうず'],'にできる。']),
+    P([['十分','じゅうぶん'],'な',['睡眠','すいみん'],'は',['大切','たいせつ'],'だ。']),
+    P([['好','す'],'きな',['曲','きょく'],'を',['何度','なんど'],'も',['聴','き'],'いた。']),
+    P([['結果','けっか'],'だけでなく',['過程','かてい'],'も',['振','ふ'],'り',['返','かえ'],'る。']),
+    P([['今日','きょう'],'の',['目標','もくひょう'],'は',['正確','せいかく'],'さだ。']),
+    P([['気温','きおん'],'が',['下','さ'],'がって',['秋','あき'],'らしくなった。']),
+    P([['窓','まど'],'から',['柔','やわ'],'らかい',['光','ひかり'],'が',['差','さ'],'し',['込','こ'],'む。']),
+    P(['ちょっとした',['工夫','くふう'],'が',['大','おお'],'きな',['差','さ'],'になる。']),
+    P([['失敗','しっぱい'],'を',['恐','おそ'],'れず',['続','つづ'],'けよう。']),
+    P([['今日','きょう'],'は',['急','いそ'],'がず',['丁寧','ていねい'],'に',['入力','にゅうりょく'],'する。']),
+    P([['指','ゆび'],'の',['動','うご'],'きを',['意識','いしき'],'する。']),
+    P([['見','み'],'えない',['小','ちい'],'さな',['変化','へんか'],'を',['見逃','みのが'],'さない。']),
+    P([['一瞬','いっしゅん'],'の',['判断','はんだん'],'が',['記録','きろく'],'を',['変','か'],'える。']),
+    P([['時計','とけい'],'の',['針','はり'],'が',['静','しず'],'かに',['進','すす'],'む。']),
+    P([['練習','れんしゅう'],'を',['重','かさ'],'ねて',['苦手','にがて'],'を',['減','へ'],'らす。']),
+    P([['入力','にゅうりょく'],'のリズムを',['整','ととの'],'える。']),
+    P([['遠','とお'],'くの',['山','やま'],'に',['雲','くも'],'がかかった。']),
+    P([['次','つぎ'],'の',['一文字','ひともじ'],'に',['集中','しゅうちゅう'],'する。']),
+    P([['正確','せいかく'],'な',['計測','けいそく'],'が',['成長','せいちょう'],'を',['支','ささ'],'える。']),
+    P([['経験','けいけん'],'を',['記録','きろく'],'に',['残','のこ'],'す。']),
+    P([['先','さき'],'を',['読','よ'],'みながら',['滑','なめ'],'らかに',['打','う'],'つ。']),
+    P([['思','おも'],'ったより',['早','はや'],'く',['作業','さぎょう'],'が',['終','お'],'わった。']),
+    P([['世界','せかい'],'には',['面白','おもしろ'],'いことがたくさんある。']),
+    P([['今日','きょう'],'から',['新','あたら'],'しい',['習慣','しゅうかん'],'を',['始','はじ'],'める。']),
+    P([['忘','わす'],'れずに',['休','やす'],'みながら',['続','つづ'],'ける。']),
+    P([['目','め'],'の',['前','まえ'],'の',['文章','ぶんしょう'],'を',['丁寧','ていねい'],'に',['追','お'],'う。']),
+    P([['打鍵','だけん'],'の',['音','おと'],'が',['心地','ここち'],'よく',['響','ひび'],'いた。']),
+    P([['上達','じょうたつ'],'の',['速度','そくど'],'は',['人','ひと'],'それぞれだ。']),
+    P([['苦手','にがて'],'な',['文字','もじ'],'を',['少','すこ'],'しずつ',['減','へ'],'らす。']),
+    P(['しっかり',['計画','けいかく'],'を',['立','た'],'てよう。']),
+    P([['日本語','にほんご'],'の',['言葉','ことば'],'は',['奥深','おくぶか'],'い。']),
+    P([['机','つくえ'],'の',['上','うえ'],'を',['片付','かたづ'],'ける。']),
+    P([['雨','あめ'],'の',['日','ひ'],'には',['温','あたた'],'かい',['飲','の'],'み',['物','もの'],'がいい。']),
+    P([['明日','あした'],'はきっと',['良','よ'],'い',['日','ひ'],'になる。'])
+  ];
+  const LONG_SETS = [
+    [0,8,29,41,42,30,6,28,24,49,34,43],
+    [4,26,31,5,33,11,15,16,19,35,44,39],
+    [48,3,18,9,10,12,13,14,22,23,46,47]
+  ];
+  const makeLong = indexes => P(indexes.flatMap(i => SHORT[i].segments.map(s => [s.t,s.r])));
+  const longTexts = LONG_SETS.map(makeLong);
+
+  // ----- 日本語→ローマ字の候補トークン -------------------------------
+  function tokensOf(reading) {
+    const input = HIRAGANA(reading).toLowerCase();
+    const units = [];
+    for (let i=0; i<input.length;) {
+      const ch = input[i];
+      if (SKIP.has(ch)) { i++; continue; }
+      const pair = input.slice(i,i+2);
+      if (PAIRS[pair]) {
+        units.push({kana:pair,options:PAIRS[pair],start:i,end:i+2}); i+=2;
+      } else if (BASE[ch]) {
+        units.push({kana:ch,options:BASE[ch],start:i,end:i+1}); i++;
+      } else if (/^[a-z0-9'\-]$/.test(ch)) {
+        units.push({kana:ch,options:[ch],start:i,end:i+1}); i++;
+      } else {
+        throw new Error(`対応していない読み文字：「${ch}」`);
+      }
+    }
+    const result = [];
+    for (let i=0; i<units.length; i++) {
+      const u = units[i];
+      if (u.kana === 'っ' && i+1 < units.length) {
+        const next = units[i+1];
+        const doubled = next.options
+          .filter(v => /^[bcdfghjklmnpqrstvwxyz]/.test(v))
+          .map(v => v[0] + v);
+        const separate = u.options.flatMap(a => next.options.map(b => a+b));
+        result.push({...u, kana:u.kana+next.kana, end:next.end,
+          options:[...new Set([...doubled,...separate])]});
+        i++; continue;
+      }
+      if (u.kana === 'ん') {
+        const nextKana = units[i+1]?.kana || '';
+        const ambiguous = /^[あいうえおやゆよ]/.test(nextKana);
+        result.push({...u, options:ambiguous ? ['nn',"n'",'xn'] : ['n','nn',"n'",'xn']});
+      } else {
+        result.push({...u,options:[...u.options]});
+      }
+    }
+    if (!result.length) throw new Error('入力対象の文字がありません。');
+    return result;
+  }
+  // NFA（非決定性有限オートマトン）。たとえば「んな」の nna / nnna の
+  // 両経路を同時に保持し、先読みで一方を誤って除外しない。
+  function startStates(tokens) {
+    return tokens[0].options.map((option,rank)=>({i:0,option,pos:0,cost:rank}));
+  }
+  function advance(states, tokens, key) {
+    const found=[];
+    for (const s of states) {
+      if (s.i >= tokens.length || s.option[s.pos] !== key) continue;
+      if (s.pos+1 < s.option.length) {
+        found.push({...s,pos:s.pos+1});
+      } else if (s.i+1 >= tokens.length) {
+        found.push({i:tokens.length,option:'',pos:0,cost:s.cost});
+      } else {
+        tokens[s.i+1].options.forEach((opt,rank) =>
+          found.push({i:s.i+1,option:opt,pos:0,cost:s.cost+rank}));
+      }
+    }
+    // 状態統合：同じ候補・進行位置なら優先度の高い経路のみ必要。
+    const unique=new Map();
+    for (const s of found) {
+      const id=`${s.i}:${s.option}:${s.pos}`;
+      if (!unique.has(id) || unique.get(id).cost>s.cost) unique.set(id,s);
+    }
+    return [...unique.values()];
+  }
+  function preferred(states) {
+    return [...states].sort((a,b)=>a.cost-b.cost || b.i-a.i || a.pos-b.pos)[0];
+  }
+  function expectedSuffix(s, tokens) {
+    if (!s || s.i>=tokens.length) return '';
+    return s.option.slice(s.pos) + tokens.slice(s.i+1).map(t=>t.options[0]).join('');
+  }
+  function grade(score) {
+    const value=Math.max(0,Number.isFinite(score)?score:0);
+    const step=Math.floor(value/10);
+    const family=Math.floor(step/5);
+    const label=family<TIERS.length ? `${TIERS[family]}-${DIVISIONS[step%5]}` : `∞-${step-99}`;
+    const nextStep=step+1;
+    const nextFamily=Math.floor(nextStep/5);
+    const next=nextFamily<TIERS.length ? `${TIERS[nextFamily]}-${DIVISIONS[nextStep%5]}` : `∞-${nextStep-99}`;
+    return {label,next,threshold:nextStep*10,progress:clamp((value-step*10)/10*100,0,100)};
+  }
+
+  // ----- ローカル保存 --------------------------------------------------
+  function getJson(key,fallback) { try { return JSON.parse(localStorage.getItem(key))??fallback; } catch {return fallback;} }
+  function putJson(key,value) { try {localStorage.setItem(key,JSON.stringify(value));return true;}catch{return false;} }
+  let history=getJson(STORE,[]);
+  if (!Array.isArray(history)) history=[];
+  history=history.filter(x=>x && ['30','60','long'].includes(x.mode) && Number.isFinite(x.score) && x.score>=0).slice(-MAX_RECORDS);
+  let prefs={display:'full',size:'normal',customText:'',customReading:'',useCustom:false,...getJson(PREFS,{})};
+  if (!['full','standard','blind'].includes(prefs.display)) prefs.display='full';
+  if (!['normal','large'].includes(prefs.size)) prefs.size='normal';
+  prefs.customText=String(prefs.customText||'').slice(0,1200);
+  prefs.customReading=String(prefs.customReading||'').slice(0,1200);
+  let mode='60', session=null, deck=[], rafId=0, latestResult=null;
+  let message='英字キーで入力すると計測が始まります。';
+
+  function shuffledDeck() {
+    const ids=SHORT.map((_,i)=>i);
+    for (let i=ids.length-1;i>0;i--) {const j=Math.floor(Math.random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]];}
+    return ids;
+  }
+  function choosePhrase() {
+    if (mode==='long') {
+      if (prefs.useCustom && prefs.customText.trim() && prefs.customReading.trim()) {
+        return P([[prefs.customText.trim(),prefs.customReading.trim()]]);
+      }
+      return longTexts[Math.floor(Math.random()*longTexts.length)];
+    }
+    if (!deck.length) deck=shuffledDeck();
+    return SHORT[deck.pop()];
+  }
+  function newSession() {
+    cancelAnimationFrame(rafId);
+    try {
+      const phrase=choosePhrase(), tokens=tokensOf(phrase.reading);
+      session={phase:'ready',mode,phrase,tokens,states:startStates(tokens),typed:'',
+        started:0,elapsed:0,correct:0,wrong:0,phrasesDone:0,completedKana:0,
+        events:[],keyStats:{},pairs:{},lastCorrectTime:null,lastCorrectKey:null,
+        previousBest:bestFor(mode)?.score ?? null, previous:recordsFor(mode).at(-1)?.score ?? null};
+      latestResult=null;
+      $('results').classList.remove('active');
+      $('status').classList.remove('error');
+      message='英字キーで入力すると計測開始。Enterを押す必要はありません。';
+      $('promptBox').classList.remove('flash');
+      renderAll();
+    } catch(e) {
+      session=null; message='文章データを読み込めません：'+e.message;
+      $('status').textContent=message; $('status').classList.add('error');
+    }
+  }
+  function recordsFor(m) {return history.filter(x=>x.mode===m);}
+  function bestFor(m) {return recordsFor(m).reduce((b,x)=>!b||x.score>b.score?x:b,null);}
+  function setMode(m) {
+    if (session?.phase==='running') return;
+    if (!['30','60','long'].includes(m)) return;
+    mode=m; newSession(); renderHistory();
+  }
+  function renderJapanese(phrase, readingPos=0) {
+    const el=$('japanese'); el.replaceChildren();
+    if (prefs.useCustom && mode==='long' && phrase.text===prefs.customText.trim()) {
+      // カスタム文は本文と読みの長さが一致しないので、進捗率で追従する。
+      el.textContent=phrase.text;
+      el.scrollTop=(el.scrollHeight-el.clientHeight)*clamp(readingPos/Math.max(1,phrase.reading.length),0,1);
+      return;
+    }
+    const frag=document.createDocumentFragment();
+    let readingOffset=0,activePart=null;
+    for (const s of phrase.segments) {
+      // Rubyのまとまりに読み位置を対応付け、長文中は自動スクロールする。
+      const part=document.createElement('span');
+      if (readingPos>=readingOffset && readingPos<readingOffset+s.r.length) activePart=part;
+      readingOffset+=s.r.length;
+      if (s.t===s.r) {
+        part.textContent=s.t;
+      } else {
+        const ruby=document.createElement('ruby');
+        ruby.append(document.createTextNode(s.t));
+        const rt=document.createElement('rt');rt.textContent=s.r;
+        ruby.append(rt);part.append(ruby);
+      }
+      frag.append(part);
+    }
+    el.append(frag);
+    if(mode==='long' && activePart && el.scrollHeight>el.clientHeight) {
+      const rect=activePart.getBoundingClientRect(),parent=el.getBoundingClientRect();
+      const desired=el.scrollTop+rect.top-parent.top-el.clientHeight*.35;
+      el.scrollTop=clamp(desired,0,el.scrollHeight-el.clientHeight);
+    }
+  }
+  function renderPrompt() {
+    if (!session) return;
+    const s=preferred(session.states);
+    const finishedTokens=s?.i>=session.tokens.length;
+    const endIdx=finishedTokens ? session.phrase.reading.length : (session.tokens[s?.i||0]?.start ?? 0);
+    const reading=session.phrase.reading;
+    renderJapanese(session.phrase,endIdx);
+    const short=mode!=='long';
+    let before=reading.slice(0,endIdx), after=reading.slice(endIdx);
+    const omittedBefore=!short&&before.length>70, omittedAfter=!short&&after.length>100;
+    if (omittedBefore) before='…'+before.slice(-70);
+    if (omittedAfter) after=after.slice(0,100)+'…';
+    $('kana').innerHTML=`<span class="done">${safeText(before)}</span>${safeText(after)}`;
+    $('kana').style.display=prefs.display==='full'?'':'none';
+    const suffix=expectedSuffix(s,session.tokens);
+    const correct=session.typed;
+    let beforeKeys=correct,afterKeys=suffix;
+    const hiddenBefore=!short&&beforeKeys.length>50,hiddenAfter=!short&&afterKeys.length>110;
+    if (hiddenBefore) beforeKeys='…'+beforeKeys.slice(-50);
+    if (hiddenAfter) afterKeys=afterKeys.slice(0,110)+'…';
+    const first=afterKeys.slice(0,1),rest=afterKeys.slice(1);
+    $('roman').innerHTML=`<span class="done">${safeText(beforeKeys)}</span><span class="next">${safeText(first)}</span><span class="pending">${safeText(rest)}</span>`;
+    $('roman').style.display=prefs.display==='blind'?'none':'';
+    $('roman').style.fontSize=prefs.size==='large'?'clamp(23px,3vw,30px)':'';
+    $('timeHint').innerHTML = session.phase==='ready' ? '入力開始で計測スタート<br>IMEをオフにしてください' :
+      session.mode==='long' ? `文章 ${Math.round(endIdx/Math.max(1,reading.length)*100)}% 入力済み<br>${session.correct} 正解打鍵` :
+      `${session.phrasesDone} 文完了<br>Escで中止できます`;
+  }
+  function durationNow() {
+    if (!session||session.phase==='ready') return 0;
+    if (session.phase==='running') return Math.max(.001,(performance.now()-session.started)/1000);
+    return session.elapsed;
+  }
+  function currentStats(time) {
+    const s=session,minutes=Math.max(.001,time)/60;
+    const accuracy=s.correct+s.wrong ? s.correct/(s.correct+s.wrong):1;
+    const raw=(s.correct+s.wrong)/minutes;
+    const net=s.correct/minutes;
+    return {raw,net,accuracy,score:net*accuracy**2};
+  }
+  function renderLive() {
+    if (!session) return;
+    const elapsed=durationNow();
+    // 計測開始直後の暴れを抑えるため、測定中の推定速度は最低1秒で割る。
+    const shownTime=session.phase==='running'?Math.max(1,elapsed):elapsed||1;
+    const x=currentStats(shownTime);
+    $('liveKpm').textContent=round(session.correct ? x.net:0);
+    $('liveAcc').innerHTML=`${round(x.accuracy*100)}<span class="stat-suffix">%</span>`;
+    $('liveMiss').textContent=session.wrong;
+    $('liveScore').textContent=round(session.correct ? x.score:0);
+    const limit=session.mode==='long'?null:Number(session.mode);
+    if (limit) {
+      const remaining=session.phase==='ready'?limit:Math.max(0,limit-elapsed);
+      $('timerLabel').textContent='TIME LEFT';
+      $('timer').textContent=round(remaining);
+      $('timer').classList.toggle('danger',remaining<=10&&session.phase==='running');
+      $('runProgress').style.width=`${clamp(elapsed/limit*100,0,100)}%`;
+    } else {
+      $('timerLabel').textContent='ELAPSED TIME';
+      $('timer').textContent=round(elapsed);
+      $('timer').classList.remove('danger');
+      const bestState=preferred(session.states);
+      $('runProgress').style.width=`${bestState ? clamp((bestState.i/session.tokens.length)*100,0,100):0}%`;
+    }
+    const running=session.phase==='running';
+    $('abortBtn').disabled=!running;
+    $('newBtn').disabled=running;
+    document.querySelectorAll('.mode').forEach(b=>{
+      b.disabled=running;b.setAttribute('aria-pressed',String(b.dataset.mode===mode));
+    });
+    $('status').textContent=message;
+  }
+  function renderSide() {
+    const rs=recordsFor(mode),b=bestFor(mode);
+    $('sideMode').textContent=`${mode==='long'?'長文':mode+'秒'}の自己ベスト`;
+    $('sideBest').textContent=b?round(b.score):'—';
+    $('sideRank').textContent=b?grade(b.score).label:'NO RECORD';
+    $('sideCount').textContent=`保存記録：${rs.length}回`;
+  }
+  function renderAll() {if (!session)return;renderPrompt();renderLive();renderSide();}
+  function addEvent(key,now,correct) {
+    const s=session;
+    s.events.push({ms:Math.max(0,now-s.started),correct});
+    if (correct) {
+      const stat=s.keyStats[key]||(s.keyStats[key]={good:0,bad:0,sumMs:0,samples:0});
+      stat.good++;
+      if (s.lastCorrectKey && s.lastCorrectTime!==null) {
+        const gap=now-s.lastCorrectTime;
+        if (gap>=10 && gap<=2500) {
+          stat.sumMs+=gap;stat.samples++;
+          const pair=s.lastCorrectKey+key;
+          const info=s.pairs[pair]||(s.pairs[pair]={sum:0,count:0});
+          info.sum+=gap;info.count++;
+        }
+      }
+      s.lastCorrectKey=key;s.lastCorrectTime=now;
+    } else {
+      const prefer=preferred(s.states);
+      const intended=prefer?.option[prefer.pos];
+      if (intended && /^[a-z]$/.test(intended)) {
+        const stat=s.keyStats[intended]||(s.keyStats[intended]={good:0,bad:0,sumMs:0,samples:0});
+        stat.bad++;
+      }
+      s.lastCorrectKey=null;s.lastCorrectTime=null;
+    }
+  }
+  function tick() {
+    if (!session||session.phase!=='running') return;
+    if (session.mode!=='long' && performance.now()-session.started>=Number(session.mode)*1000) {
+      finish(Number(session.mode));return;
+    }
+    renderLive();rafId=requestAnimationFrame(tick);
+  }
+  function onKey(e) {
+    if (!session||!['ready','running'].includes(session.phase))return;
+    if (e.key==='Escape') {if(session.phase==='running'){e.preventDefault();abort('測定を中止しました。記録は保存していません。');}return;}
+    const target=e.target;
+    if (target instanceof Element && target.closest('input,textarea,select,button,[contenteditable="true"],summary'))return;
+    if (e.ctrlKey||e.metaKey||e.altKey||e.isComposing||e.key==='Process'||e.keyCode===229) {
+      if(e.isComposing||e.key==='Process'||e.keyCode===229){message='日本語入力（IME）をオフにして入力してください。';renderLive();}
+      return;
+    }
+    if (e.repeat)return;
+    const key=e.key.length===1?e.key.toLowerCase():'';
+    if (!/^[a-z0-9'\-]$/.test(key))return;
+    // 測定中はキー入力がブラウザ操作に伝播しないようにする。
+    e.preventDefault();
+    const now=performance.now();
+    if (session.phase==='running' && session.mode!=='long' && now-session.started>=Number(session.mode)*1000) {
+      finish(Number(session.mode));return;
+    }
+    if (session.phase==='ready') {
+      session.phase='running';session.started=now;message='計測中です。正確に入力してください。';
+      rafId=requestAnimationFrame(tick);
+    }
+    const next=advance(session.states,session.tokens,key);
+    if (!next.length) {
+      session.wrong++;addEvent(key,now,false);message='ミスを記録しました。同じ位置から続けてください。';
+      $('promptBox').classList.remove('flash');void $('promptBox').offsetWidth;$('promptBox').classList.add('flash');
+    } else {
+      session.correct++;addEvent(key,now,true);session.states=next;session.typed+=key;
+      if (next.some(s=>s.i===session.tokens.length)) {
+        session.phrasesDone++;
+        if (session.mode!=='long') session.completedKana+=session.tokens.reduce((a,t)=>a+t.kana.length,0);
+        if (session.mode==='long') {finish(Math.max(.001,(now-session.started)/1000));return;}
+        const phrase=choosePhrase();
+        session.phrase=phrase;session.tokens=tokensOf(phrase.reading);
+        session.states=startStates(session.tokens);session.typed='';
+      }
+      message='計測中です。正確に入力してください。';
+    }
+    renderPrompt();renderLive();
+  }
+  function abort(text) {
+    cancelAnimationFrame(rafId);message=text;
+    $('status').classList.add('error');
+    newSession();message=text;
+    $('status').textContent=message;$('status').classList.add('error');
+  }
+
+  // ----- 集計 / 保存 -----------------------------------------------------
+  function bucketsFor(events,elapsed) {
+    const bins=[];
+    const total=Math.ceil(elapsed/5);
+    for(let i=0;i<total;i++) {
+      const segment=Math.min(5,elapsed-5*i);
+      if(segment<2.5)break; // 長文の端数区間が不当に大きく見えるのを避ける
+      const count=events.filter(e=>e.correct && e.ms>=i*5000 && e.ms<(i+1)*5000).length;
+      bins.push({x:Math.min((i+1)*5,elapsed),y:count*60/segment});
+    }
+    return bins;
+  }
+  function stdev(nums) {
+    if(!nums.length)return null;
+    const m=nums.reduce((a,b)=>a+b,0)/nums.length;
+    return Math.sqrt(nums.reduce((a,b)=>a+(b-m)**2,0)/nums.length);
+  }
+  function extrasFor(events,elapsed) {
+    const bins=bucketsFor(events,elapsed);
+    const speeds=bins.map(x=>x.y);
+    const mean=speeds.length?speeds.reduce((a,b)=>a+b,0)/speeds.length:0;
+    const cv=speeds.length>=4 && mean>0 ? stdev(speeds)/mean:null;
+    const stability=cv===null?null:clamp(100/(1+2*cv),0,100);
+    const thirds=elapsed/3;
+    const count=(a,b)=>events.filter(e=>e.correct&&e.ms>=a*1000&&e.ms<b*1000).length;
+    const first=count(0,thirds),last=count(thirds*2,elapsed+0.0001);
+    const endurance=elapsed>=30&&first>0 ? last/first*100:null;
+    const times=events.filter(e=>e.correct).map(e=>e.ms).sort((a,b)=>a-b);
+    let peak=0,left=0;
+    for(let right=0;right<times.length;right++) {
+      while(times[right]-times[left]>5000)left++;
+      peak=Math.max(peak,right-left+1);
+    }
+    return {bins,stability,endurance,peakKpm:elapsed>=5?peak*12:null};
+  }
+  function finish(elapsed) {
+    if(!session||session.phase!=='running')return;
+    cancelAnimationFrame(rafId);
+    const s=session;
+    s.phase='finished';s.elapsed=elapsed;
+    const scores=currentStats(elapsed);
+    const active=preferred(s.states);
+    const processed=s.completedKana+s.tokens.slice(0,active?.i||0).reduce((a,t)=>a+t.kana.length,0);
+    const kanaCpm=processed/Math.max(.001,elapsed/60);
+    const extra=extrasFor(s.events,elapsed);
+    const record={version:1,date:new Date().toISOString(),mode:s.mode,elapsed,
+      score:scores.score,raw:scores.raw,net:scores.net,kanaCpm,accuracy:scores.accuracy,
+      correct:s.correct,wrong:s.wrong,phrases:s.phrasesDone,
+      stability:extra.stability,endurance:extra.endurance,peakKpm:extra.peakKpm,
+      bins:extra.bins,keyStats:s.keyStats,pairs:s.pairs,
+      previousBest:s.previousBest,previous:s.previous};
+    history.push(record);history=history.slice(-MAX_RECORDS);
+    const saved=putJson(STORE,history);
+    latestResult=record;
+    message=saved?'測定完了。記録を保存しました。':'測定完了。ただしブラウザの保存領域に書き込めませんでした。';
+    $('status').classList.remove('error');
+    renderPrompt();renderLive();renderResults(record);renderSide();renderHistory();
+    $('results').classList.add('active');
+    requestAnimationFrame(()=>{drawSpeed(record);$('results').scrollIntoView({behavior:'smooth',block:'start'});});
+  }
+
+  // ----- 診断 / グラフ ---------------------------------------------------
+  function metric(label,value,hint='') {
+    return `<div class="data-card"><div class="eyebrow">${safeText(label)}</div><strong>${safeText(value)}</strong><span class="small">${safeText(hint)}</span></div>`;
+  }
+  function sortedKeys(r) {
+    const entries=Object.entries(r.keyStats||{});
+    const intervals=entries.filter(([,x])=>x.samples>=4).map(([,x])=>x.sumMs/x.samples);
+    const baseline=intervals.length?intervals.sort((a,b)=>a-b)[Math.floor(intervals.length/2)]:null;
+    return {baseline,keys:entries.map(([key,x])=>({key,...x,n:x.good+x.bad,
+      missRate:x.good+x.bad?x.bad/(x.good+x.bad):0,
+      avg:x.samples?x.sumMs/x.samples:null,
+      weight:(x.good+x.bad?x.bad/(x.good+x.bad):0)*120+(baseline&&x.samples>=4?Math.max(0,(x.sumMs/x.samples)/baseline-1)*20:0)
+    })).filter(x=>x.n>=5).sort((a,b)=>b.weight-a.weight)};
+  }
+  function renderKeyboard(r) {
+    const {baseline,keys}=sortedKeys(r),lookup=Object.fromEntries(keys.map(k=>[k.key,k]));
+    let html='';
+    for(const row of ['qwertyuiop','asdfghjkl','zxcvbnm']){
+      html+='<div class="key-row">';
+      for(const key of row){
+        const s=lookup[key];
+        let cls='';
+        if(s){
+          const ratio=baseline&&s.avg?s.avg/baseline:1;
+          cls=(s.missRate>=.08||ratio>=1.65)?'bad':(s.missRate>=.03||ratio>=1.3)?'mid':'good';
+        }
+        const title=s?`${key.toUpperCase()}：正解${s.good}回 / 推定ミス${s.bad}回 / ミス率${round(s.missRate*100)}% / 入力間隔${s.avg?round(s.avg,0)+'ms':'測定不足'}`:`${key.toUpperCase()}：データ不足（5回未満）`;
+        html+=`<span class="key ${cls}" title="${safeText(title)}">${key.toUpperCase()}${s?`<small>${round(s.missRate*100,0)}%</small>`:''}</span>`;
+      }
+      html+='</div>';
+    }
+    $('keyboard').innerHTML=html;
+  }
+  function diagnosis(r) {
+    const messages=[];
+    if (r.correct+r.wrong<30) messages.push('入力数が少ないため、弱点の判定はまだ参考程度です。');
+    if (r.accuracy>=.99) messages.push(`正確率${round(r.accuracy*100,2)}%。非常に丁寧な入力でした。`);
+    else if(r.accuracy<.94) messages.push(`正確率${round(r.accuracy*100,2)}%。速度よりもミスの減少を優先すると総合スコアが伸びやすい状態です。`);
+    else messages.push(`正確率${round(r.accuracy*100,2)}%。精度と速度を両立できています。`);
+    if(r.stability!==null){
+      if(r.stability>=80)messages.push('5秒ごとの速度変動が比較的小さく、安定したペースで入力できています。');
+      else if(r.stability<60)messages.push('5秒ごとの速度変動が大きめです。入力が止まる部分の確認がおすすめです。');
+    }
+    if(r.endurance!==null){
+      if(r.endurance<80)messages.push(`終盤の入力速度は序盤の約${round(r.endurance,0)}%。文章難度の差も含め、終盤にペースが落ちた可能性があります。`);
+      else if(r.endurance>115)messages.push('終盤の入力が序盤より速くなっています。後半でペースを上げられています。');
+    }
+    const {keys}=sortedKeys(r);
+    const weak=keys.find(x=>x.weight>=5);
+    if(weak) messages.push(`${weak.key.toUpperCase()}キー周辺に改善余地があります（推定ミス率${round(weak.missRate*100,1)}%、標本${weak.n}回）。`);
+    if(!messages.length)messages.push('まずは同じ条件で何度か測定し、速度と正確率の変化を確認しましょう。');
+    $('diagnosis').innerHTML='<ul>'+messages.slice(0,5).map(m=>`<li>${safeText(m)}</li>`).join('')+'</ul>';
+  }
+  function renderPairs(r) {
+    const pairs=Object.entries(r.pairs||{}).map(([k,v])=>({k,avg:v.count?v.sum/v.count:0,count:v.count})).filter(x=>x.count>=3).sort((a,b)=>b.avg-a.avg).slice(0,6);
+    $('slowPairs').innerHTML=pairs.length?'<ul>'+pairs.map(x=>`<li><b style="color:#e8f5ff">${safeText(x.k)}</b>：平均 <b>${round(x.avg,0)}ms</b>（${x.count}回）</li>`).join('')+'</ul><p class="small">入力間隔には文章の読み取り時間も含まれます。指の運動速度そのものではありません。</p>':
+      '<p>同じ2キーの組み合わせが3回以上現れていないため、今回は十分な分析ができません。</p>';
+  }
+  function comparison(r){
+    let output='';
+    if(r.previous!==null) {
+      const diff=r.score-r.previous;
+      output+=`<p>前回：<b>${round(r.previous)}</b> → 今回：<b>${round(r.score)}</b><br>差：<b style="color:${diff>=0?'#64e4cf':'#ff9eab'}">${diff>=0?'+':''}${round(diff)}</b></p>`;
+    } else output+='<p>このモードの初回記録です。</p>';
+    if(r.previousBest!==null) {
+      const diff=r.score-r.previousBest;
+      output+=`<p>測定前の自己ベスト：<b>${round(r.previousBest)}</b><br>${diff>0?'🎉 自己ベスト更新！':`自己ベストとの差：${round(diff)}`}</p>`;
+    }
+    output+='<p class="small">異なるモードの記録は混ぜずに比較しています。長文の出題文章による難度差は残ります。</p>';
+    $('comparison').innerHTML=output;
+  }
+  function renderResults(r) {
+    const g=grade(r.score);
+    $('resultScore').textContent=round(r.score);
+    $('resultRank').textContent=`RANK ${g.label}`;
+    $('nextRank').textContent=g.next;
+    $('nextNeeded').textContent=`あと ${round(g.threshold-r.score)} 点 / 次の境界 ${g.threshold} 点`;
+    $('rankProgress').style.width=`${g.progress}%`;
+    $('resultBadges').innerHTML=`<span class="pill">${r.mode==='long'?'長文':r.mode+'秒'}モード</span>`+
+      (r.previousBest!==null&&r.score>r.previousBest?'<span class="pill">NEW PERSONAL BEST</span>':'')+
+      (r.wrong===0?'<span class="pill">NO MISS</span>':'');
+    $('resultMetrics').innerHTML=[
+      metric('RAW KPM',round(r.raw),'ミスも含めた打鍵速度'),
+      metric('NET KPM',round(r.net),'正解打鍵だけの速度'),
+      metric('KANA CPM',round(r.kanaCpm),'完了した読み文字数 / 分'),
+      metric('ACCURACY',round(r.accuracy*100,2)+'%','正確率'),
+      metric('CORRECT / MISS',`${r.correct} / ${r.wrong}`,'正解打鍵 / ミス打鍵'),
+      metric('PEAK 5s',r.peakKpm===null?'—':round(r.peakKpm,0),'5秒窓の最高正解KPM'),
+      metric('STABILITY',r.stability===null?'—':round(r.stability,0)+'/100','5秒速度の変動から算出'),
+      metric('ENDURANCE',r.endurance===null?'—':round(r.endurance,0)+'%','終盤 ÷ 序盤（同じ時間幅）'),
+      metric('ELAPSED',round(r.elapsed,2)+'s','測定時間'),
+      metric('COMPLETE',String(r.phrases),'完了した文章数')
+    ].join('');
+    diagnosis(r);renderKeyboard(r);renderPairs(r);comparison(r);
+  }
+  function drawChart(canvas, data, options={}) {
+    const parent=canvas.parentElement;
+    if(!parent || parent.getBoundingClientRect().width<2)return;
+    const w=Math.max(250,canvas.getBoundingClientRect().width),h=Math.max(150,canvas.getBoundingClientRect().height);
+    const dpr=Math.min(window.devicePixelRatio||1,2);
+    canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+    const c=canvas.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);
+    const L=44,R=14,T=14,B=32,W=w-L-R,H=h-T-B;
+    c.clearRect(0,0,w,h);
+    if(!data.length){c.fillStyle='#99abc4';c.font='13px sans-serif';c.fillText('まだ記録がありません。',20,h/2);return;}
+    const values=data.map(x=>x.y);
+    const floorY=Math.max(0,Math.floor(Math.min(...values)/50)*50-50);
+    const ceilY=Math.max(floorY+50,Math.ceil(Math.max(...values)/50)*50+50);
+    const maxX=Math.max(1,data.at(-1).x),minX=Math.min(0,data[0].x);
+    const xx=x=>L+(x-minX)/Math.max(1,maxX-minX)*W;
+    const yy=y=>T+H-(y-floorY)/(ceilY-floorY)*H;
+    c.lineWidth=1;c.font='11px ui-monospace,monospace';c.textBaseline='middle';
+    for(let i=0;i<=4;i++){
+      const y=floorY+(ceilY-floorY)*i/4,py=yy(y);
+      c.strokeStyle='#30405a';c.beginPath();c.moveTo(L,py);c.lineTo(L+W,py);c.stroke();
+      c.textAlign='right';c.fillStyle='#95aac3';c.fillText(Math.round(y).toString(),L-7,py);
+    }
+    c.beginPath();data.forEach((p,i)=>i?c.lineTo(xx(p.x),yy(p.y)):c.moveTo(xx(p.x),yy(p.y)));
+    c.strokeStyle='#64e4cf';c.lineWidth=2.5;c.lineJoin='round';c.stroke();
+    c.fillStyle='#a4eae0';
+    data.forEach(p=>{c.beginPath();c.arc(xx(p.x),yy(p.y),data.length>25?2:3,0,Math.PI*2);c.fill();});
+    c.fillStyle='#95aac3';c.textAlign='center';c.textBaseline='alphabetic';
+    for(let i=0;i<=4;i++) {
+      const x=minX+(maxX-minX)*i/4;
+      c.fillText(options.xLabel==='回' ? String(Math.round(x)) : round(x,0)+'s',xx(x),h-8);
+    }
+  }
+  function drawSpeed(r){drawChart($('speedChart'),r.bins||[]);}
+  function renderHistory(){
+    const records=recordsFor(mode),list=$('historyList');
+    $('historyModeLabel').textContent=`/ ${mode==='long'?'長文':mode+'秒'}`;
+    const recent=records.slice(-15).reverse();
+    list.innerHTML=recent.length?recent.map(r=>`<div class="record"><span>${safeText(new Date(r.date).toLocaleString('ja-JP'))}</span><strong>${safeText(grade(r.score).label)} / ${round(r.score)}</strong></div>`).join(''):'<p class="small">このモードの記録はありません。</p>';
+    if($('historyDetails').open) drawHistory();
+  }
+  function drawHistory(){
+    const data=recordsFor(mode).slice(-35).map((r,i)=>({x:i+1,y:r.score}));
+    drawChart($('historyChart'),data,{xLabel:'回'});
+  }
+
+  // ----- 設定 / ファイル ------------------------------------------------
+  function updatePrefs() {
+    prefs.display=$('displayMode').value;
+    prefs.size=$('romanSize').value;
+    putJson(PREFS,prefs);
+    if(session)renderPrompt();
+  }
+  function validateCustom(text,reading) {
+    if(!text.trim()||!reading.trim())throw new Error('文章と読みを両方入力してください。');
+    if(text.length>1000 || reading.length>1000)throw new Error('文章・読みはそれぞれ1000文字以内にしてください。');
+    if(tokensOf(reading).reduce((n,t)=>n+t.kana.length,0)<40 && $('useCustom').checked)throw new Error('長文モードのカスタム文章は、読みを40文字以上にしてください。');
+  }
+  function applyCustom(){
+    const text=$('customText').value.trim(),reading=$('customReading').value.trim();
+    try {
+      if(text||reading||$('useCustom').checked)validateCustom(text,reading);
+      prefs.customText=text;prefs.customReading=reading;prefs.useCustom=$('useCustom').checked;
+      updatePrefs();putJson(PREFS,prefs);
+      if(mode==='long'&&session?.phase!=='running')newSession();
+      alert('設定を保存しました。');
+    }catch(e){alert(e.message);}
+  }
+  function downloadRecords(){
+    const payload={app:'TYPE-LAB',schema:1,exportedAt:new Date().toISOString(),records:history};
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});
+    const url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download='typing-lab-records-'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
+  async function importRecords(file){
+    try {
+      if(file.size>10*1024*1024)throw new Error('10MB以下のJSONを選んでください。');
+      const data=JSON.parse(await file.text());
+      if(data.app!=='TYPE-LAB'||data.schema!==1||!Array.isArray(data.records))throw new Error('対応するTYPE//LABのバックアップではありません。');
+      const valid=data.records.filter(x=>x&&['30','60','long'].includes(x.mode)&&Number.isFinite(x.score)&&x.score>=0&&typeof x.date==='string');
+      if(valid.length!==data.records.length)throw new Error('バックアップに不正な記録があります。');
+      if(!confirm(`${valid.length}件の記録を現在の履歴に追加します。よろしいですか？`))return;
+      const all=[...history,...valid];
+      const map=new Map();
+      for(const r of all) map.set([r.date,r.mode,Number(r.score).toFixed(6)].join('|'),r);
+      history=[...map.values()].sort((a,b)=>a.date.localeCompare(b.date)).slice(-MAX_RECORDS);
+      if(!putJson(STORE,history))throw new Error('保存領域に書き込めませんでした。');
+      renderSide();renderHistory();alert('履歴を読み込みました。');
+    }catch(e){alert('復元できません：'+e.message);}
+    $('importFile').value='';
+  }
+  // ----- UI イベント ----------------------------------------------------
+  document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>{setMode(b.dataset.mode);b.blur();}));
+  $('newBtn').addEventListener('click',()=>{if(session?.phase!=='running')newSession();$('newBtn').blur();});
+  $('abortBtn').addEventListener('click',()=>{if(session?.phase==='running')abort('測定を中止しました。記録は保存していません。');$('abortBtn').blur();});
+  $('retryBtn').addEventListener('click',()=>{newSession();$('retryBtn').blur();$('playArea').scrollIntoView({behavior:'smooth'});});
+  $('homeBtn').addEventListener('click',()=>{$('playArea').scrollIntoView({behavior:'smooth'});});
+  $('displayMode').addEventListener('change',updatePrefs);
+  $('romanSize').addEventListener('change',updatePrefs);
+  $('applyCustomBtn').addEventListener('click',()=>{applyCustom();$('applyCustomBtn').blur();});
+  $('historyDetails').addEventListener('toggle',()=>{if($('historyDetails').open)requestAnimationFrame(drawHistory);});
+  $('exportBtn').addEventListener('click',downloadRecords);
+  $('importBtn').addEventListener('click',()=>$('importFile').click());
+  $('importFile').addEventListener('change',e=>{if(e.target.files[0])importRecords(e.target.files[0]);});
+  $('clearBtn').addEventListener('click',()=>{
+    if(!history.length)return;
+    if(confirm('保存済みの全モードの記録を削除します。元には戻せません。よろしいですか？')){
+      history=[];putJson(STORE,history);renderSide();renderHistory();
+    }
+  });
+  window.addEventListener('keydown',onKey,{capture:true});
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden && session?.phase==='running')abort('別のタブに移動したため測定を無効にしました。');
+  });
+  window.addEventListener('resize',()=>{
+    if(latestResult&&$('results').classList.contains('active'))drawSpeed(latestResult);
+    if($('historyDetails').open)drawHistory();
+  });
+  $('displayMode').value=prefs.display;$('romanSize').value=prefs.size;
+  $('customText').value=prefs.customText;$('customReading').value=prefs.customReading;
+  $('useCustom').checked=!!prefs.useCustom;
+  newSession();renderHistory();
+  // 自己検証用：通常の画面操作には影響しない読み取り専用API。
+  window.TYPE_LAB_DEBUG=Object.freeze({tokensOf,grade,advance,startStates,preferred,expectedSuffix,SHORT,longTexts});
+})();
+</script>
+</body>
+</html>
