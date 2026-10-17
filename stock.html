@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>個別株・多戦略バックテストラボ v5</title>
+<title>個別株・多戦略バックテストラボ v5.1｜調整後終値対応</title>
 <style>
 :root{color-scheme:dark;--bg:#091222;--panel:#13223a;--panel2:#182b45;--line:#314b6b;--ink:#edf5ff;--sub:#b5c8e0;--sky:#82c4ff;--mint:#70edbf;--red:#ff9ea9;--yellow:#ffd58a}
 *{box-sizing:border-box}body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;margin:0;line-height:1.55}
@@ -15,7 +15,7 @@ main{width:min(1500px,calc(100% - 28px));margin:24px auto 80px}h1{font-size:clam
 </head>
 <body>
 <main>
-<div class="hero"><div><div class="sub">LOCAL BACKTEST / NO SERVER / MULTI STRATEGY</div><h1>個別株・多戦略バックテストラボ v5</h1><p class="sub">複数建玉・複数売買戦略を同時に検証。独立口座の比較に加え、複数戦略が1つの現金残高を共有して同時発注する運用も再現します。</p></div><span class="badge">🔒 完全ローカル・外部通信なし</span></div>
+<div class="hero"><div><div class="sub">LOCAL BACKTEST / NO SERVER / MULTI STRATEGY</div><h1>個別株・多戦略バックテストラボ v5.1</h1><p class="sub">複数建玉・複数売買戦略を同時に検証。独立口座の比較に加え、複数戦略が1つの現金残高を共有して同時発注する運用も再現します。</p></div><span class="badge">🔒 完全ローカル・外部通信なし</span></div>
 <section class="panel"><h2>01　株価データ</h2><div class="row">
 <label class="filebutton">CSV / TXTを選択（複数可）<input id="files" type="file" accept=".csv,.txt" multiple></label>
 <button id="pasteToggle" class="secondary">テキストを貼り付け</button><button id="exportData" class="secondary">整形済CSVを保存</button><button id="clearData" class="danger">株価を消去</button>
@@ -29,9 +29,9 @@ main{width:min(1500px,calc(100% - 28px));margin:24px auto 80px}h1{font-size:clam
 <label class="field">始値約定スリッページ（片道％）<input id="slippagePct" type="number" min="0" max="10" step="0.01" value="0"></label>
 <label class="field">検証開始日（空欄＝全期間）<input id="startDate" type="date"></label>
 <label class="field">検証終了日（空欄＝全期間）<input id="endDate" type="date"></label>
-<label class="field">株価調整の扱い<select id="adjustMode"><option value="raw">元の4本値（分割なしの期間向け）</option><option value="ratio">調整後終値/終値で4本値補正（参考）</option></select></label>
+<label class="field">テクニカル指標の株価<select id="adjustMode"><option value="ratio" selected>調整後終値から4本値を補正（推奨）</option><option value="raw">元の4本値（比較用）</option></select></label>
 <label class="field">買い持ち比較<select id="benchMode"><option value="lot">同じ資金・売買単位・手数料で購入</option><option value="fractional">小数株を許す理論上の全額購入</option></select></label>
-</div><div class="hint warn">独立口座は戦略それぞれに同額の資金を割り当てる比較実験です。共有口座は全戦略が現金・総建玉枠を本当に共有する単一口座のシミュレーションです。同日注文は画面上の戦略順で優先。▲▼で変更できます。配当・税金・分割・約定不能・流動性等は完全再現しません。</div><div class="row" style="margin-top:12px"><label class="field medium">共有口座・全戦略合計の同時建玉上限<input id="sharedMaxPositions" type="number" min="1" max="200" step="1" value="10"></label><label class="field medium">共有口座・1日の新規建玉上限（0＝無制限）<input id="sharedDailyLimit" type="number" min="0" max="100" step="1" value="0"></label></div></section>
+</div><div class="hint" id="priceDiagnostic">テクニカル指標＝調整後株価、実際の売買と口座評価＝未調整の4本値。株式分割がある場合、下の比率欄へ分割情報を入力してください。</div><div class="row" style="margin-top:10px"><label class="field" style="flex:1">株式分割・併合イベント（分割日, 分割後株数÷分割前株数：1行につき1件。例 2026-10-01,4。分割がなければ空欄）<textarea id="splitEvents" placeholder="2026-10-01,4"></textarea></label></div><div class="hint warn">独立口座は戦略それぞれに同額の資金を割り当てる比較実験です。共有口座は全戦略が現金・総建玉枠を本当に共有する単一口座のシミュレーションです。同日注文は画面上の戦略順で優先。▲▼で変更できます。配当・税金・分割時の端株処理・約定不能・流動性等は完全再現しません。</div><div class="row" style="margin-top:12px"><label class="field medium">共有口座・全戦略合計の同時建玉上限<input id="sharedMaxPositions" type="number" min="1" max="200" step="1" value="10"></label><label class="field medium">共有口座・1日の新規建玉上限（0＝無制限）<input id="sharedDailyLimit" type="number" min="0" max="100" step="1" value="0"></label></div></section>
 <section class="panel"><div class="strategy-head"><h2>03　戦略ビルダー（何個でも追加・一括実行）</h2><div class="row"><button id="addStrategy" class="primary">＋ 新規戦略</button><button id="presetAll" class="secondary">比較用5戦略を作る</button><button id="saveSettings" class="secondary">設定JSONを保存</button><label class="filebutton secondary">設定JSONを読込<input id="loadSettings" type="file" accept=".json"></label></div></div>
 <p class="sub">条件グループA・Bに条件を追加。グループ内AND/OR、グループ間AND/ORを設定できます。買い条件は大引け時に判定し、翌営業日の始値で発注します。</p><div id="strategyList"></div></section>
 <section class="panel"><div class="row"><button id="runAll" class="primary">▶ すべての戦略を一括検証</button><label class="check"><input id="enableShared" type="checkbox" checked> 共有口座も同時検証</label><button id="exportCompare" class="secondary">戦略比較CSV</button><button id="exportEquity" class="secondary">資産推移CSV</button><button id="exportTrades" class="secondary">取引履歴CSV</button><button id="exportSignals" class="secondary">買いシグナルCSV</button><button id="exportSharedTrades" class="secondary">共有口座・取引CSV</button><button id="exportSharedEquity" class="secondary">共有口座・資産CSV</button><button id="exportSharedSkips" class="secondary">共有口座・見送りCSV</button></div><div id="runInfo" class="hint">検証前です。</div></section>
@@ -43,7 +43,7 @@ main{width:min(1500px,calc(100% - 28px));margin:24px auto 80px}h1{font-size:clam
 <h3>約定済みの取引履歴</h3><div class="tableWrap" id="tradeHistory"></div><h3>見送り・未執行の注文</h3><div class="tableWrap" id="orderLog"></div></section>
 <section class="panel"><h2>07　閾値・利確・損切りの一括比較（探索実験）</h2><p class="sub">選択中の戦略の1パラメータだけを変えて再計算します。設定を変えた結果が良くても、同じ期間への過剰最適化なので、将来の優位性を示すものではありません。</p>
 <div class="row"><label class="field medium">変更する項目<select id="sweepField"><option value="take">利確率（％）</option><option value="stop">損切り率（％）</option><option value="hold">最大保有日数</option><option value="entry0">買い条件Aの1行目・閾値</option><option value="exit0">売り条件Aの1行目・閾値</option><option value="alloc">建玉ごとの資金配分率（％）</option><option value="slots">最大同時建玉数</option></select></label><label class="field narrow">最小値<input id="sweepMin" type="number" step="any" value="2"></label><label class="field narrow">最大値<input id="sweepMax" type="number" step="any" value="20"></label><label class="field narrow">刻み幅<input id="sweepStep" type="number" step="any" value="2"></label><button id="runSweep" class="primary">比較を実行</button></div><div id="sweepInfo" class="hint">最大100パターン。元の条件や売買設定は変更しません。</div><div class="chartOuter"><div class="chart" id="sweepChart"></div></div><div class="tableWrap" id="sweepTable"></div></section>
-<section class="panel"><h2>重要な計算仕様・制約</h2><p class="foot">● 同期間で多くの条件を試して最良だけ選ぶと過剰最適化になります。利益は将来を保証しません。● 共有口座では複数戦略が現金と同時保有上限を共有します。複数戦略が同時に発注する場合は画面に並ぶ順番を優先します（▲▼で変更可能）。独立口座比較は口座ごとに初期資金を持つ別々の実験です。● 同じ銘柄でも複数の独立したロットを保有可能です。統合口座では戦略が現金残高を共有し、戦略の表示順に買い注文を処理します。毎日の買いシグナルから翌日始値の買い注文を最大1件作成し、各ロットごとに利確・損切り・最大保有日数を判定します。保有ポジションの売却注文は買い注文より先に執行します。● 引け後の売却シグナルは翌営業日始値で処理します。日中利確・損切りは高値・安値から推定し、同一日両方成立なら損切りを優先します。翌日始値でギャップがある場合は始値を使います。● 株数は売買単位で切り捨て、手数料とスリッページを反映します。利確・損切り判定の閾値は手数料抜きの実際の購入約定価格基準で、表示する損益は手数料込みです。● 共有口座では戦略表示順に発注し、売却を先に処理。売却した同日の再購入は見送ります。● 出来高は日中の流動性や板を再現せず、ストップ高・ストップ安の約定可否、配当、税金、金利、信用取引、約定不能を再現しません。● 検証開始日より前のデータは指標を温める目的にのみ使用し、その期間の損益は計上しません。将来データを買いシグナルの生成に使いません。● 期間末のポジションと買い持ち比較は終値評価し、評価額に将来の売却手数料は先取りしません。● 本プログラムの利益率はモデル上の試算であり、投資助言や将来成果の保証ではありません。</p></section>
+<section class="panel"><h2>重要な計算仕様・制約</h2><p class="foot">● 同期間で多くの条件を試して最良だけ選ぶと過剰最適化になります。利益は将来を保証しません。● 共有口座では複数戦略が現金と同時保有上限を共有します。複数戦略が同時に発注する場合は画面に並ぶ順番を優先します（▲▼で変更可能）。独立口座比較は口座ごとに初期資金を持つ別々の実験です。● 同じ銘柄でも複数の独立したロットを保有可能です。統合口座では戦略が現金残高を共有し、戦略の表示順に買い注文を処理します。毎日の買いシグナルから翌日始値の買い注文を最大1件作成し、各ロットごとに利確・損切り・最大保有日数を判定します。保有ポジションの売却注文は買い注文より先に執行します。● 引け後の売却シグナルは翌営業日始値で処理します。日中利確・損切りは高値・安値から推定し、同一日両方成立なら損切りを優先します。翌日始値でギャップがある場合は始値を使います。● 株数は売買単位で切り捨て、手数料とスリッページを反映します。利確・損切り判定の閾値は手数料抜きの実際の購入約定価格基準で、表示する損益は手数料込みです。● 共有口座では戦略表示順に発注し、売却を先に処理。売却した同日の再購入は見送ります。● テクニカル指標は調整後終値を用い、前日比・移動平均線・MACD等の計算で分割による見かけ上の変動を抑制します。購入・売却・口座評価は元の4本値を使用します。分割イベント入力がある場合のみ当日の寄付前に保有株数を調整します（端株の金銭交付や配当は未対応）。● 出来高は日中の流動性や板を再現せず、ストップ高・ストップ安の約定可否、配当、税金、金利、信用取引、約定不能を再現しません。● 検証開始日より前のデータは指標を温める目的にのみ使用し、その期間の損益は計上しません。将来データを買いシグナルの生成に使いません。● 期間末のポジションと買い持ち比較は終値評価し、評価額に将来の売却手数料は先取りしません。● 本プログラムの利益率はモデル上の試算であり、投資助言や将来成果の保証ではありません。</p></section>
 </main>
 <script>
 (()=>{'use strict';
@@ -91,8 +91,8 @@ function mergeData(list,replace){let map=new Map(replace?[]:state.bars.map(b=>[b
  for(let rows of list){for(let b of rows){let old=map.get(b.date);if(old){dups++;if(['open','high','low','close','volume','adjusted_close'].some(k=>Math.abs(old[k]-b[k])>1e-6)){conflicts.push(b.date);continue;}}else map.set(b.date,b)}}
  if(conflicts.length)err(`同じ日付なのに値が異なります（${conflicts.slice(0,4).join(', ')}）。元CSVを確認してください。読み込みは反映されません。`);
  state.bars=[...map.values()].sort((a,b)=>a.date.localeCompare(b.date));state.dirty=true;state.results=[];state.shared=null;state.ind=null;
- $('dataInfo').className='hint';$('dataInfo').textContent=`✓ ${state.bars.length}営業日 / ${state.bars[0].date}〜${state.bars.at(-1).date}。既存の日付と完全一致する重複 ${dups}件を除外。`+(state.bars.some(x=>Math.abs(x.close-x.adjusted_close)>1e-5)?' 調整後終値が異なる日があります。株式分割の整合性に注意。':'');
- $('runInfo').textContent='株価データを変更しました。再検証してください。';
+ $('dataInfo').className='hint';$('dataInfo').textContent=`✓ ${state.bars.length}営業日 / ${state.bars[0].date}〜${state.bars.at(-1).date}。既存の日付と完全一致する重複 ${dups}件を除外。`+(state.bars.some(x=>Math.abs(x.close-x.adjusted_close)>1e-5)?` 調整後終値が異なる日：${state.bars.filter(x=>Math.abs(x.close-x.adjusted_close)>1e-5).length}日。`: ' 調整後終値と終値は全行一致。');
+ $('runInfo').textContent='株価データを変更しました。再検証してください。';$('priceDiagnostic').textContent=`読込完了：${state.bars.length}営業日。指標は調整後終値を使用、実際の取引は未調整4本値を使用します。分割がある期間はイベント欄へ比率を入力してください。`;
 }
 $('files').addEventListener('change',async e=>{let files=[...e.target.files];try{let list=[];for(let f of files){let buf=await f.arrayBuffer();let utf8=new TextDecoder('utf-8').decode(buf);let rows;try{rows=parsePrices(utf8,f.name)}catch(ex){let sjis=new TextDecoder('shift_jis').decode(buf);rows=parsePrices(sjis,f.name)}list.push(rows)}if(list.length){mergeData(list,false);state.filename=files[0].name.replace(/\.[^.]+$/,'');}}catch(ex){$('dataInfo').className='hint err';$('dataInfo').textContent=ex.message;}e.target.value='';});
 $('pasteToggle').onclick=()=>$('pasteArea').classList.toggle('hidden');
@@ -163,19 +163,59 @@ function getInd(b){let close=b.map(x=>x.close),vol=b.map(x=>x.volume),m={};for(l
  v.upStreak=up;v.downStreak=down;v.weekday=new Date(x.date+'T12:00:00Z').getUTCDay();return v});}
 function matchGroup(group,ind,i){if(!group.rows.length)return null;let vals=group.rows.map(c=>{let v=ind[i]?.[c.metric],prev=ind[i-1]?.[c.metric],n=Number(c.value);if(!hasNum(v)||!hasNum(n))return false;switch(c.op){case '<':return v<n;case '<=':return v<=n;case '>':return v>n;case '>=':return v>=n;case 'up':return hasNum(prev)&&prev<=n&&v>n;case 'down':return hasNum(prev)&&prev>=n&&v<n;default:return false}});return group.mode==='all'?vals.every(Boolean):vals.some(Boolean)}
 function matchSide(side,ind,i){let a=side.groups.map(g=>matchGroup(g,ind,i)).filter(x=>x!==null);if(!a.length)return false;return side.relation==='AND'?a.every(Boolean):a.some(Boolean)}
-function config(){let capital=Number($('capital').value),lot=Number($('lotSize').value),fee=Number($('feePct').value)/100,slip=Number($('slippagePct').value)/100;return {capital,lot,fee,slip,start:$('startDate').value||null,end:$('endDate').value||null,adjust:$('adjustMode').value,bench:$('benchMode').value,sharedMax:Number($('sharedMaxPositions').value),sharedDaily:Number($('sharedDailyLimit').value)}}
+function config(){let capital=Number($('capital').value),lot=Number($('lotSize').value),fee=Number($('feePct').value)/100,slip=Number($('slippagePct').value)/100;return {capital,lot,fee,slip,start:$('startDate').value||null,end:$('endDate').value||null,adjust:$('adjustMode').value,bench:$('benchMode').value,sharedMax:Number($('sharedMaxPositions').value),sharedDaily:Number($('sharedDailyLimit').value),splitEvents:$('splitEvents').value}}
 function validateConfig(c){if(!state.bars.length)err('株価データがありません');if(!hasNum(c.capital)||c.capital<=0||!Number.isInteger(c.lot)||c.lot<1||![c.fee,c.slip].every(v=>hasNum(v)&&v>=0&&v<.1))err('初期資金・売買単位・コスト・スリッページの値を確認してください');if(c.start&&c.end&&c.start>c.end)err('検証開始日が終了日より後です');if(!Number.isInteger(c.sharedMax)||c.sharedMax<1||c.sharedMax>200||!Number.isInteger(c.sharedDaily)||c.sharedDaily<0||c.sharedDaily>100)err('共有口座の同時建玉・1日注文上限が不正です');}
 function validateStrategy(s){if(!s.entry.groups.some(g=>g.rows.length))err(`${s.name}: 買い条件を最低1件設定してください`);if(!Number.isInteger(s.maxPositions)||s.maxPositions<1||s.maxPositions>100||!Number.isInteger(s.hold)||s.hold<0||!Number.isInteger(s.cooldown)||s.cooldown<0||![s.take,s.stop,s.allocation].every(x=>hasNum(x)&&x>=0)||s.allocation===0)err(`${s.name}: 設定値に不整合があります`);if(s.allocationMode==='percent'&&s.allocation>100)err(`${s.name}: 資金配分率は100%以下にしてください`);if(s.allocationMode==='lots'&&!Number.isInteger(s.allocation))err(`${s.name}: 単位数は整数で指定してください`)}
 function adjustedBars(raw,mode){if(mode==='raw')return raw;return raw.map(b=>{let r=b.adjusted_close/b.close;return {...b,open:b.open*r,high:b.high*r,low:b.low*r,close:b.adjusted_close}})}
+// 調整後株価の計算と、実際の約定・口座評価は厳格に分離する。
+// 分割日の朝に「元の株数 × 分割比率」とし、売買価格の比較基準を逆比率で修正する。
+function applySplit(pos,ratio){
+ pos.shares*=ratio;
+ pos.price/=ratio;
+ pos.best/=ratio;
+ pos.worst/=ratio;
+ pos.splitRatio=(pos.splitRatio||1)*ratio;
+}
+function parseSplitEvents(raw,bars){
+ const result=new Map(),dates=new Set(bars.map(b=>b.date));
+ for(const line of String(raw||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean)){
+  const pair=line.split(/[,\t]/).map(x=>x.trim());
+  const date=dateNorm(pair[0]), ratio=Number(pair[1]);
+  if(pair.length!==2||!date||!Number.isFinite(ratio)||ratio<=0||ratio>100)err('株式分割欄は「YYYY-MM-DD,2」形式で記入してください: '+line);
+  if(result.has(date))err('分割日が重複しています: '+date);
+  if(!dates.has(date))err('分割日が株価データ内にありません: '+date);
+  result.set(date,ratio);
+ }
+ return result;
+}
+function checkSplitConsistency(bars,events){
+ const notes=[];
+ for(let i=1;i<bars.length;i++){
+  const prev=bars[i-1],now=bars[i];
+  const f0=prev.adjusted_close/prev.close,f1=now.adjusted_close/now.close;
+  const jump=f1/f0;
+  const event=events.get(now.date);
+  // 調整係数の大きな変化は通常の株価変動とは異なる。分割以外の大きな権利落ちも確認が必要。
+  if((jump>1.08||jump<1/1.08) && !event){
+   err(`${now.date}: 調整係数が前営業日比 ${(jump*100-100).toFixed(1)}% 変化しています。株式分割・併合か大きな権利調整の可能性があります。分割なら「分割日,比率」を入力し、配当等ならデータの調整方法を確認してください。未確認のままの損益計算は中止します。`);
+  }
+  if(event && Math.abs(event/jump-1)>.08){
+   err(`${now.date}: 指定された分割比率 ${event} と調整後終値の係数変化 ${jump.toFixed(4)} が一致しません。元データ・イベントを確認してください。`);
+  }
+  if(event)notes.push(`${now.date}: ${event}倍`);
+ }
+ return notes;
+}
 function rangeIndices(b,c){let i0=b.findIndex(x=>!c.start||x.date>=c.start),i1=b.findLastIndex(x=>!c.end||x.date<=c.end);if(i0<0||i1<i0)err('指定期間に取引データがありません');return [i0,i1]}
 // 日次残高は、現金+保有時価。ロット単位で売買し、ひとつの銘柄に複数建玉が重なることを許す。
 function simulate(b,ind,s,c){validateStrategy(s);let [start,end]=rangeIndices(b,c),cash=c.capital,positions=[],trades=[],signals=[],orders=[],equity=[],buys=[],sells=[],nextId=1,pendingBuy=null,pendingExit=new Set(),lastSellIndex=-1e9,prevEntry=false,peak=c.capital,dd=0,maxConcurrent=0,invested=0,skipped=0;
  const fee=c.fee,slip=c.slip;
  for(let i=start;i<=end;i++){
   const bar=b[i];let soldToday=false;
+  const splitRatio=c.splitMap?.get(bar.date);if(splitRatio){for(const pos of positions)applySplit(pos,splitRatio);}
   const sell=(pos,price,reason)=>{if(!positions.some(p=>p.id===pos.id))return;
    let realized=price*(1-fee),proceeds=pos.shares*realized,netProfit=proceeds-pos.totalCost;
-   cash+=proceeds;trades.push({strategy:s.name,id:pos.id,signal_date:pos.signalDate,buy_date:pos.buyDate,sell_date:bar.date,buy_price:pos.price,sell_price:price,shares:pos.shares,buy_cost:pos.totalCost,sell_proceeds:proceeds,profit_yen:netProfit,return_pct:(proceeds/pos.totalCost-1)*100,holding_days:i-pos.buyIndex+1,max_favorable_pct:(pos.best/pos.price-1)*100,max_adverse_pct:(pos.worst/pos.price-1)*100,reason});
+   cash+=proceeds;trades.push({strategy:s.name,id:pos.id,signal_date:pos.signalDate,buy_date:pos.buyDate,sell_date:bar.date,buy_price:pos.originalPrice,adjusted_entry_unit_price:pos.price,initial_shares:pos.originalShares,sell_price:price,shares:pos.shares,buy_cost:pos.totalCost,sell_proceeds:proceeds,profit_yen:netProfit,return_pct:(proceeds/pos.totalCost-1)*100,holding_days:i-pos.buyIndex+1,max_favorable_pct:(pos.best/pos.price-1)*100,max_adverse_pct:(pos.worst/pos.price-1)*100,reason});
    sells.push({i,price,shares:pos.shares});positions=positions.filter(x=>x.id!==pos.id);soldToday=true;lastSellIndex=i;pendingExit.delete(pos.id);
   };
   // 1: 前夜に出した売却注文を当日始値で処理。売りの滑りはマイナス側に適用。
@@ -188,7 +228,7 @@ function simulate(b,ind,s,c){validateStrategy(s);let [start,end]=rangeIndices(b,
    let shares=Math.floor(budget/(unit*c.lot))*c.lot;
    if(positions.length>=s.maxPositions){skipped++;orders.push({date:bar.date,kind:'買い見送り',reason:'同時建玉数の上限',price:ask});}
    else if(shares<c.lot){skipped++;orders.push({date:bar.date,kind:'買い見送り',reason:'資金/配分が売買単位未満',price:ask});}
-   else {let total=shares*unit;cash-=total;positions.push({id:nextId++,signalDate:pendingBuy.date,buyDate:bar.date,buyIndex:i,shares,price:ask,totalCost:total,best:ask,worst:ask});buys.push({i,price:ask,shares});}
+   else {let total=shares*unit;cash-=total;positions.push({id:nextId++,signalDate:pendingBuy.date,buyDate:bar.date,buyIndex:i,shares,price:ask,originalPrice:ask,originalShares:shares,totalCost:total,best:ask,worst:ask});buys.push({i,price:ask,shares});}
    pendingBuy=null;
   }
   // 3: 保有中の各ロットについてギャップ・日中ストップを個別判定。
@@ -214,8 +254,8 @@ function simulate(b,ind,s,c){validateStrategy(s);let [start,end]=rangeIndices(b,
  const last=b[end],value=equity.at(-1).total,win=trades.filter(t=>t.profit_yen>0),lose=trades.filter(t=>t.profit_yen<0),grossPlus=sum(win.map(t=>t.profit_yen)),grossMinus=-sum(lose.map(t=>t.profit_yen));
  // 市場平均：同じ開始日の寄付で現金の範囲だけ購入。比較目的で期末は売却手数料を反映。
  const buyCost=b[start].open*(1+slip)*(1+fee),q=c.bench==='fractional'?c.capital/buyCost:Math.floor(c.capital/buyCost/c.lot)*c.lot;
- const holdCash=c.capital-q*buyCost;const holdEquity=b.slice(start,end+1).map(x=>({date:x.date,total:holdCash+q*x.close}));
- const benchFinal=holdCash+q*last.close;
+ const holdCash=c.capital-q*buyCost;let holdShares=q;const holdEquity=b.slice(start,end+1).map((x,k)=>{if(k>0&&c.splitMap?.has(x.date))holdShares*=c.splitMap.get(x.date);return {date:x.date,total:holdCash+holdShares*x.close}});
+ const benchFinal=holdCash+holdShares*last.close;
  const ddOf=x=>{let peak=c.capital,v=0;for(let p of x){peak=Math.max(peak,p.total);v=Math.min(v,(p.total/peak-1)*100)}return v};
  const daily=equity.slice(1).map((p,j)=>p.total/equity[j].total-1),dstd=sd(daily),years=Math.max(1,(Date.parse(last.date)-Date.parse(b[start].date))/86400000)/365.2425;
  const closedNet=trades.map(t=>t.return_pct),minNet=closedNet.length?Math.min(...closedNet):null,maxNet=closedNet.length?Math.max(...closedNet):null;
@@ -252,7 +292,7 @@ function simulateShared(b, ind, strategies, c) {
       strategy: strategies[pos.strategyIndex].name, strategy_index: pos.strategyIndex,
       position_id: pos.id, signal_date: pos.signalDate,
       buy_date: pos.buyDate, sell_date: b[idx].date,
-      shares: pos.shares, buy_price: pos.price, sell_price: sellPrice,
+      shares: pos.shares,initial_shares:pos.originalShares,buy_price:pos.originalPrice,adjusted_entry_unit_price:pos.price,sell_price: sellPrice,
       buy_cost: pos.buyCost, sell_proceeds: proceeds,
       profit_yen: net, return_pct: (proceeds / pos.buyCost - 1) * 100,
       holding_days: idx - pos.buyIndex + 1,
@@ -266,6 +306,7 @@ function simulateShared(b, ind, strategies, c) {
 
   for (let i = start; i <= end; i++) {
     const bar = b[i];
+    const splitRatio=c.splitMap?.get(bar.date);if(splitRatio){for(const pos of positions)applySplit(pos,splitRatio);}
     const equityAtOpen = () => cash + sum(positions.map(p => p.shares * bar.open));
     // 前日終値の売り条件→当日寄付で約定。すべての売却を先に処理。
     for (const pos of [...positions]) {
@@ -305,7 +346,7 @@ function simulateShared(b, ind, strategies, c) {
       const pos = {
         id: idCounter++, strategyIndex: k, signalDate: signal.date,
         buyDate: bar.date, buyIndex: i, shares, price: exec,
-        buyCost, best: exec, worst: exec
+        originalPrice:exec,originalShares:shares,buyCost, best: exec, worst: exec
       };
       positions.push(pos);
       buys.push({index: i, strategyIndex: k, price: exec, shares});
@@ -442,7 +483,7 @@ function clearResults(){for(let id of ['summaryTable','comparisonChart','drawdow
 function runAll(){
  try{
   const c=config();validateConfig(c);
-  const b=adjustedBars(state.bars,c.adjust),ind=getInd(b);
+  const b=state.bars;c.splitMap=parseSplitEvents(c.splitEvents,b);const splitNotes=checkSplitConsistency(b,c.splitMap);const indicatorBars=adjustedBars(b,c.adjust),ind=getInd(indicatorBars);
   const enabled=state.strategies.filter(s=>s.enabled);
   if(!enabled.length)err('実行対象の戦略がありません');
   if(enabled.length>30)err('同時検証は30戦略までにしてください。');
@@ -453,11 +494,11 @@ function runAll(){
   state.results=results;state.shared=shared;state.ind=ind;state.series=b;state.dirty=false;
   renderAll();renderShared();$('sharedPanel').classList.toggle('hidden',!shared);
   $('runInfo').className='hint';
-  $('runInfo').textContent=`✓ ${enabled.length}戦略を独立口座で比較${shared?'＋共有資金1口座の同時運用も計算':''}。期間 ${b[results[0].start].date}〜${b[results[0].end].date}（データ全体 ${b.length}営業日）。`;
+  $('runInfo').textContent=`✓ ${enabled.length}戦略を独立口座で比較${shared?'＋共有資金1口座の同時運用も計算':''}。期間 ${b[results[0].start].date}〜${b[results[0].end].date}（データ全体 ${b.length}営業日）。指標は${c.adjust==='raw'?'未調整':'調整後'}、売買は元の4本値。分割イベント${splitNotes.length}件。`; 
  }catch(ex){$('runInfo').className='hint err';$('runInfo').textContent='検証失敗: '+ex.message;console.error(ex)}
 }
 $('runAll').onclick=runAll;
-['capital','lotSize','feePct','slippagePct','startDate','endDate','adjustMode','benchMode','sharedMaxPositions','sharedDailyLimit','enableShared'].forEach(id=>$(id).addEventListener('change',()=>{state.dirty=true;$('runInfo').className='hint warn';$('runInfo').textContent='設定が変更されました。再検証してください。'}));
+['capital','lotSize','feePct','slippagePct','startDate','endDate','adjustMode','benchMode','splitEvents','sharedMaxPositions','sharedDailyLimit','enableShared'].forEach(id=>$(id).addEventListener('change',()=>{state.dirty=true;$('runInfo').className='hint warn';$('runInfo').textContent='設定が変更されました。再検証してください。'}));
 function tab(headers,rows){return `<table><thead><tr>${headers.map(x=>`<th>${esc(x)}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`}
 function stylePct(x){return `<span class="${x>=0?'positive':'negative'}">${pct(x)}</span>`}
 function lineChart(id,title,labels,series,{percent=false,reference=null,markers=[]}={}){
@@ -492,7 +533,7 @@ function renderDetail(){let r=state.results[+$('selectedStrategy').value];if(!r)
  // 売買マークは価格グラフSVGの座標と一致するように補足行を表示する。
  $('priceChart').insertAdjacentHTML('beforeend',`<div class="sub">緑点＝買い、赤点＝売り。購入${r.buys.length}件・売却${r.sells.length}件。位置はモデル約定価格（始値・指値にスリッページ反映）であり終値とは異なる場合があります。</div>`);
  $('openPositions').innerHTML=r.open.length?tab(['ID','買い日','株数','建値','時価','含み損益','損益率','保有日数'],r.open.map(p=>[p.id,p.buy_date,nf(p.shares,0),nf(p.price),nf(p.mark),money(p.unrealized),stylePct(p.return_pct),p.days])):'<p class="sub">期末建玉なし</p>';
- let stats=[1,3,5,10,20].map(h=>{let returns=r.signals.filter(sig=>sig.index+1<=r.end&&sig.index+h<=r.end).map(sig=>(r.b[sig.index+h].close/(r.b[sig.index+1].open*(1+c.slip))-1)*100);return [`${h}営業日後`,returns.length,pct(avg(returns)),returns.length?nf(returns.filter(x=>x>0).length/returns.length*100,1)+'%':'—',pct(returns.length?Math.min(...returns):null)]});
+ let statBars=adjustedBars(r.b,c.adjust);let stats=[1,3,5,10,20].map(h=>{let returns=r.signals.filter(sig=>sig.index+1<=r.end&&sig.index+h<=r.end).map(sig=>(statBars[sig.index+h].close/(statBars[sig.index+1].open*(1+c.slip))-1)*100);return [`${h}営業日後`,returns.length,pct(avg(returns)),returns.length?nf(returns.filter(x=>x>0).length/returns.length*100,1)+'%':'—',pct(returns.length?Math.min(...returns):null)]});
  $('signalStats').innerHTML=tab(['観測','件数','平均','上昇比率','最悪'],stats)+'<p class="sub">買いシグナル同士の観測期間は重なることがあります。件数は独立試行数ではありません。保有リターンはコスト控除前。</p>';
  let ts=r.trades.slice().reverse();$('tradeHistory').innerHTML=ts.length?tab(['ID','買い日','売り日','株数','買い価格','売り価格','手数料込損益','損益率','保有日数','理由'],ts.map(t=>[t.id,t.buy_date,t.sell_date,nf(t.shares,0),nf(t.buy_price,2),nf(t.sell_price,2),`<span class="${t.profit_yen>=0?'positive':'negative'}">${money(t.profit_yen)}</span>`,stylePct(t.return_pct),t.holding_days,esc(t.reason)])):'<p class="sub">決済済み取引はありません。</p>';
  $('orderLog').innerHTML=r.orders.length?tab(['日付','種類','理由'],r.orders.slice(-200).map(o=>[o.date,esc(o.kind),esc(o.reason)])):'<p class="sub">見送り・未執行注文はありません。</p>';
@@ -500,7 +541,7 @@ function renderDetail(){let r=state.results[+$('selectedStrategy').value];if(!r)
 $('selectedStrategy').onchange=renderDetail;
 function allTrades(){return state.results.flatMap(r=>r.trades)}
 $('exportCompare').onclick=()=>{if(!state.results.length)return alert('先に検証してください');dl('strategy_comparison.csv',csv(state.results.map(r=>({strategy:r.s.name,return_pct:r.ret,equity_yen:r.total,benchmark_pct:r.benchReturn,dd_pct:r.maxDD,win_pct:r.winRate,trade_count:r.trades.length,max_concurrent:r.maxConcurrent,profit_factor:r.profitFactor,sharpe:r.sharpe,skipped:r.skipped})),['strategy','return_pct','equity_yen','benchmark_pct','dd_pct','win_pct','trade_count','max_concurrent','profit_factor','sharpe','skipped']),'text/csv;charset=utf-8')};
-$('exportTrades').onclick=()=>{if(!state.results.length)return alert('先に検証してください');dl('strategy_trades.csv',csv(allTrades(),['strategy','id','signal_date','buy_date','sell_date','buy_price','sell_price','shares','buy_cost','sell_proceeds','profit_yen','return_pct','holding_days','max_favorable_pct','max_adverse_pct','reason']),'text/csv;charset=utf-8')};
+$('exportTrades').onclick=()=>{if(!state.results.length)return alert('先に検証してください');dl('strategy_trades.csv',csv(allTrades(),['strategy','id','signal_date','buy_date','sell_date','buy_price','sell_price','shares','initial_shares','adjusted_entry_unit_price','buy_cost','sell_proceeds','profit_yen','return_pct','holding_days','max_favorable_pct','max_adverse_pct','reason']),'text/csv;charset=utf-8')};
 $('exportEquity').onclick=()=>{if(!state.results.length)return alert('先に検証してください');let res=state.results,rows=res[0].equity.map((e,i)=>{let r={date:e.date};res.forEach((x,k)=>{r['s'+(k+1)+'_equity']=x.equity[i].total;r['s'+(k+1)+'_cash']=x.equity[i].cash;r['s'+(k+1)+'_positions']=x.equity[i].positions});r.hold_equity=res[0].benchmarkEquity[i].total;return r});let keys=Object.keys(rows[0]);dl('strategy_equity.csv',csv(rows,keys),'text/csv;charset=utf-8')};
 $('exportSignals').onclick=()=>{if(!state.results.length)return alert('先に検証してください');let rows=state.results.flatMap(r=>r.signals.map(x=>({strategy:r.s.name,date:x.date,signal_index:x.index})));dl('strategy_signals.csv',csv(rows,['strategy','date','signal_index']),'text/csv;charset=utf-8')};
 function settings(){return {version:5,config:config(),strategies:deep(state.strategies)}}
@@ -508,7 +549,7 @@ $('saveSettings').onclick=()=>dl('strategy_lab_v5_settings.json',JSON.stringify(
 $('exportSelected').onclick=()=>{let r=state.results[+$('selectedStrategy').value];if(!r)return;if(r.isShared)return alert('統合口座の一部だけを保存する代わりに、全戦略設定JSONを保存してください');dl(`strategy_${r.s.name.replace(/[^\w\u3040-\u30ff\u4e00-\u9fff-]/g,'_')}.json`,JSON.stringify({version:5,config:config(),strategies:[r.s]},null,2),'application/json;charset=utf-8')};
 $('loadSettings').onchange=async e=>{let file=e.target.files?.[0];if(!file)return;try{let src=JSON.parse(await file.text());if(!Array.isArray(src.strategies)||!src.strategies.length)err('戦略配列がありません');for(let s of src.strategies){if(!s.entry?.groups||!s.exit?.groups)err('設定の構造が対応していません');validateStrategy(s)}
  let c=src.config||{};for(let [key,id,conv] of [['capital','capital'],['lot','lotSize'],['fee','feePct',100],['slip','slippagePct',100],['start','startDate'],['end','endDate'],['adjust','adjustMode'],['bench','benchMode'],['sharedMax','sharedMaxPositions'],['sharedDaily','sharedDailyLimit']]){if(c[key]!=null)$(id).value=conv?Number(c[key])*conv:c[key]}
- state.strategies=src.strategies.map(s=>deep(s));renderStrategies();state.dirty=true;$('runInfo').className='hint';$('runInfo').textContent=`戦略 ${state.strategies.length}件を読み込みました。再検証してください。`;
+ if(c.splitEvents!=null)$('splitEvents').value=c.splitEvents;state.strategies=src.strategies.map(s=>deep(s));renderStrategies();state.dirty=true;$('runInfo').className='hint';$('runInfo').textContent=`戦略 ${state.strategies.length}件を読み込みました。再検証してください。`;
  }catch(ex){alert(ex.message)}e.target.value=''};
 $('runSweep').onclick=()=>{try{let base=state.results[+$('selectedStrategy').value];if(!base)err('先に検証して戦略を選択してください');if(state.dirty)err('条件が変わっています。先に全体を再検証してください');if(state.dirty)err('設定が変更されています。一括検証をやり直してください');if(base.isShared)err('統合口座は複数の売買条件を持つため、パラメータ比較は個別戦略を選択してください');let key=$('sweepField').value,min=Number($('sweepMin').value),max=Number($('sweepMax').value),step=Number($('sweepStep').value);if(![min,max,step].every(hasNum)||step<=0||min>max)err('最小・最大・刻み幅が不正です');let count=Math.floor((max-min)/step+1e-9)+1;if(count>100)err('100パターン以下にしてください');let rows=[];
  for(let k=0;k<count;k++){let v=Math.round((min+k*step)*1e8)/1e8,s=deep(base.s);if(key==='take')s.take=v;else if(key==='stop')s.stop=v;else if(key==='hold')s.hold=v;else if(key==='alloc')s.allocation=v;else if(key==='slots')s.maxPositions=v;else if(key==='entry0'){if(!s.entry.groups[0].rows.length)err('買い条件Aの1行目がありません');s.entry.groups[0].rows[0].value=v;}else if(key==='exit0'){if(!s.exit.groups[0].rows.length)err('売り条件Aの1行目がありません');s.exit.groups[0].rows[0].value=v;}
