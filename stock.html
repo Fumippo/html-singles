@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>個別株・条件検証ラボ | Local Strategy Lab</title>
+<style>
+:root{--bg:#0b1220;--card:#131f33;--stroke:#2a3950;--ink:#f0f5ff;--muted:#a4b6ce;--blue:#75b7ff;--green:#67e4ac;--red:#ff929b;--gold:#f3ca79}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;line-height:1.5}
+main{max-width:1250px;margin:auto;padding:26px 22px 60px}header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(23px,3vw,36px);letter-spacing:-.02em}.kicker{letter-spacing:.16em;font-size:11px;color:var(--blue);font-weight:750}
+.lead{color:var(--muted);font-size:13px;max-width:720px}.tag{border:1px solid #335271;background:#142b40;border-radius:50px;padding:6px 12px;color:#bce0ff;font-size:12px}
+.panel{background:var(--card);border:1px solid var(--stroke);border-radius:16px;padding:20px;margin-top:16px;box-shadow:0 6px 20px #0002}
+.section-title{margin:0 0 14px;font-size:18px}p{margin:8px 0}small,.subtle{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.field{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)}input,select,textarea,button{font:inherit}
+input[type=number],input[type=text],select,textarea{background:#0d1a2b;color:var(--ink);border:1px solid #3a4e67;border-radius:8px;padding:9px;min-width:0;width:100%}
+textarea{min-height:100px;font-family:ui-monospace,monospace;font-size:11px;resize:vertical}
+button,.upload{background:#214f7b;border:1px solid #477aa8;color:white;border-radius:9px;padding:9px 14px;cursor:pointer;font-weight:650;display:inline-block;text-align:center}
+button:hover,.upload:hover{background:#29659d}.secondary{background:#1c2c40;border-color:#40526b}.accent{background:#087e63;border-color:#27b08e}.danger{background:#512e43;border-color:#a35f79}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.gap{height:12px}.conditions{display:flex;flex-direction:column;gap:8px}
+.cond{display:grid;grid-template-columns:minmax(140px,1.5fr) 130px minmax(90px,.65fr) 44px;gap:7px;align-items:center}
+input[type=file]{display:none}.info{margin-top:9px;font-size:13px;color:#abd1ef}.warning{color:var(--gold)}.bad{color:var(--red)}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.metric{background:#0d1a2b;border:1px solid #2e425c;border-radius:11px;padding:13px}.metric .label{color:var(--muted);font-size:12px}.metric .value{font-size:clamp(19px,2vw,29px);font-weight:750;margin-top:4px;font-variant-numeric:tabular-nums}
+.chart-wrap{overflow-x:auto;min-height:240px}.plot{width:100%;height:auto;display:block;min-width:600px}
+.tablewrap{overflow-x:auto}table{border-collapse:collapse;min-width:660px;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{border-bottom:1px solid #2a3950;text-align:right;padding:10px 8px}th:first-child,td:first-child{text-align:left}th{color:#aec6e1;font-weight:650}td{color:#e1eafa}
+.note{font-size:12px;color:#b4c6de;margin-top:10px}.hidden{display:none}.pos{color:var(--green)}.neg{color:var(--red)}
+@media(max-width:850px){.grid,.grid.three{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.cond{grid-template-columns:1fr 95px 85px 40px}main{padding:15px 12px 45px}.panel{padding:14px}}
+</style>
+</head>
+<body>
+<main>
+<header><div><div class="kicker">LOCAL / NO SERVER / EXPERIMENTAL</div><h1>個別株・条件検証ラボ</h1><div class="lead">CSVを読み込み、買い条件・売り条件を自由に追加。翌営業日の始値で約定する売買テストと、シグナル後の騰落率を比較できます。</div></div><div class="tag">🔒 データはブラウザ内で処理</div></header>
+<section class="panel"><h2 class="section-title">01. 株価データを読み込む</h2>
+<div class="row"><label class="upload">CSVを選択<input id="file" type="file" accept=".csv,.txt,text/csv,text/plain"></label><button class="secondary" id="togglePaste">生データを貼り付ける</button><button class="secondary" id="exportCsv">読み込んだCSVを保存</button></div>
+<div id="pastePanel" class="hidden"><div class="gap"></div><textarea id="raw" placeholder="2026-10-16 [Tab] 34,700 [Tab] 35,610 ...&#10;日付＋始値＋高値＋安値＋終値＋出来高＋調整後終値。逆順でもOK"></textarea><button id="readPaste">貼り付けデータを取り込む</button></div>
+<div class="info" id="dataInfo">最初に同梱のCSVファイルを選んでください。hayauma.netからコピーしたタブ区切りの表も、そのまま貼り付けられます。</div>
+</section>
+<div class="grid">
+<section class="panel"><h2 class="section-title">02. 買い条件</h2><label class="field">条件の関係<select id="entryMode"><option value="all">すべて成立（AND）</option><option value="any">どれか成立（OR）</option></select></label><div class="gap"></div><div class="conditions" id="entryConditions"></div><div class="gap"></div><div class="row"><button id="addEntry" class="secondary">＋ 買い条件を追加</button><button id="presetDrop" class="secondary">急落型</button><button id="presetTrend" class="secondary">トレンド型</button></div></section>
+<section class="panel"><h2 class="section-title">03. 売り条件</h2><label class="field">条件の関係<select id="exitMode"><option value="any">どれか成立（OR）</option><option value="all">すべて成立（AND）</option></select></label><div class="gap"></div><div class="conditions" id="exitConditions"></div><div class="gap"></div><div class="row"><button id="addExit" class="secondary">＋ 売り条件を追加</button><button id="clearExit" class="secondary">売り条件を空にする</button></div><p class="note">売り条件を空にした場合は、利確・損切り・最大保有日数だけで売却します。</p></section>
+</div>
+<section class="panel"><h2 class="section-title">04. 売買設定</h2><div class="grid three">
+<label class="field">初期資金（円）<input id="capital" type="number" min="100000" step="100000" value="10000000"></label>
+<label class="field">売買単位（株）<input id="lot" type="number" min="1" step="1" value="100"></label>
+<label class="field">片道コスト（％・概算）<input id="fee" type="number" min="0" max="5" step="0.01" value="0.1"></label>
+<label class="field">利確（％）<input id="take" type="number" min="0" max="100" step="0.5" value="6"></label>
+<label class="field">損切り（％）<input id="stop" type="number" min="0" max="100" step="0.5" value="4"></label>
+<label class="field">最大保有営業日数（0＝制限なし）<input id="maxHold" type="number" min="0" max="3000" step="1" value="10"></label>
+</div><p class="note">利確・損切りは0で無効。シグナルは引け後に確定し、翌営業日の始値で発注。日中に利確と損切りの両方へ達した場合は損切りを先に実行する保守的ルールです。</p>
+<div class="row"><button class="accent" id="run">▶ 検証する</button><button class="secondary" id="saveSettings">設定をJSONで保存</button><label class="upload secondary">設定JSONを読み込む<input type="file" id="loadSettings" accept=".json,application/json"></label></div><p class="info" id="runInfo"></p></section>
+<section class="panel"><h2 class="section-title">05. 検証結果</h2><div class="cards" id="kpis"><div class="metric"><div class="label">ステータス</div><div class="value">未実行</div></div></div><div class="gap"></div><div class="chart-wrap" id="priceChart"></div><div class="gap"></div><div class="chart-wrap" id="equityChart"></div></section>
+<div class="grid"><section class="panel"><h2 class="section-title">06. シグナル発生後の値動き</h2><div class="tablewrap" id="signalStats">CSVを読み込んで検証すると表示します。</div><p class="note">買いシグナル発生日の翌営業日始値を取得価格として、1・3・5・10営業日後の終値で計算します。重複シグナルを含むため統計的な独立性はありません。</p></section>
+<section class="panel"><h2 class="section-title">07. 取引履歴</h2><div class="row"><button class="secondary" id="exportTrades">取引履歴CSVを保存</button></div><div class="tablewrap" id="tradeTable">売買結果がここに表示されます。</div></section></div>
+<section class="panel"><h2 class="section-title">この試作品の重要な前提</h2><p class="subtle">① 過去の売買成績は将来の利益を保証しません。② 61営業日ではシグナル数が少なく、最適化した閾値の優位性を検証できません。③ 同一銘柄に現金の範囲内で原則全力投資、同時保有は1ポジション、空売り・信用取引なし。④ 買い・売りのテクニカル条件は大引け確定、翌営業日始値で執行。⑤ 損切り・利確は日足高安値で推定するため約定順序や板の状況を再現できません。⑥ 過去の分割調整や配当の検証は別途必要です。</p></section>
+</main>
+<script>
+'use strict';
+const el=id=>document.getElementById(id);
+let bars=[],lastResult=null,parsedName='advantest';
+const metrics={
+ rsi14:['RSI（14）',30],daily:['前日比（%）',-3],roc3:['3日騰落率（%）',-5],roc5:['5日騰落率（%）',-7],
+ ma5:['終値と5日線の乖離率（%）',0],ma10:['終値と10日線の乖離率（%）',0],ma20:['終値と20日線の乖離率（%）',0],
+ vol5:['出来高÷5日平均（倍）',1.5],vol20:['出来高÷20日平均（倍）',1.5],
+ bb20:['ボリンジャーZ値（20）',-2],macdh:['MACDヒストグラム',0],
+ intraday:['当日騰落率・始値比（%）',-2],range:['高安値幅÷始値（%）',4]
+};
+const ops={'<=':'≦','<':'＜','>=':'≧','>':'＞','up':'閾値を上抜け','down':'閾値を下抜け'};
+const fmt=(n,d=2)=>Number.isFinite(n)?n.toLocaleString('ja-JP',{minimumFractionDigits:d,maximumFractionDigits:d}):'—';
+const signed=(n,d=2)=>Number.isFinite(n)?(n>0?'+':'')+fmt(n,d)+'%':'—';
+const numeric=x=>Number(String(x).replace(/,/g,'').replace(/\s/g,''));
+function makeRow(container, metric='rsi14',op='<=',value=30){
+ const row=document.createElement('div');row.className='cond';
+ let opts=Object.entries(metrics).map(([k,[title]])=>`<option value="${k}">${title}</option>`).join('');
+ row.innerHTML=`<select class="m">${opts}</select><select class="op">${Object.entries(ops).map(([k,title])=>`<option value="${k}">${title}</option>`).join('')}</select><input class="v" type="number" step="any"><button class="danger remove" title="削除">×</button>`;
+ row.querySelector('.m').value=metric;row.querySelector('.op').value=op;row.querySelector('.v').value=value;
+ row.querySelector('.remove').onclick=()=>row.remove();
+ row.querySelector('.m').onchange=()=>row.querySelector('.v').value=metrics[row.querySelector('.m').value][1];
+ el(container).append(row);
+}
+function setRows(which,defs){el(which+'Conditions').innerHTML='';defs.forEach(c=>makeRow(which+'Conditions',c[0],c[1],c[2]));}
+setRows('entry',[['daily','<=',-3]]);setRows('exit',[]);
+el('addEntry').onclick=()=>makeRow('entryConditions');el('addExit').onclick=()=>makeRow('exitConditions','rsi14','>=',65);
+el('clearExit').onclick=()=>setRows('exit',[]);
+el('presetDrop').onclick=()=>{setRows('entry',[['daily','<=',-3]]);el('entryMode').value='all';};
+el('presetTrend').onclick=()=>{setRows('entry',[['ma10','up',0]]);el('entryMode').value='all';setRows('exit',[['ma10','down',0]]);};
+el('togglePaste').onclick=()=>el('pastePanel').classList.toggle('hidden');
+function parseRaw(text){
+ let lines=text.replace(/^\uFEFF/,'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean),parsed=[],errors=[];
+ lines.forEach((line,idx)=>{
+  let fields=line.includes('\t')?line.split(/\t+/):line.split(',');
+  fields=fields.map(x=>x.trim().replace(/^"|"$/g,''));
+  if (/^(date|日付)$/i.test(fields[0]))return;
+  if(!/^\d{4}[-\/.]\d{1,2}[-\/.]\d{1,2}$/.test(fields[0])||fields.length<6){errors.push(`行${idx+1}:列数または日付に問題`);return;}
+  let date=fields[0].replace(/[\/.]/g,'-').replace(/-(\d)(?=-|$)/g,'-0$1'),values=fields.slice(1,7).map(numeric);
+  if(values.slice(0,5).some(x=>!Number.isFinite(x))){errors.push(`行${idx+1}: 数値に問題`);return;}
+  let [open,high,low,close,volume]=values;
+  if(!(low<=Math.min(open,close)&&high>=Math.max(open,close)&&open>0&&close>0&&volume>=0)){errors.push(`行${idx+1}: 高値・安値などが不整合`);return;}
+  parsed.push({date,open,high,low,close,volume,adjusted_close:Number.isFinite(values[5])?values[5]:close});
+ });
+ if(errors.length)throw Error(errors.slice(0,3).join(' / ')+(errors.length>3?` 他${errors.length-3}件`:''));
+ parsed.sort((a,b)=>a.date.localeCompare(b.date));
+ if(!parsed.length)throw Error('株価行を読み取れませんでした。列をタブ区切りで貼り付けるか、CSVを選択してください。');
+ if(new Set(parsed.map(x=>x.date)).size!==parsed.length)throw Error('日付が重複しています。');
+ return parsed;
+}
+function loadText(text){try{
+ bars=parseRaw(text);lastResult=null;
+ let mismatch=bars.filter(b=>Math.abs(b.adjusted_close-b.close)>0.00001).length;
+ el('dataInfo').innerHTML=`<span class="pos">✓ ${bars.length}営業日を取り込みました。</span> ${bars[0].date} 〜 ${bars.at(-1).date}。古い日付順に自動並べ替え。`+(mismatch?` <span class="warning">調整後終値と終値が異なる日が${mismatch}日あります。分割調整の整合性をご確認ください。</span>`:'');
+ el('runInfo').textContent='「検証する」を押すと分析を実行します。';el('kpis').innerHTML='<div class="metric"><div class="label">データ</div><div class="value">'+bars.length+'営業日</div></div>';
+ plotPrice(bars,[],[]);
+ }catch(e){el('dataInfo').innerHTML='<span class="bad">読み込み失敗: '+escapeHtml(e.message)+'</span>';}}
+el('readPaste').onclick=()=>loadText(el('raw').value);
+el('file').onchange=async e=>{let f=e.target.files[0];if(!f)return;parsedName=f.name.replace(/\.[^.]*$/,'');loadText(await f.text());};
+function csv(rows,headers){return '\uFEFF'+headers.join(',')+'\r\n'+rows.map(r=>headers.map(k=>String(r[k]??'')).join(',')).join('\r\n')+'\r\n';}
+function download(name,txt,type='text/plain;charset=utf-8'){let blob=new Blob([txt],{type}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),3000);}
+el('exportCsv').onclick=()=>{if(!bars.length)return alert('データ未読込');download('株価_整形済.csv',csv(bars,['date','open','high','low','close','volume','adjusted_close']),'text/csv;charset=utf-8');};
+function sma(list,n){return list.map((_,i)=>i<n-1?null:list.slice(i-n+1,i+1).reduce((a,b)=>a+b,0)/n);}
+function std(data){let m=data.reduce((a,b)=>a+b,0)/data.length;return Math.sqrt(data.reduce((a,b)=>a+(b-m)**2,0)/data.length);}
+function ema(v,n){let out=v.map(()=>null),first=v.findIndex(x=>Number.isFinite(x));if(first<0)return out;
+ let valid=v.slice(first,first+n);if(valid.length<n||valid.some(x=>!Number.isFinite(x)))return out;
+ let cur=valid.reduce((a,b)=>a+b,0)/n;out[first+n-1]=cur;let alpha=2/(n+1);
+ for(let i=first+n;i<v.length;i++){if(!Number.isFinite(v[i]))continue;cur=alpha*v[i]+(1-alpha)*cur;out[i]=cur;}return out;}
+function indicator(b){let close=b.map(x=>x.close),vol=b.map(x=>x.volume),sm5=sma(close,5),sm10=sma(close,10),sm20=sma(close,20),v5=sma(vol,5),v20=sma(vol,20);
+ let dif=close.map((x,i)=>i?x-close[i-1]:null),rsi=close.map(()=>null),rsiN=14;
+ if(close.length>rsiN){let gain=0,loss=0;for(let i=1;i<=rsiN;i++){gain+=Math.max(dif[i],0);loss+=Math.max(-dif[i],0);}gain/=rsiN;loss/=rsiN;
+ function toRSI(){return gain===0&&loss===0?50:loss===0?100:gain===0?0:100-100/(1+gain/loss);}rsi[rsiN]=toRSI();
+ for(let i=rsiN+1;i<close.length;i++){gain=(gain*(rsiN-1)+Math.max(dif[i],0))/rsiN;loss=(loss*(rsiN-1)+Math.max(-dif[i],0))/rsiN;rsi[i]=toRSI();}}
+ let fast=ema(close,12),slow=ema(close,26),macd=close.map((_,i)=>fast[i]!=null&&slow[i]!=null?fast[i]-slow[i]:null),signal=ema(macd,9),hist=close.map((_,i)=>macd[i]!=null&&signal[i]!=null?macd[i]-signal[i]:null);
+ return b.map((x,i)=>({
+ rsi14:rsi[i],daily:i?(x.close/close[i-1]-1)*100:null,
+ roc3:i>=3?(x.close/close[i-3]-1)*100:null,roc5:i>=5?(x.close/close[i-5]-1)*100:null,
+ ma5:sm5[i]?(x.close/sm5[i]-1)*100:null,ma10:sm10[i]?(x.close/sm10[i]-1)*100:null,ma20:sm20[i]?(x.close/sm20[i]-1)*100:null,
+ vol5:v5[i]?x.volume/v5[i]:null,vol20:v20[i]?x.volume/v20[i]:null,
+ bb20:i>=19?(x.close-sm20[i])/std(close.slice(i-19,i+1)):null,
+ macdh:hist[i],intraday:(x.close/x.open-1)*100,range:(x.high-x.low)/x.open*100
+ }));
+}
+function readConditions(which){return [...el(which+'Conditions').children].map(row=>({metric:row.querySelector('.m').value,op:row.querySelector('.op').value,value:Number(row.querySelector('.v').value)}));}
+function matches(conditions,mode,ind,i){if(!conditions.length)return false;
+ let results=conditions.map(({metric,op,value})=>{
+ let v=ind[i]?.[metric],prev=ind[i-1]?.[metric];if(!Number.isFinite(v))return false;
+ if(op==='up')return Number.isFinite(prev)&&prev<=value&&v>value;
+ if(op==='down')return Number.isFinite(prev)&&prev>=value&&v<value;
+ return {'<':()=>v<value,'<=':()=>v<=value,'>':()=>v>value,'>=':()=>v>=value}[op]();
+ });return mode==='all'?results.every(Boolean):results.some(Boolean);
+}
+function getConf(){return {entry:readConditions('entry'),exit:readConditions('exit'),entryMode:el('entryMode').value,exitMode:el('exitMode').value,capital:Number(el('capital').value),lot:Number(el('lot').value),fee:Number(el('fee').value)/100,take:Number(el('take').value),stop:Number(el('stop').value),maxHold:Number(el('maxHold').value)};}
+function validate(c){if(!bars.length)throw Error('先に株価データを読み込んでください。');if(!c.entry.length)throw Error('買い条件を最低1つ追加してください。');if(c.capital<=0||c.lot<1||c.fee<0||c.take<0||c.stop<0||c.maxHold<0)throw Error('売買設定の数値を確認してください。');}
+function calc(c){validate(c);let ind=indicator(bars),equity=[],trades=[],signalIdx=[],buyMarks=[],sellMarks=[];
+ let cash=c.capital,pos=null,pendingBuy=false,pendingExit=false,fee=c.fee,failedBuys=0;
+ for(let i=0;i<bars.length;i++){
+  let b=bars[i];
+  function sell(price,reason){let exec=price*(1-fee),proceeds=pos.shares*exec,cost=pos.shares*pos.entryPrice;
+   cash+=proceeds;
+   trades.push({buy_date:bars[pos.start].date,buy_price:pos.entryPrice,sell_date:b.date,sell_price:exec,shares:pos.shares,profit_yen:Math.round(proceeds-cost),return_pct:(exec/pos.entryPrice-1)*100,days:i-pos.start+1,reason});
+   sellMarks.push({i,price:exec});pos=null;
+  }
+  if(pendingExit&&pos){sell(b.open,'条件 / 期限（翌日始値）');pendingExit=false;}
+  if(pendingBuy&&!pos){let entryPrice=b.open*(1+fee),q=Math.floor(cash/entryPrice/c.lot)*c.lot;
+   if(q>=c.lot){cash-=q*entryPrice;pos={start:i,shares:q,entryPrice};buyMarks.push({i,price:entryPrice});}else failedBuys++;
+   pendingBuy=false;
+  }
+  if(pos){let take=c.take>0?pos.entryPrice*(1+c.take/100):Infinity,stop=c.stop>0?pos.entryPrice*(1-c.stop/100):-Infinity;
+   if(b.open<=stop){sell(b.open,'損切り（窓開け）');}
+   else if(b.open>=take){sell(b.open,'利確（窓開け）');}
+   else if(b.low<=stop){sell(stop,b.high>=take?'損切り（同日両方到達）':'損切り');}
+   else if(b.high>=take){sell(take,'利確');}
+  }
+  let entrySignal=matches(c.entry,c.entryMode,ind,i);
+  if(entrySignal)signalIdx.push(i);
+  if(pos){if((c.maxHold>0&&(i-pos.start+1)>=c.maxHold)||(c.exit.length>0&&matches(c.exit,c.exitMode,ind,i)))pendingExit=true;
+  }else if(entrySignal&&i<bars.length-1){pendingBuy=true;}
+  equity.push({date:b.date,total:cash+(pos?pos.shares*b.close:0)});
+ }
+ let last=bars.at(-1),portfolio=equity.at(-1).total,closed=trades.filter(x=>x.profit_yen>0);
+ let max=equity[0].total,dd=0;for(let e of equity){max=Math.max(max,e.total);dd=Math.min(dd,(e.total/max-1)*100);}
+ let b0=bars[0].open*(1+fee),benchQ=Math.floor(c.capital/b0/c.lot)*c.lot;
+ let benchEnd=c.capital-benchQ*b0+benchQ*last.close*(1-fee);
+ return {equity,trades,signalIdx,buyMarks,sellMarks,portfolio,ret:(portfolio/c.capital-1)*100,drawdown:dd,win:trades.length?closed.length/trades.length*100:null,closed:trades.length,open:pos?{shares:pos.shares,entryPrice:pos.entryPrice,start:bars[pos.start].date,mtm:(last.close/pos.entryPrice-1)*100}:null,benchRet:(benchEnd/c.capital-1)*100,benchEnd,failedBuys,ind,c};
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function renderPlot(elem,title,points,ys,marks=[]){let W=1100,H=315,l=77,r=24,t=35,b=45;
+ let lo=Math.min(...ys.filter(Number.isFinite)),hi=Math.max(...ys.filter(Number.isFinite));if(!Number.isFinite(lo)||!Number.isFinite(hi))return;
+ let delta=(hi-lo)||1;lo-=delta*.11;hi+=delta*.11;
+ let xx=i=>l+(W-l-r)*i/Math.max(1,points.length-1),yy=v=>t+(H-t-b)*(hi-v)/(hi-lo);
+ let path=ys.map((v,i)=>(i?'L':'M')+xx(i).toFixed(1)+','+yy(v).toFixed(1)).join(' ');
+ let grid=Array.from({length:5},(_,k)=>{let v=lo+(hi-lo)*k/4,y=yy(v);return `<line x1="${l}" x2="${W-r}" y1="${y}" y2="${y}" stroke="#2e4058"/><text x="${l-10}" y="${y+4}" fill="#9fb1c9" text-anchor="end" font-size="12">${fmt(v,0)}</text>`;}).join('');
+ let ticks=Array.from({length:5},(_,j)=>{let i=Math.round(j*(points.length-1)/4);return `<text x="${xx(i)}" y="${H-11}" fill="#9fb1c9" font-size="12" text-anchor="middle">${points[i]}</text>`;}).join('');
+ let marksvg=marks.map(m=>`<circle cx="${xx(m.i)}" cy="${yy(m.price)}" r="5" stroke="#10192c" stroke-width="2" fill="${m.kind==='buy'?'#67e4ac':'#ff929b'}"><title>${m.kind==='buy'?'買い':'売り'} ${points[m.i]}：${fmt(m.price)}円</title></circle>`).join('');
+ el(elem).innerHTML=`<svg viewBox="0 0 ${W} ${H}" class="plot" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${escapeHtml(title)}"><text x="${l}" y="24" fill="#e5f1ff" font-weight="700" font-size="17">${escapeHtml(title)}</text>${grid}<path d="${path}" stroke="#75b7ff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>${marksvg}${ticks}</svg>`;
+}
+function plotPrice(b,buys,sells){renderPlot('priceChart','終値の推移（緑＝買い、赤＝売り）',b.map(x=>x.date.slice(5)),b.map(x=>x.close),[...buys.map(x=>({...x,kind:'buy'})),...sells.map(x=>({...x,kind:'sell'}))]);}
+function kpi(label,value,cls=''){return `<div class="metric"><div class="label">${label}</div><div class="value ${cls}">${value}</div></div>`;}
+function render(r){let c=r.c;
+ el('kpis').innerHTML=kpi('累積リターン',signed(r.ret),r.ret>=0?'pos':'neg')+kpi('終値時点の資産',fmt(r.portfolio,0)+'円')+kpi('完了した売買',r.closed+'回')+kpi('取引勝率',r.win==null?'—':fmt(r.win,1)+'%')+kpi('最大ドローダウン',signed(r.drawdown),'neg')+kpi('買い条件成立',r.signalIdx.length+'回')+kpi('買い持ち比較',signed(r.benchRet),r.benchRet>=0?'pos':'neg')+kpi('未決済株数',r.open?r.open.shares.toLocaleString()+'株':'0株');
+ plotPrice(bars,r.buyMarks,r.sellMarks);
+ renderPlot('equityChart','保有資産の推移（円・未決済株は終値評価）',r.equity.map(x=>x.date.slice(5)),r.equity.map(x=>x.total));
+ let statRows=[];for(let h of [1,3,5,10]){let data=[];for(let i of r.signalIdx){if(i+1>=bars.length||i+h>=bars.length)continue;data.push((bars[i+h].close/bars[i+1].open-1)*100);}
+ statRows.push(`<tr><td>${h}営業日後</td><td>${data.length}</td><td>${data.length?signed(data.reduce((a,b)=>a+b,0)/data.length):'—'}</td><td>${data.length?fmt(data.filter(x=>x>0).length/data.length*100,1)+'%':'—'}</td></tr>`);}
+ el('signalStats').innerHTML=`<table><thead><tr><th>観測期間</th><th>件数</th><th>平均騰落率</th><th>上昇割合</th></tr></thead><tbody>${statRows.join('')}</tbody></table>`;
+ let trs=r.trades.map(x=>`<tr><td>${x.buy_date}</td><td>${x.sell_date}</td><td>${fmt(x.buy_price,1)}</td><td>${fmt(x.sell_price,1)}</td><td>${x.shares}</td><td class="${x.profit_yen>=0?'pos':'neg'}">${signed(x.return_pct)}</td><td>${escapeHtml(x.reason)}</td></tr>`).join('');
+ el('tradeTable').innerHTML=trs?`<table><thead><tr><th>買い日</th><th>売り日</th><th>買い価格</th><th>売り価格</th><th>株数</th><th>損益率</th><th>理由</th></tr></thead><tbody>${trs}</tbody></table>`:'<p class="warning">売買が成立していません。条件を緩めるか、資金を増やしてみてください。</p>';
+ el('runInfo').innerHTML=`<span class="pos">✓ 検証完了</span>：${bars.length}営業日。片道コスト${fmt(c.fee*100)}%、100株単位など指定条件を反映。`+(r.failedBuys?` <span class="warning">残高不足で購入できなかったシグナル${r.failedBuys}件</span>`:'')+(r.open?` <span class="warning">期末に保有中のポジションがあります（含み損益を資産に反映）。</span>`:'')+' <span class="warning">同じ3か月で閾値を最適化しても将来の優位性は証明できません。</span>';
+}
+el('run').onclick=()=>{try{lastResult=calc(getConf());render(lastResult);}catch(e){el('runInfo').innerHTML='<span class="bad">'+escapeHtml(e.message)+'</span>';}};
+el('exportTrades').onclick=()=>{if(!lastResult)return alert('検証結果がありません');download('売買履歴.csv',csv(lastResult.trades,['buy_date','buy_price','sell_date','sell_price','shares','profit_yen','return_pct','days','reason']),'text/csv;charset=utf-8');};
+el('saveSettings').onclick=()=>download('strategy_settings.json',JSON.stringify(getConf(),null,2),'application/json;charset=utf-8');
+el('loadSettings').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let c=JSON.parse(await f.text());setRows('entry',c.entry.map(o=>[o.metric,o.op,o.value]));setRows('exit',c.exit.map(o=>[o.metric,o.op,o.value]));['entryMode','exitMode','capital','lot','take','stop','maxHold'].forEach(k=>{if(c[k]!=null)el(k).value=c[k];});if(c.fee!=null)el('fee').value=c.fee*100;el('runInfo').textContent='設定を読み込みました。';}catch(ex){alert('設定ファイルを読み込めません: '+ex.message);}};
+</script>
+</body></html>
