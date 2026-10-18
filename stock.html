@@ -17,7 +17,7 @@ footer{font-size:12px;color:var(--sub);margin-top:20px}.pill{padding:3px 6px;bac
 @media(max-width:650px){main{padding:0 9px;margin-top:12px}.panel{padding:13px}.grid{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style></head>
 <body><main>
-<header><span class="badge">🔒 ローカル専用／サーバー通信なし</span><h1>日本株・多銘柄×多数戦略 検証ラボ <span style="color:var(--blue)">v7</span></h1><p class="lead">30銘柄 × 240条件＝7,200検証を一括実行。年別・銘柄別・期間分割・買い持ち超過収益・銘柄×戦略ヒートマップ・実資金共有ポートフォリオを同じ画面で分析。</p></header>
+<header><span class="badge">🔒 ローカル専用／サーバー通信なし</span><h1>日本株・多銘柄×多数戦略 検証ラボ <span style="color:var(--blue)">v7.1</span></h1><p class="lead">30銘柄 × 240条件＝7,200検証を一括実行。年別・銘柄別・期間分割・買い持ち超過収益・銘柄×戦略ヒートマップ・実資金共有ポートフォリオを同じ画面で分析。</p></header>
 <section class="panel"><h2>01　銘柄別CSVを一括登録・同一銘柄は日付で結合</h2>
 <div class="row"><label class="filebtn">CSV / TXTを複数選択<input type="file" id="fileInput" accept=".csv,.txt" multiple></label><button id="clearAll" class="danger">全銘柄を削除</button><button id="downloadCatalog">銘柄台帳CSV</button></div>
 <p class="muted small">推奨ファイル名：<b>6857_アドバンテスト_2022-01-04_2026-10-16.csv</b>。銘柄コードで識別して、同銘柄の複数ファイルは自動結合します。銘柄名のない <code>6857.csv</code> も対応。</p>
@@ -137,16 +137,18 @@ $('presetTrend').onclick=()=>{$('family').value='breakout';$('triggers').value='
 $('rank').onchange=()=>{if(state.candidates.length)renderRank()};$('showN').onchange=()=>{if(state.candidates.length)renderRank()};
 function styleP(x){return `<span class="${x>=0?'positive':'negative'}">${pct(x)}</span>`}
 function sorted(){const score=r=>Number.isFinite(rankScore(r))?rankScore(r):-1e99;return [...state.candidates].sort((a,b)=>score(b)-score(a)||a.id-b.id)}
-function renderAll(){let x=state.runContext,sum=state.selected.full;$('summaryKpis').innerHTML=[['登録銘柄',x.a.length],['探索候補',x.executed],['選択戦略：中央値',pct(sum.median)],['選択戦略：超過中央値',pct(sum.medianExcess)],['利益銘柄率',pct(sum.positive)]].map(([label,value])=>`<div class="kpi"><div class="label">${label}</div><div class="value">${value}</div></div>`).join('');renderRank();renderDetail();$('portfolioKpis').innerHTML='';$('portfolioAssetBody').innerHTML='';$('portfolioTradesBody').innerHTML='';$('portfolioChart').innerHTML='';$('portfolioDD').innerHTML='';$('portfolioInfo').textContent='選択中の戦略を全銘柄で共有口座運用できます。'}
-function renderRank(){let ar=sorted().slice(0,+$('showN').value);$('rankBody').innerHTML=ar.map(x=>`<tr data-id="${x.id}" class="${state.selected?.id===x.id?'selected':''}"><td><button data-choose="${x.id}">${state.selected?.id===x.id?'選択中':'選ぶ'}</button></td><td>${x.id}</td><td>${nf(x.trigger,2)}</td><td>${x.take}%</td><td>${x.stop}%</td><td>${x.hold}</td><td>${styleP(x.train.median)}</td><td>${styleP(x.train.mean)}</td><td>${styleP(x.train.medianExcess)}</td><td>${pct(x.train.positive)}</td><td>${pct(x.train.medianDD)}</td><td>${x.test?styleP(x.test.median):'—'}</td><td>${x.test?styleP(x.test.medianExcess):'—'}</td><td>${x.train.n}</td><td>${x.full.trades}</td></tr>`).join('');$('rankBody').querySelectorAll('[data-choose]').forEach(btn=>btn.onclick=()=>{state.selected=state.candidates.find(x=>x.id===+btn.dataset.choose);renderRank();renderDetail();$('portfolioInfo').textContent='選択した戦略が変更されました。共有口座は未再計算です。';state.portfolio=null})}
+function clearPortfolioOnSelection(){state.portfolio=null;for(const id of ['portfolioKpis','portfolioAssetBody','portfolioTradesBody','portfolioChart','portfolioDD'])$(id).innerHTML='';$('portfolioInfo').textContent='選択した戦略が変更されました。共有口座は未再計算です。'}
+function renderSelectedKpis(){let x=state.runContext,sum=state.selected.full;$('summaryKpis').innerHTML=[['登録銘柄',x.a.length],['探索候補',x.executed],['選択戦略：中央値',pct(sum.median)],['選択戦略：超過中央値',pct(sum.medianExcess)],['利益銘柄率',pct(sum.positive)]].map(([label,value])=>`<div class="kpi"><div class="label">${label}</div><div class="value">${value}</div></div>`).join('')}
+function renderAll(){renderSelectedKpis();renderRank();renderDetail();$('portfolioKpis').innerHTML='';$('portfolioAssetBody').innerHTML='';$('portfolioTradesBody').innerHTML='';$('portfolioChart').innerHTML='';$('portfolioDD').innerHTML='';$('portfolioInfo').textContent='選択中の戦略を全銘柄で共有口座運用できます。'}
+function renderRank(){let ar=sorted().slice(0,+$('showN').value);$('rankBody').innerHTML=ar.map(x=>`<tr data-id="${x.id}" class="${state.selected?.id===x.id?'selected':''}"><td><button data-choose="${x.id}">${state.selected?.id===x.id?'選択中':'選ぶ'}</button></td><td>${x.id}</td><td>${nf(x.trigger,2)}</td><td>${x.take}%</td><td>${x.stop}%</td><td>${x.hold}</td><td>${styleP(x.train.median)}</td><td>${styleP(x.train.mean)}</td><td>${styleP(x.train.medianExcess)}</td><td>${pct(x.train.positive)}</td><td>${pct(x.train.medianDD)}</td><td>${x.test?styleP(x.test.median):'—'}</td><td>${x.test?styleP(x.test.medianExcess):'—'}</td><td>${x.train.n}</td><td>${x.full.trades}</td></tr>`).join('');$('rankBody').querySelectorAll('[data-choose]').forEach(btn=>btn.onclick=()=>{state.selected=state.candidates.find(x=>x.id===+btn.dataset.choose);renderRank();renderDetail();renderSelectedKpis();clearPortfolioOnSelection()})}
 function svgGraph(series,labels,format='pct'){let W=620,H=268,L=57,R=17,T=15,B=45,all=series.flatMap(s=>s.vals).filter(Number.isFinite);if(!all.length)return '<p>データなし</p>';let low=Math.min(0,...all),high=Math.max(0,...all),extra=(high-low||10)*.06;low-=extra;high+=extra;let x=i=>L+(W-L-R)*(labels.length<=1?.5:i/(labels.length-1)),y=v=>T+(H-T-B)*(high-v)/(high-low);let out=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="グラフ">`;for(let i=0;i<=4;i++){let v=low+(high-low)*i,py=y(v);out+=`<line x1="${L}" y1="${py}" x2="${W-R}" y2="${py}" stroke="#45607a" stroke-opacity=".45"/><text x="${L-7}" y="${py+4}" text-anchor="end" fill="#bdcde0" font-size="11">${nf(v,0)}${format==='pct'?'%':''}</text>`}let palette=['#61e2bb','#8bbfff','#ffc67b','#ff9aae','#c39cff'];series.forEach((s,j)=>{let path=s.vals.map((v,i)=>Number.isFinite(v)?`${i===0?'M':'L'}${x(i).toFixed(1)},${y(v).toFixed(1)}`:'').join(' ');out+=`<path d="${path}" stroke="${palette[j%palette.length]}" stroke-width="2" fill="none"/>`});for(let i=0;i<labels.length;i+=Math.max(1,Math.ceil(labels.length/5))){out+=`<text x="${x(i)}" y="${H-25}" text-anchor="middle" fill="#bdd2e5" font-size="10">${esc(String(labels[i]).slice(0,11))}</text>`}series.forEach((s,j)=>out+=`<rect x="${L+j*120}" y="${H-13}" width="10" height="4" fill="${palette[j%palette.length]}"/><text x="${L+14+j*120}" y="${H-9}" fill="#dbedfa" font-size="10">${esc(s.name)}</text>`);return out+'</svg>'}
 function renderDetail(){const p=state.selected;if(!p)return;let rows=p.fullRows,rank=sorted().findIndex(x=>x.id===p.id)+1;$('selectedInfo').textContent=`選択 No.${p.id}（学習評価順位 ${rank}/${state.candidates.length}）：${p.family} / 買い条件 ${p.trigger} / 利確 ${p.take}% / 損切り ${p.stop}% / 最大保有 ${p.hold}日。全期間で利益銘柄 ${nf(p.full.positive,1)}%、買い持ち超過 ${nf(p.full.beat,1)}%。${state.runContext.trainOn?'順位は学習期成績のみで決定。後続成績は選択には利用していません。':'全期間を探索・順位付けに使っています。'}`;
  let ordered=[...rows].sort((a,b)=>b.return_pct-a.return_pct);$('tickerBody').innerHTML=ordered.map(x=>{let tr=p.trainRows.find(y=>y.code===x.code),te=p.testRows.find(y=>y.code===x.code);return `<tr><td>${esc(x.code)}</td><td>${esc(x.name)}</td><td>${esc(x.sector)}</td><td>${x.from}〜${x.to}</td><td>${styleP(x.return_pct)}</td><td>${styleP(x.benchmark_pct)}</td><td>${styleP(x.excess_pct)}</td><td>${pct(x.maxDD)}</td><td>${x.trades}</td><td>${pct(x.winPct)}</td><td>${tr?styleP(tr.return_pct):'—'}</td><td>${te?styleP(te.return_pct):'—'}</td></tr>`}).join('');let bars=ordered.slice(0,20),labs=bars.map(x=>x.code);$('assetChart').innerHTML=svgGraph([{name:'戦略',vals:bars.map(x=>x.return_pct)},{name:'買い持ち',vals:bars.map(x=>x.benchmark_pct)}],labs);
  $('scatterChart').innerHTML=scatterSVG(rows);let yearGroups=new Map();for(let x of rows)for(let [year,item]of Object.entries(x.byYear)){let a=yearGroups.get(year)||[],bench=x; a.push({code:x.code,return_pct:item.return_pct,benchmark_pct:item.benchmark_pct});yearGroups.set(year,a)}let years=[...yearGroups].sort((a,b)=>a[0].localeCompare(b[0]));$('annualBody').innerHTML=years.map(([year,ar])=>{let rets=ar.map(x=>x.return_pct).filter(Number.isFinite),bm=ar.map(x=>x.benchmark_pct).filter(Number.isFinite),ex=ar.map(x=>x.return_pct-x.benchmark_pct).filter(Number.isFinite);return `<tr><td>${year}</td><td>${rets.length}</td><td>${styleP(median(rets))}</td><td>${styleP(mean(rets))}</td><td>${styleP(median(bm))}</td><td>${styleP(median(ex))}</td><td>${pct(100*rets.filter(x=>x>0).length/(rets.length||1))}</td></tr>`}).join('');let groups=new Map();for(let r of rows){let g=groups.get(r.sector)||[];g.push(r);groups.set(r.sector,g)}$('sectorBody').innerHTML=[...groups].sort((a,b)=>a[0].localeCompare(b[0],'ja')).map(([name,rs])=>`<tr><td>${esc(name)}</td><td>${rs.length}</td><td>${styleP(median(rs.map(x=>x.return_pct)))}</td><td>${styleP(median(rs.map(x=>x.excess_pct)))}</td><td>${pct(rs.filter(x=>x.return_pct>0).length/rs.length*100)}</td></tr>`).join('');renderTickerStrategyHeatmap();renderHeatmap(p)}
 
-function renderTickerStrategyHeatmap(){const top=sorted().slice(0,12),items=state.runContext.a;let head=`<thead><tr><th>銘柄 / 順位</th>${top.map((p,i)=>`<th title="${esc(p.family)} ${p.trigger} 利確${p.take}% 損切${p.stop}% 保有${p.hold}日">${i+1}位</th>`).join('')}</tr></thead>`;let body=items.map(a=>`<tr><th>${esc(a.code)} ${esc(a.name)}</th>${top.map(p=>{let r=p.fullRows.find(x=>x.code===a.code),v=r?.return_pct,opacity=Math.min(.78,Math.max(.13,Math.abs(v||0)/85));return `<td data-select-heat="${p.id}" style="background:${v>=0?`rgba(16,155,112,${opacity})`:`rgba(189,66,82,${opacity})`}">${pct(v)}</td>`}).join('')}</tr>`).join('');$('stockHeatmap').innerHTML=`<table>${head}<tbody>${body}</tbody></table>`;$('stockHeatmap').querySelectorAll('[data-select-heat]').forEach(e=>e.onclick=()=>{state.selected=state.candidates.find(x=>x.id===+e.dataset.selectHeat);renderRank();renderDetail()});}
+function renderTickerStrategyHeatmap(){const top=sorted().slice(0,12),items=state.runContext.a;let head=`<thead><tr><th>銘柄 / 順位</th>${top.map((p,i)=>`<th title="${esc(p.family)} ${p.trigger} 利確${p.take}% 損切${p.stop}% 保有${p.hold}日">${i+1}位</th>`).join('')}</tr></thead>`;let body=items.map(a=>`<tr><th>${esc(a.code)} ${esc(a.name)}</th>${top.map(p=>{let r=p.fullRows.find(x=>x.code===a.code),v=r?.return_pct,opacity=Math.min(.78,Math.max(.13,Math.abs(v||0)/85));return `<td data-select-heat="${p.id}" style="background:${v>=0?`rgba(16,155,112,${opacity})`:`rgba(189,66,82,${opacity})`}">${pct(v)}</td>`}).join('')}</tr>`).join('');$('stockHeatmap').innerHTML=`<table>${head}<tbody>${body}</tbody></table>`;$('stockHeatmap').querySelectorAll('[data-select-heat]').forEach(e=>e.onclick=()=>{state.selected=state.candidates.find(x=>x.id===+e.dataset.selectHeat);renderRank();renderDetail();renderSelectedKpis();clearPortfolioOnSelection()});}
 function scatterSVG(rows){let W=620,H=268,L=55,R=18,T=16,B=38,vals=rows.flatMap(r=>[r.return_pct,r.maxDD]).filter(Number.isFinite);let xmin=-Math.max(10,...rows.map(r=>-r.maxDD)),xmax=0,ymin=Math.min(-10,...rows.map(r=>r.return_pct)),ymax=Math.max(10,...rows.map(r=>r.return_pct));let xp=v=>L+(W-L-R)*(v-xmin)/(xmax-xmin),yp=v=>T+(H-T-B)*(ymax-v)/(ymax-ymin);let out=`<svg viewBox="0 0 ${W} ${H}"><line x1="${L}" y1="${yp(0)}" x2="${W-R}" y2="${yp(0)}" stroke="#6587a8"/>`;for(let x of rows){let px=xp(x.maxDD),py=yp(x.return_pct);out+=`<circle cx="${px}" cy="${py}" r="4" fill="${x.return_pct>=0?'#63dcb4':'#ff8c94'}"><title>${esc(x.code+' '+x.name)} : リターン ${pct(x.return_pct)} 最大DD ${pct(x.maxDD)}</title></circle>`}out+=`<text x="${W/2}" y="${H-7}" text-anchor="middle" fill="#cde1f4" font-size="12">最大DD（％、右ほど小さい）</text><text x="8" y="16" fill="#cde1f4" font-size="12">利益率</text>`;return out+'</svg>'}
-function renderHeatmap(sel){let all=state.candidates.filter(x=>x.family===sel.family&&x.stop===sel.stop&&x.hold===sel.hold),tr=[...new Set(all.map(x=>x.trigger))],take=[...new Set(all.map(x=>x.take))];let rows=tr.map(t=>`<tr><th>${nf(t,2)}</th>${take.map(p=>{let s=all.find(x=>x.trigger===t&&x.take===p),v=s?.train.median;if(!Number.isFinite(v))return '<td>—</td>';let intensity=Math.min(.8,Math.abs(v)/80);let bg=v>=0?`rgba(23,152,108,${Math.max(.13,intensity)})`:`rgba(194,68,85,${Math.max(.13,intensity)})`;return `<td style="background:${bg}" title="候補No.${s.id}" data-heat="${s.id}">${pct(v)}</td>`}).join('')}</tr>`).join('');$('heatmap').innerHTML=`<table><thead><tr><th>閾値＼利確</th>${take.map(x=>`<th>${x}%</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`;$('heatmap').querySelectorAll('[data-heat]').forEach(el=>el.onclick=()=>{state.selected=state.candidates.find(x=>x.id===+el.dataset.heat);renderRank();renderDetail()})}
+function renderHeatmap(sel){let all=state.candidates.filter(x=>x.family===sel.family&&x.stop===sel.stop&&x.hold===sel.hold),tr=[...new Set(all.map(x=>x.trigger))],take=[...new Set(all.map(x=>x.take))];let rows=tr.map(t=>`<tr><th>${nf(t,2)}</th>${take.map(p=>{let s=all.find(x=>x.trigger===t&&x.take===p),v=s?.train.median;if(!Number.isFinite(v))return '<td>—</td>';let intensity=Math.min(.8,Math.abs(v)/80);let bg=v>=0?`rgba(23,152,108,${Math.max(.13,intensity)})`:`rgba(194,68,85,${Math.max(.13,intensity)})`;return `<td style="background:${bg}" title="候補No.${s.id}" data-heat="${s.id}">${pct(v)}</td>`}).join('')}</tr>`).join('');$('heatmap').innerHTML=`<table><thead><tr><th>閾値＼利確</th>${take.map(x=>`<th>${x}%</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`;$('heatmap').querySelectorAll('[data-heat]').forEach(el=>el.onclick=()=>{state.selected=state.candidates.find(x=>x.id===+el.dataset.heat);renderRank();renderDetail();renderSelectedKpis();clearPortfolioOnSelection()})}
 function exportRank(){let keys=['id','family','trigger','take','stop','hold','train_median_pct','train_mean_pct','train_median_excess_pct','train_positive_pct','train_median_dd_pct','test_median_pct','test_excess_pct','full_median_pct','n_stock','trades'];let data=state.candidates.map(x=>({id:x.id,family:x.family,trigger:x.trigger,take:x.take,stop:x.stop,hold:x.hold,train_median_pct:round(x.train.median),train_mean_pct:round(x.train.mean),train_median_excess_pct:round(x.train.medianExcess),train_positive_pct:round(x.train.positive),train_median_dd_pct:round(x.train.medianDD),test_median_pct:round(x.test?.median),test_excess_pct:round(x.test?.medianExcess),full_median_pct:round(x.full.median),n_stock:x.train.n,trades:x.full.trades}));download('v7_strategy_rank_all.csv',toCSV(data,keys))}
 function exportTicker(){let keys=['candidate_id','family','trigger','take','stop','hold','period','code','name','sector','from','to','days','return_pct','benchmark_pct','excess_pct','cagr_pct','maxDD','trades','wins','winPct','signals','skips'];let out=[];for(let p of state.candidates){for(let [tag,list] of [['full',p.fullRows],['train',state.runContext.trainOn?p.trainRows:[]],['test',p.testRows]])for(let r of list)out.push({candidate_id:p.id,family:p.family,trigger:p.trigger,take:p.take,stop:p.stop,hold:p.hold,period:tag,...r})}download('v7_strategy_by_ticker.csv',toCSV(out,keys))}
 function exportAnnual(){let keys=['candidate_id','code','year','annual_return_pct','benchmark_return_pct','excess_return_pct','last_equity','last_benchmark_equity'];let out=[];for(let p of state.candidates)for(let r of p.fullRows)for(let [year,d]of Object.entries(r.byYear))out.push({candidate_id:p.id,code:r.code,year,annual_return_pct:round(d.return_pct),benchmark_return_pct:round(d.benchmark_pct),excess_return_pct:round(d.return_pct-d.benchmark_pct),last_equity:round(d.lastEquity),last_benchmark_equity:round(d.lastBenchEquity)});download('v7_strategy_by_year.csv',toCSV(out,keys))}
@@ -166,29 +168,138 @@ function renderWF(){if(!state.walk)return;$('wfBody').innerHTML=state.walk.map(r
 $('runWF').onclick=runWalkForward;$('stopWF').onclick=()=>{state.wfStop=true};$('exportWF').onclick=()=>{if(!state.walk?.length)return alert('先にウォークフォワードを実行');download('v7_walkforward_by_year.csv',toCSV(state.walk,['year','train_from','train_to','chosen_id','trigger','take','stop','hold','train_median','test_median','test_median_excess','test_positive_pct','n_stock']))};
 
 // Shared portfolio across multiple assets. One shared cash ledger, no leverage. All signals are evaluated after each asset's own close.
-function runSharedPortfolio(){if(!state.selected||!state.runContext)return;try{let c=state.runContext.c,assets=state.runContext.a.filter(a=>dateRange(a,c,'full')),par=state.selected,max=num($('portMax').value),limit=num($('portDaily').value),alloc=num($('portAlloc').value)/100;if(!Number.isInteger(max)||max<1||max>300||!Number.isInteger(limit)||limit<1||limit>100||!Number.isFinite(alloc)||alloc<=0||alloc>1)error('共有口座の建玉・購入配分を確認してください');let byCode=new Map(assets.map(a=>[a.code,a]));let dates=[...new Set(assets.flatMap(a=>{let rng=dateRange(a,c,'full');if(!rng)return [];return a.bars.slice(rng[0],rng[1]+1).map(b=>b.date)}))].sort();if(!dates.length)error('取引対象の日付がありません');let dailyBar=new Map(assets.map(a=>[a.code,new Map(a.bars.map((b,i)=>[b.date,{b,i}]))]));let sigMap=new Map(assets.map(a=>[a.code,signals(a,par.family,par.trigger)]));let cash=c.capital,positions=[],lastMark=new Map(),pending=new Map(),trades=[],skips=[],equity=[],ids=0,peak=c.capital,maxDD=0,highest=0,benchmarkCash=c.capital,benchmarkPositions=new Map(),benchmarkLastMark=new Map(),benchmarkPeak=c.capital,benchmarkMaxDD=0,byAsset=new Map(assets.map(a=>[a.code,{code:a.code,name:a.name,buys:0,sells:0,profit:0}]));let pty=$('priority').value;
- for(let di=0;di<dates.length;di++){let date=dates[di],sellToday=new Set(),candidates=[],tradedToday=new Map();for(let a of assets){let obj=dailyBar.get(a.code).get(date);if(!obj)continue;let {b,i}=obj;let f=a.splitMap.get(date);if(f){for(let p of positions)if(p.code===a.code)splitPosition(p,f);if(benchmarkPositions.has(a.code))benchmarkPositions.set(a.code,benchmarkPositions.get(a.code)*f)}
-  // theoretical equal-weight buy and hold: fractional shares, same initial capital, same buy fee and slippage
-  if(!benchmarkPositions.has(a.code)){let allocation=c.capital/assets.length,unit=b.open*(1+c.slip)*(1+c.fee),shares=allocation/unit;benchmarkPositions.set(a.code,shares);benchmarkCash-=shares*unit;}benchmarkLastMark.set(a.code,b.close);
-  // cash proceeds from planned exits and realized stops are credited before new asset orders
-  let sell=(p,price,why)=>{let proceeds=price*p.shares*(1-c.fee),profit=proceeds-p.cost;cash+=proceeds;trades.push({code:a.code,name:a.name,buy_date:p.buyDate,sell_date:date,initial_shares:p.originalShares,sell_shares:p.shares,buy_price:p.initialPrice,sell_price:price,profit_yen:round(profit),return_pct:round((proceeds/p.cost-1)*100),reason:why});byAsset.get(a.code).profit+=profit;byAsset.get(a.code).sells++;positions=positions.filter(x=>x!==p);sellToday.add(a.code)};
-  for(let p of [...positions])if(p.code===a.code&&p.exitPending)sell(p,b.open*(1-c.slip),'条件/期限→翌営業日始値');
-  for(let p of [...positions])if(p.code===a.code){let bottom=par.stop?p.entryRef*(1-par.stop/100):-Infinity,top=par.take?p.entryRef*(1+par.take/100):Infinity;if(b.open<=bottom)sell(p,b.open*(1-c.slip),'損切り・寄付');else if(b.open>=top)sell(p,b.open*(1-c.slip),'利確・寄付');else if(b.low<=bottom)sell(p,bottom*(1-c.slip),'損切り（日中）');else if(b.high>=top)sell(p,top*(1-c.slip),'利確（日中）')}
-  lastMark.set(a.code,b.close);
-  if(pending.has(a.code)){let order=pending.get(a.code);candidates.push({a,b,i,order});pending.delete(a.code)}
-  let signal=sigMap.get(a.code)[i];if(signal&&di<dates.length-1&&i<a.bars.length-1)pending.set(a.code,{signal_date:date,day:di,decline:a.day[i]});
-  for(let p of positions)if(p.code===a.code&&par.hold>0&&i-p.buyIndex+1>=par.hold)p.exitPending=true;
- }
- candidates.sort((x,y)=>pty==='dip'?(x.order.decline-y.order.decline||x.a.code.localeCompare(y.a.code)):pty==='rotation'?((x.a.code.charCodeAt(0)+di)%100-(y.a.code.charCodeAt(0)+di)%100||x.a.code.localeCompare(y.a.code)):x.a.code.localeCompare(y.a.code));let bought=0;
- for(let item of candidates){let {a,b,i,order}=item,reason=null;if(sellToday.has(a.code))reason='同日売却済み';else if(positions.length>=max)reason='口座全体の建玉上限';else if(positions.filter(x=>x.code===a.code).length>=c.maxPerAsset)reason='銘柄別建玉上限';else if(bought>=limit)reason='日次購入上限';else{let equityOpen=cash+positions.reduce((sum,p)=>sum+p.shares*(p.code===a.code?b.open:(lastMark.get(p.code)||p.entryRef)),0),ask=b.open*(1+c.slip),unit=ask*(1+c.fee),budget=Math.min(cash,equityOpen*alloc),q=Math.floor(budget/(unit*c.lot))*c.lot;if(q<c.lot)reason='現金/配分が売買単位未満';else{let cost=q*unit;cash-=cost;positions.push({id:++ids,code:a.code,signalDay:order.signal_date,buyDate:date,buyIndex:i,shares:q,originalShares:q,initialPrice:ask,entryRef:ask,cost,factor:1});byAsset.get(a.code).buys++;bought++;
- // purchase-day intraday stop/take; existing held positions were already processed above
- let p=positions.at(-1),bottom=par.stop?ask*(1-par.stop/100):-Infinity,top=par.take?ask*(1+par.take/100):Infinity;let price=null,why='';if(b.open<=bottom){price=b.open*(1-c.slip);why='損切り・寄付'}else if(b.open>=top){price=b.open*(1-c.slip);why='利確・寄付'}else if(b.low<=bottom){price=bottom*(1-c.slip);why='損切り（日中）'}else if(b.high>=top){price=top*(1-c.slip);why='利確（日中）'}if(price!==null){let proceeds=p.shares*price*(1-c.fee),profit=proceeds-p.cost;cash+=proceeds;byAsset.get(a.code).profit+=profit;byAsset.get(a.code).sells++;trades.push({code:a.code,name:a.name,buy_date:date,sell_date:date,initial_shares:q,sell_shares:q,buy_price:ask,sell_price:price,profit_yen:round(profit),return_pct:round((proceeds/p.cost-1)*100),reason:why});positions.pop();sellToday.add(a.code)}
- }}if(reason)skips.push({date,code:a.code,name:a.name,signal_date:order.signal_date,reason})}
- let holdings=positions.reduce((v,p)=>v+p.shares*(lastMark.get(p.code)||p.entryRef),0),total=cash+holdings;peak=Math.max(peak,total);maxDD=Math.min(maxDD,(total/peak-1)*100);highest=Math.max(highest,positions.length);
- let benchmarkTotal=benchmarkCash+[...benchmarkPositions].reduce((v,[code,shares])=>v+shares*(benchmarkLastMark.get(code)||0),0);benchmarkPeak=Math.max(benchmarkPeak,benchmarkTotal);benchmarkMaxDD=Math.min(benchmarkMaxDD,(benchmarkTotal/benchmarkPeak-1)*100);
- equity.push({date,cash:round(cash),holdings:round(holdings),total:round(total),benchmark_total:round(benchmarkTotal),positions:positions.length,drawdown_pct:round((total/peak-1)*100),benchmark_dd_pct:round((benchmarkTotal/benchmarkPeak-1)*100)})}
- let currentVal=equity.at(-1).total,win=trades.filter(x=>x.profit_yen>0).length,rows=[...byAsset.values()].map(x=>{let op=positions.filter(p=>p.code===x.code),unreal=op.reduce((s,p)=>s+p.shares*(lastMark.get(p.code)||0)-p.cost,0);return{...x,open:op.length,unrealized:unreal,total:x.profit+unreal}});state.portfolio={par,rows,equity,trades,skips,capital:c.capital,currentVal,ret:(currentVal/c.capital-1)*100,benchmarkVal:equity.at(-1).benchmark_total,benchmarkRet:(equity.at(-1).benchmark_total/c.capital-1)*100,benchmarkMaxDD,maxDD,winRate:trades.length?100*win/trades.length:NaN,open:positions.length,maxPositions:highest,cash};renderPortfolio();}
- catch(ex){$('portfolioInfo').className='hint error';$('portfolioInfo').textContent='共有口座検証エラー：'+ex.message;console.error(ex)}}
+// v7.1: chronological execution on each exchange day.
+// 1. Apply corporate actions and collect the opening auction prices.
+// 2. Execute pending exits / gap-triggered exits at the open.
+// 3. Execute prior-close entry orders at the open, using ONLY opening prices.
+// 4. Execute intraday stop/take orders; proceeds cannot fund earlier open purchases.
+// 5. Mark to closing prices and generate signals for the following trading day.
+function runSharedPortfolio(){
+ if(!state.selected||!state.runContext)return;
+ try{
+  const c=state.runContext.c, assets=state.runContext.a.filter(a=>dateRange(a,c,'full'));
+  const par=state.selected, max=num($('portMax').value),limit=num($('portDaily').value),alloc=num($('portAlloc').value)/100;
+  if(!Number.isInteger(max)||max<1||max>300||!Number.isInteger(limit)||limit<1||limit>100||!Number.isFinite(alloc)||alloc<=0||alloc>1)
+   error('共有口座の建玉・購入配分を確認してください');
+  const dates=[...new Set(assets.flatMap(a=>{const rng=dateRange(a,c,'full');return rng?a.bars.slice(rng[0],rng[1]+1).map(b=>b.date):[]}))].sort();
+  if(!dates.length)error('取引対象の日付がありません');
+  const dailyBar=new Map(assets.map(a=>[a.code,new Map(a.bars.map((b,i)=>[b.date,{b,i}]))]));
+  const sigMap=new Map(assets.map(a=>[a.code,signals(a,par.family,par.trigger)]));
+  let cash=c.capital, positions=[],lastMark=new Map(),pending=new Map(),trades=[],skips=[],equity=[],ids=0,peak=c.capital,maxDD=0,highest=0;
+  let benchmarkCash=c.capital,benchmarkPositions=new Map(),benchmarkLastMark=new Map(),benchmarkPeak=c.capital,benchmarkMaxDD=0;
+  const byAsset=new Map(assets.map(a=>[a.code,{code:a.code,name:a.name,buys:0,sells:0,profit:0}]));
+  const priority=$('priority').value;
+  for(let di=0;di<dates.length;di++){
+   const date=dates[di], today=[],openMark=new Map(),sellToday=new Set();
+   // Corporate actions are effective at the session open.
+   for(const a of assets){
+    const x=dailyBar.get(a.code).get(date);if(!x)continue;
+    const {b,i}=x,t={a,b,i}; today.push(t);openMark.set(a.code,b.open);
+    const f=a.splitMap.get(date);
+    if(f){
+     for(const p of positions)if(p.code===a.code)splitPosition(p,f);
+     if(benchmarkPositions.has(a.code))benchmarkPositions.set(a.code,benchmarkPositions.get(a.code)*f);
+    }
+    if(!benchmarkPositions.has(a.code)){
+     const allocation=c.capital/assets.length,unit=b.open*(1+c.slip)*(1+c.fee),shares=allocation/unit;
+     benchmarkPositions.set(a.code,shares);benchmarkCash-=shares*unit;
+    }
+   }
+   // Exit helper used at both opening auction and intraday phase.
+   const closePosition=(p,a,price,reason)=>{
+    const proceeds=price*p.shares*(1-c.fee),profit=proceeds-p.cost;
+    cash+=proceeds;
+    trades.push({code:a.code,name:a.name,buy_date:p.buyDate,sell_date:date,
+     initial_shares:p.originalShares,sell_shares:p.shares,buy_price:p.initialPrice,
+     sell_price:price,profit_yen:round(profit),return_pct:round((proceeds/p.cost-1)*100),reason});
+    const stat=byAsset.get(a.code);stat.profit+=profit;stat.sells++;
+    positions=positions.filter(x=>x!==p);sellToday.add(a.code);
+   };
+   // Phase 1: open exits (orders decided yesterday, or today's OPEN gap).
+   for(const {a,b} of today){
+    for(const p of [...positions]){
+     if(p.code!==a.code)continue;
+     const bottom=par.stop?p.entryRef*(1-par.stop/100):-Infinity;
+     const top=par.take?p.entryRef*(1+par.take/100):Infinity;
+     if(p.exitPending)closePosition(p,a,b.open*(1-c.slip),'条件/期限→翌営業日始値');
+     else if(b.open<=bottom)closePosition(p,a,b.open*(1-c.slip),'損切り・寄付');
+     else if(b.open>=top)closePosition(p,a,b.open*(1-c.slip),'利確・寄付');
+    }
+   }
+   // Phase 2: place only orders created by yesterday's closing signals.
+   const candidates=[];
+   for(const item of today){
+    if(pending.has(item.a.code)){
+     candidates.push({...item,order:pending.get(item.a.code)});
+     pending.delete(item.a.code);
+    }
+   }
+   candidates.sort((x,y)=>priority==='dip'
+    ?(x.order.decline-y.order.decline||x.a.code.localeCompare(y.a.code))
+    :priority==='rotation'
+     ?((x.a.code.charCodeAt(0)+di)%100-(y.a.code.charCodeAt(0)+di)%100||x.a.code.localeCompare(y.a.code))
+     :x.a.code.localeCompare(y.a.code));
+   let bought=0;
+   for(const {a,b,i,order} of candidates){
+    let reason=null;
+    if(sellToday.has(a.code))reason='同日売却済み';
+    else if(positions.length>=max)reason='口座全体の建玉上限';
+    else if(positions.filter(x=>x.code===a.code).length>=c.maxPerAsset)reason='銘柄別建玉上限';
+    else if(bought>=limit)reason='日次購入上限';
+    else{
+     // Critical: value holdings using only the opening auction for today's
+     // listed shares, or the last observed close for currently closed shares.
+     const equityOpen=cash+positions.reduce((sum,p)=>sum+p.shares*(openMark.get(p.code)??lastMark.get(p.code)??p.entryRef),0);
+     const ask=b.open*(1+c.slip),unit=ask*(1+c.fee),budget=Math.min(cash,equityOpen*alloc);
+     const q=Math.floor(budget/(unit*c.lot))*c.lot;
+     if(q<c.lot)reason='現金/配分が売買単位未満';
+     else{
+      const cost=q*unit;cash-=cost;
+      positions.push({id:++ids,code:a.code,signalDay:order.signal_date,buyDate:date,
+       buyIndex:i,shares:q,originalShares:q,initialPrice:ask,entryRef:ask,cost,factor:1});
+      byAsset.get(a.code).buys++;bought++;
+     }
+    }
+    if(reason)skips.push({date,code:a.code,name:a.name,signal_date:order.signal_date,reason});
+   }
+   // Phase 3: intraday stop/take. Cash credited here is usable NEXT open.
+   // If both high and low touch thresholds, use stop-first (conservative).
+   for(const {a,b} of today){
+    for(const p of [...positions]){
+     if(p.code!==a.code)continue;
+     const bottom=par.stop?p.entryRef*(1-par.stop/100):-Infinity;
+     const top=par.take?p.entryRef*(1+par.take/100):Infinity;
+     if(b.low<=bottom)closePosition(p,a,bottom*(1-c.slip),'損切り（日中）');
+     else if(b.high>=top)closePosition(p,a,top*(1-c.slip),'利確（日中）');
+    }
+   }
+   // Phase 4: after the close, evaluate signals and mark holdings to close.
+   for(const {a,b,i} of today){
+    lastMark.set(a.code,b.close);benchmarkLastMark.set(a.code,b.close);
+    if(sigMap.get(a.code)[i]&&di<dates.length-1&&i<a.bars.length-1)
+     pending.set(a.code,{signal_date:date,day:di,decline:a.day[i]});
+    for(const p of positions)if(p.code===a.code&&par.hold>0&&i-p.buyIndex+1>=par.hold)
+     p.exitPending=true;
+   }
+   const holdings=positions.reduce((v,p)=>v+p.shares*(lastMark.get(p.code)??p.entryRef),0);
+   const total=cash+holdings;peak=Math.max(peak,total);maxDD=Math.min(maxDD,(total/peak-1)*100);
+   highest=Math.max(highest,positions.length);
+   const benchmarkTotal=benchmarkCash+[...benchmarkPositions].reduce((v,[code,shares])=>v+shares*(benchmarkLastMark.get(code)??0),0);
+   benchmarkPeak=Math.max(benchmarkPeak,benchmarkTotal);benchmarkMaxDD=Math.min(benchmarkMaxDD,(benchmarkTotal/benchmarkPeak-1)*100);
+   equity.push({date,cash:round(cash),holdings:round(holdings),total:round(total),benchmark_total:round(benchmarkTotal),
+    positions:positions.length,drawdown_pct:round((total/peak-1)*100),benchmark_dd_pct:round((benchmarkTotal/benchmarkPeak-1)*100)});
+  }
+  const currentVal=equity.at(-1).total,win=trades.filter(x=>x.profit_yen>0).length;
+  const rows=[...byAsset.values()].map(x=>{
+   const op=positions.filter(p=>p.code===x.code),unreal=op.reduce((s,p)=>s+p.shares*(lastMark.get(p.code)??0)-p.cost,0);
+   return {...x,open:op.length,unrealized:unreal,total:x.profit+unreal};
+  });
+  state.portfolio={par,rows,equity,trades,skips,capital:c.capital,currentVal,ret:(currentVal/c.capital-1)*100,
+   benchmarkVal:equity.at(-1).benchmark_total,benchmarkRet:(equity.at(-1).benchmark_total/c.capital-1)*100,
+   benchmarkMaxDD,maxDD,winRate:trades.length?100*win/trades.length:NaN,open:positions.length,maxPositions:highest,cash};
+  renderPortfolio();
+ }catch(ex){$('portfolioInfo').className='hint error';$('portfolioInfo').textContent='共有口座検証エラー：'+ex.message;console.error(ex)}
+}
 $('runPortfolio').onclick=runSharedPortfolio;
 function renderPortfolio(){let p=state.portfolio;if(!p)return;$('portfolioInfo').className='hint';$('portfolioInfo').textContent=`✓ No.${p.par.id} を ${state.runContext.a.length}銘柄・単一口座で同時運用。${p.equity[0].date}〜${p.equity.at(-1).date}（${p.equity.length}評価日）。未決済の含み損益を時価評価。`;let k=[['口座累積利益率',pct(p.ret)],['均等買い持ち（理論）',pct(p.benchmarkRet)],['最終資産',yen(p.currentVal)],['最大DD',pct(p.maxDD)],['買い持ち最大DD',pct(p.benchmarkMaxDD)],['決済取引',p.trades.length+'件'],['見送り',p.skips.length+'件'],['未決済建玉',p.open+'件'],['最大同時建玉',p.maxPositions+'件'],['決済勝率',pct(p.winRate)],['口座現金',yen(p.cash)]];$('portfolioKpis').innerHTML=k.map(([label,value])=>`<div class="kpi"><div class="label">${label}</div><div class="value">${value}</div></div>`).join('');let labels=p.equity.map(x=>x.date),norm=p.equity.map(x=>x.total/p.capital*100);$('portfolioChart').innerHTML=svgGraph([{name:'共有口座',vals:norm},{name:'均等買い持ち',vals:p.equity.map(x=>x.benchmark_total/p.capital*100)}],[...labels]);$('portfolioDD').innerHTML=svgGraph([{name:'共有口座',vals:p.equity.map(x=>x.drawdown_pct)},{name:'均等買い持ち',vals:p.equity.map(x=>x.benchmark_dd_pct)}],labels);$('portfolioAssetBody').innerHTML=p.rows.map(x=>`<tr><td>${esc(x.code)}</td><td>${esc(x.name)}</td><td>${x.buys}</td><td>${x.sells}</td><td>${x.open}</td><td>${yen(x.profit)}</td><td>${yen(x.unrealized)}</td><td>${yen(x.total)}</td></tr>`).join('');$('portfolioTradesBody').innerHTML=p.trades.slice(-150).reverse().map(x=>`<tr><td>${esc(x.code)} ${esc(x.name)}</td><td>${x.buy_date}</td><td>${x.sell_date}</td><td>${x.sell_shares}</td><td>${nf(x.buy_price,2)}</td><td>${nf(x.sell_price,2)}</td><td>${yen(x.profit_yen)}</td><td>${esc(x.reason)}</td></tr>`).join('')}
 $('exportPortfolioTrades').onclick=()=>{let p=state.portfolio;if(!p)return alert('先に共有口座を検証');download('v7_portfolio_trades.csv',toCSV(p.trades,['code','name','buy_date','sell_date','initial_shares','sell_shares','buy_price','sell_price','profit_yen','return_pct','reason']))};
