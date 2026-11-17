@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>TXT n分割ツール | オフライン</title>
+  <style>
+    :root { color-scheme:light; --ink:#17304a; --muted:#63778d; --line:#dce5ee; --blue:#2b61da; --blue2:#4c82ea; --bg:#f4f7fc; --surface:#fff; --good:#0c7c60; --red:#b52a39; }
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 -apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif}
+    .wrap{max-width:1000px;padding:30px 18px 72px;margin:auto}
+    header{border-radius:24px;padding:34px 36px;color:#fff;background:linear-gradient(115deg,#1b3162,#2859bb 70%,#527fe4);box-shadow:0 12px 32px #2d488528}
+    header h1{font-size:clamp(26px,4vw,39px);line-height:1.25;margin:10px 0 12px;letter-spacing:-.035em}
+    header p{margin:0;color:#e0eafe;max-width:720px}
+    .pill{display:inline-flex;align-items:center;border:1px solid #ffffff50;background:#ffffff21;border-radius:999px;padding:4px 12px;font-size:12px;letter-spacing:.02em;font-weight:700}
+    .layout{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-top:20px}.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 7px 26px #1a37710c}
+    .card h2{font-size:18px;margin:0 0 15px;letter-spacing:-.02em}.card h2 span{font-size:12px;color:var(--muted);font-weight:500;margin-left:8px}
+    .drop{display:block;padding:29px 18px;border:2px dashed #b6c8e7;border-radius:14px;text-align:center;background:#f7faff;cursor:pointer;transition:.15s}.drop.hover{background:#e9f0ff;border-color:var(--blue)}
+    .drop .glyph{display:block;font-size:30px;line-height:1.3}.drop strong{display:block;color:#234d96;margin:4px auto}.drop small{display:block;color:var(--muted)}
+    #file{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+    .file-info{font-size:13px;color:var(--muted);margin-top:11px;overflow-wrap:anywhere}
+    label.field{display:block;color:#304b68;font-size:13px;font-weight:700;margin:18px 0 6px}
+    select,input[type=number],input[type=text]{width:100%;padding:11px 12px;border:1px solid #c9d6e4;border-radius:10px;background:#fff;color:var(--ink);font:inherit;outline:none}
+    select:focus,input:focus{border-color:var(--blue);box-shadow:0 0 0 3px #2b61da1b}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .hint{margin:8px 0 0;font-size:12px;color:var(--muted)}.check{display:flex;gap:10px;align-items:center;margin:14px 0 0;cursor:pointer;font-size:13px}.check input{width:17px;height:17px;accent-color:var(--blue)}
+    .button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border:0;border-radius:11px;padding:10px 18px;font:700 14px/1.3 inherit;cursor:pointer;transition:.15s;text-decoration:none}
+    .primary{background:var(--blue);color:white}.primary:hover{background:#174bbb}.primary:disabled{opacity:.45;cursor:not-allowed}.secondary{background:#e9efff;color:#16449b}.secondary:hover{background:#dce7ff}.button:focus-visible,.dl:focus-visible{outline:3px solid #ffbc47;outline-offset:2px}
+    .action{width:100%;margin-top:19px}.note{margin:0;color:var(--muted);font-size:13px}
+    .info-grid{display:grid;gap:13px}.info-item{padding-bottom:12px;border-bottom:1px solid var(--line)}.info-item:last-child{border-bottom:0;padding-bottom:0}
+    .info-item strong{font-size:14px}.info-item p{font-size:13px;color:var(--muted);margin:4px 0 0}.tag{display:inline-block;margin-right:7px;padding:1px 7px;border-radius:6px;background:#eaf1ff;color:#2756ab;font-size:11px;font-weight:700}
+    #status{margin:18px 0 0;padding:12px 15px;border-radius:12px;background:#edf6f2;color:var(--good);font-size:13px;display:none;white-space:pre-wrap;overflow-wrap:anywhere}#status.error{background:#fff0f1;color:var(--red)}
+    .results{display:none;margin-top:20px}.results-top{display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap}.results-top h2{margin:0}
+    .results-desc{color:var(--muted);font-size:13px;margin:8px 0 17px}
+    .list{display:grid;gap:10px}.item{border:1px solid var(--line);border-radius:13px;overflow:hidden;background:#fff}
+    .itemtop{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 15px;flex-wrap:wrap}.filename{font-weight:700;overflow-wrap:anywhere;font-size:13px}.meta{font-size:12px;color:var(--muted);margin-top:2px}
+    a.dl{color:#1853bd;background:#e9f0ff;text-decoration:none;font-size:12px;font-weight:750;padding:8px 13px;border-radius:9px;white-space:nowrap}
+    .item details{border-top:1px solid var(--line);padding:0 14px}.item summary{cursor:pointer;color:#647e9b;font-size:12px;padding:8px 0}.item pre{padding:12px;background:#f7f9fc;border-radius:8px;color:#3c4c60;font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;max-height:160px;overflow:auto}
+    footer{margin-top:20px;color:var(--muted);font-size:12px;text-align:center}
+    @media(max-width:700px){.layout{grid-template-columns:1fr}header{padding:28px 24px}.card{padding:19px}.two{grid-template-columns:1fr}.wrap{padding:16px 12px 52px}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="pill">🔒 完全オフライン・インストール不要</div>
+    <h1>TXTを、指定した n 個に分割。</h1>
+    <p>テキストファイルを読み込んで、できるだけ均等な <b>n 個の .txt</b> を作成。1個ずつ、またはZIPでまとめてダウンロードできます。ファイルは外部送信しません。</p>
+  </header>
+  <div class="layout">
+    <section class="card" aria-labelledby="h-source">
+      <h2 id="h-source">① テキストファイルを選択</h2>
+      <label class="drop" id="drop" for="file">
+        <span class="glyph" aria-hidden="true">📄</span>
+        <strong>タップして TXT を選ぶ</strong>
+        <small>PCではドラッグ＆ドロップも可能（.txt / .log / その他テキスト）</small>
+      </label>
+      <input type="file" id="file" accept=".txt,.log,.csv,text/plain,text/*">
+      <div class="file-info" id="fileInfo" aria-live="polite">ファイルはまだ選択されていません。</div>
+      <div class="two">
+        <div>
+          <label class="field" for="n">② 分割数 n</label>
+          <input id="n" type="number" min="2" max="999" value="5" inputmode="numeric">
+        </div>
+        <div>
+          <label class="field" for="enc">元ファイルの文字コード</label>
+          <select id="enc">
+            <option value="utf-8">UTF-8（通常はこちら）</option>
+            <option value="shift_jis">Shift_JIS</option>
+            <option value="utf-16le">UTF-16 LE</option>
+          </select>
+        </div>
+      </div>
+      <label class="field" for="mode">③ どこで区切る？</label>
+      <select id="mode">
+        <option value="line">行の途中では切らない（おすすめ）</option>
+        <option value="date">LINE履歴の日付単位で区切る</option>
+        <option value="character">文字数を厳密にn等分する</option>
+        <option value="marker">指定の文字列から始まる行を境界にする</option>
+      </select>
+      <p class="hint" id="modeHint">行を途中で切らず、全体の文字量が近くなるようn分割します。</p>
+      <div id="markerWrap" hidden>
+        <label class="field" for="marker">境界となる行頭の文字列</label>
+        <input id="marker" type="text" placeholder="例：=== 第 または ## ">
+        <p class="hint">その文字列で始まる行を、必ず新しい区間の先頭にします。該当行は出力に残ります。</p>
+      </div>
+      <label class="check"><input type="checkbox" id="bom"> 出力TXTにUTF-8 BOMを付ける（通常は不要）</label>
+      <button class="button primary action" id="split" type="button" disabled>n個のTXTを作成する</button>
+      <div id="status" role="status" aria-live="polite"></div>
+    </section>
+    <aside class="card">
+      <h2>分割のルール <span>データ消失を防ぐ設計</span></h2>
+      <div class="info-grid">
+        <div class="info-item"><span class="tag">LINE向け</span><strong>日付単位</strong><p>「2026/02/11(水)」などを検出し、同じ日のトークを途中で分けません。先頭のタイトルなども保持します。</p></div>
+        <div class="info-item"><span class="tag">汎用</span><strong>行単位</strong><p>改行を維持したまま、できるだけ文字数の近い連続部分に分割します。長い1行は切れません。</p></div>
+        <div class="info-item"><span class="tag">厳密</span><strong>文字数単位</strong><p>Unicode文字（絵文字なども1文字）を基準に均等分割。改行・日付・文章の途中でも切れる点に注意。</p></div>
+        <div class="info-item"><span class="tag">自由</span><strong>指定の行頭</strong><p>「###」「===」など任意の行頭を区切りとして扱います。n個より区間が少なければエラーにします。</p></div>
+        <div class="info-item"><span class="tag">保証</span><strong>元の文字を落とさない</strong><p>分割した各本文を順番に結合した内容が元テキストと完全一致するか、自動確認します。</p></div>
+        <div class="info-item"><span class="tag">保存</span><strong>TXT / ZIP</strong><p>出力はすべてUTF-8。文字コードはブラウザ内で処理され、サーバーへの送信処理はありません。</p></div>
+      </div>
+    </aside>
+  </div>
+  <section class="card results" id="results" aria-labelledby="resultTitle">
+    <div class="results-top">
+      <h2 id="resultTitle">④ 分割結果</h2>
+      <button class="button secondary" id="zip" type="button">すべてZIPで保存</button>
+    </div>
+    <p class="results-desc" id="resultDesc"></p>
+    <div class="list" id="list"></div>
+  </section>
+  <footer>完全オフラインのHTMLファイルです。ネット接続・アカウント登録・外部ライブラリは不要です。</footer>
+</div>
+<script>
+'use strict';
+// CORE_START — 純粋な分割／ZIP処理。ブラウザ内でのみ実行します。
+function lineUnits(text) {
+  const out=[];
+  const re=/[^\r\n]*(?:\r\n|\n|\r|$)/g;
+  let match;
+  while ((match=re.exec(text))!==null) {
+    if (match[0].length===0) break;
+    out.push(match[0]);
+  }
+  return out;
+}
+function blockUnits(text, mode, marker) {
+  const lines=lineUnits(text), out=[];
+  const dateRe=/^\d{4}\/\d{1,2}\/\d{1,2}(?:\([^\r\n)]*\))?\s*$/;
+  let block='', seen=false;
+  for (const line of lines) {
+    const raw=line.replace(/(?:\r\n|\r|\n)$/,'');
+    const isBoundary=mode==='date' ? dateRe.test(raw) : raw.startsWith(marker);
+    if (isBoundary) {
+      if (seen) {out.push(block);block='';}
+      seen=true;
+    }
+    block+=line;
+  }
+  if (block)out.push(block);
+  if (!seen)throw new Error(mode==='date' ? '日付の見出しが見つかりません。例：2026/02/11(水)。ほかの分割方法を選んでください。' : '指定された文字列で始まる行が見つかりません。');
+  return out;
+}
+function balancedUnits(units,n) {
+  if (n>units.length)throw new Error(`指定数 ${n} に対し、切れる区間が ${units.length} 個しかありません。分割数を減らすか、別の区切り方を選んでください。`);
+  let start=0,remaining=units.reduce((a,s)=>a+s.length,0),results=[];
+  for (let k=0;k<n-1;k++) {
+    const target=remaining/(n-k);
+    const lastAllowed=units.length-(n-k-1);
+    let acc=0, bestEnd=start+1, bestDiff=Infinity, bestChars=0;
+    for(let end=start+1;end<=lastAllowed;end++){
+      acc+=units[end-1].length;
+      const diff=Math.abs(acc-target);
+      if(diff<bestDiff){bestDiff=diff;bestEnd=end;bestChars=acc;}
+      if(acc>=target)break;
+    }
+    const chunk=units.slice(start,bestEnd).join('');
+    if(!chunk)throw new Error('空の分割結果が生じました。');
+    results.push(chunk);start=bestEnd;remaining-=bestChars;
+  }
+  results.push(units.slice(start).join(''));
+  return results;
+}
+function splitText(text,n,mode,marker='') {
+  if(!Number.isSafeInteger(n)||n<2||n>999)throw new Error('分割数は2〜999の整数にしてください。');
+  if(!text)throw new Error('テキストが空です。');
+  let pieces;
+  if(mode==='character') {
+    const chars=Array.from(text);
+    if(n>chars.length)throw new Error(`文字数 ${chars.length} より多い個数には分割できません。`);
+    pieces=[];
+    for(let i=0;i<n;i++)pieces.push(chars.slice(Math.floor(chars.length*i/n),Math.floor(chars.length*(i+1)/n)).join(''));
+  } else if(mode==='line')pieces=balancedUnits(lineUnits(text),n);
+  else if(mode==='date')pieces=balancedUnits(blockUnits(text,'date'),n);
+  else if(mode==='marker'){
+    if(!marker)throw new Error('境界となる行頭の文字列を入力してください。');
+    pieces=balancedUnits(blockUnits(text,'marker',marker),n);
+  } else throw new Error('分割方法が不正です。');
+  if(pieces.length!==n||pieces.some(s=>!s)||pieces.join('')!==text)throw new Error('分割内容の検証に失敗しました。保存せずに停止しました。');
+  return pieces;
+}
+function humanBytes(n){return n<1024?`${n} B`:n<1024*1024?`${(n/1024).toFixed(1)} KB`:`${(n/1048576).toFixed(2)} MB`;}
+// ZIP形式（圧縮なし・外部ライブラリ不要）
+const crcTable=(()=>{let t=[];for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=c&1?0xedb88320^(c>>>1):(c>>>1);t.push(c>>>0);}return t;})();
+function crc32(bytes){let c=0xffffffff;for(const b of bytes)c=crcTable[(c^b)&255]^(c>>>8);return(c^0xffffffff)>>>0;}
+function dosTime(date){return (date.getHours()<<11)|(date.getMinutes()<<5)|Math.floor(date.getSeconds()/2);}
+function dosDate(date){return (Math.max(1980,date.getFullYear())-1980<<9)|((date.getMonth()+1)<<5)|date.getDate();}
+function zipBlob(files) {
+  const encoder=new TextEncoder(),local=[],central=[];
+  let offset=0,centralSize=0;
+  const now=new Date();
+  for(const file of files){
+    const name=encoder.encode(file.name),data=encoder.encode(file.text);
+    if(name.length>65535||data.length>=0xffffffff)throw new Error('ZIPのサイズ上限を超えています。');
+    const crc=crc32(data),time=dosTime(now),date=dosDate(now);
+    const lh=new Uint8Array(30+name.length),lv=new DataView(lh.buffer);
+    lv.setUint32(0,0x04034b50,true);lv.setUint16(4,20,true);lv.setUint16(6,0x0800,true);lv.setUint16(8,0,true);
+    lv.setUint16(10,time,true);lv.setUint16(12,date,true);lv.setUint32(14,crc,true);
+    lv.setUint32(18,data.length,true);lv.setUint32(22,data.length,true);lv.setUint16(26,name.length,true);
+    lh.set(name,30);local.push(lh,data);
+    const ch=new Uint8Array(46+name.length),cv=new DataView(ch.buffer);
+    cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);
+    cv.setUint16(8,0x0800,true);cv.setUint16(10,0,true);cv.setUint16(12,time,true);cv.setUint16(14,date,true);
+    cv.setUint32(16,crc,true);cv.setUint32(20,data.length,true);cv.setUint32(24,data.length,true);
+    cv.setUint16(28,name.length,true);cv.setUint32(42,offset,true);ch.set(name,46);
+    central.push(ch);centralSize+=ch.length;offset+=lh.length+data.length;
+  }
+  if(offset+centralSize>=0xffffffff)throw new Error('ZIPの合計サイズが4GBを超えました。');
+  const end=new Uint8Array(22),view=new DataView(end.buffer);
+  view.setUint32(0,0x06054b50,true);view.setUint16(8,files.length,true);view.setUint16(10,files.length,true);
+  view.setUint32(12,centralSize,true);view.setUint32(16,offset,true);
+  return new Blob([...local,...central,end],{type:'application/zip'});
+}
+// CORE_END
+const $=id=>document.getElementById(id);
+const fileEl=$('file'),drop=$('drop'),nEl=$('n'),modeEl=$('mode'),markerWrap=$('markerWrap');
+const statusEl=$('status'),resultEl=$('results'),listEl=$('list'),zipBtn=$('zip');
+let currentFile=null,files=[],urls=[];
+function status(text,isError=false){statusEl.style.display='block';statusEl.classList.toggle('error',isError);statusEl.textContent=text;}
+function resetResults(){for(const url of urls)URL.revokeObjectURL(url);urls=[];files=[];listEl.replaceChildren();resultEl.style.display='none';}
+function picked(file){resetResults();currentFile=file||null;$('split').disabled=!currentFile;$('fileInfo').textContent=currentFile?`選択中：${currentFile.name}（${humanBytes(currentFile.size)}）`:'ファイルはまだ選択されていません。';statusEl.style.display='none';}
+fileEl.addEventListener('change',()=>picked(fileEl.files?.[0]||null));
+drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('hover');});
+drop.addEventListener('dragleave',()=>drop.classList.remove('hover'));
+drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('hover');if(e.dataTransfer.files.length)picked(e.dataTransfer.files[0]);});
+modeEl.addEventListener('change',()=>{
+  markerWrap.hidden=modeEl.value!=='marker';
+  const hints={line:'行を途中で切らず、全体の文字量が近くなるようn分割します。',date:'LINE履歴の日付行（例：2026/02/11(水)）を境界にします。日付の途中では切れません。',character:'各ファイルのUnicode文字数を可能な限り均等にします。改行・会話の途中でも切ります。',marker:'指定の文字列で始まる行でのみ分割します。'};
+  $('modeHint').textContent=hints[modeEl.value];
+});
+function downloadBlob(blob,name){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),120000);}
+$('split').addEventListener('click',async()=>{
+  resetResults();const button=$('split');button.disabled=true;
+  try{
+    if(!currentFile)throw new Error('TXTファイルを選んでください。');
+    const n=Number(nEl.value);
+    if(!Number.isInteger(n)||n<2||n>999)throw new Error('分割数は2〜999の整数にしてください。');
+    status('読み込み・分割中です…');
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    const buffer=await currentFile.arrayBuffer();
+    const decoder=new TextDecoder($('enc').value,{fatal:true});
+    let txt;
+    try{txt=decoder.decode(buffer);}catch{throw new Error('文字コードが一致していません。文字化けする場合は文字コードを変更してください。');}
+    const pieces=splitText(txt,n,modeEl.value,$('marker').value);
+    const base=currentFile.name.replace(/\.[^.]+$/,'')||'text';
+    const digits=Math.max(2,String(n).length),bom=$('bom').checked?'\ufeff':'';
+    const encoder=new TextEncoder();
+    files=pieces.map((text,i)=>({name:`${base}_part${String(i+1).padStart(digits,'0')}_of${String(n).padStart(digits,'0')}.txt`,text:bom+text}));
+    let sum=0;
+    for(let i=0;i<files.length;i++){
+      const f=files[i],size=encoder.encode(f.text).length;sum+=size;
+      const item=document.createElement('div');item.className='item';
+      const top=document.createElement('div');top.className='itemtop';
+      const heading=document.createElement('div');const name=document.createElement('div');name.className='filename';name.textContent=f.name;
+      const meta=document.createElement('div');meta.className='meta';meta.textContent=`${humanBytes(size)} · 約${Array.from(pieces[i]).length.toLocaleString('ja-JP')}文字`;
+      heading.append(name,meta);
+      const link=document.createElement('a');link.className='dl';link.textContent='TXTを保存';link.download=f.name;
+      const url=URL.createObjectURL(new Blob([f.text],{type:'text/plain;charset=utf-8'}));urls.push(url);link.href=url;
+      top.append(heading,link);
+      const detail=document.createElement('details'),summary=document.createElement('summary');summary.textContent='冒頭をプレビュー';
+      const pre=document.createElement('pre');pre.textContent=Array.from(pieces[i]).slice(0,320).join('')+(Array.from(pieces[i]).length>320?'\n…（以降省略）':'');
+      detail.append(summary,pre);item.append(top,detail);listEl.append(item);
+    }
+    $('resultDesc').textContent=`${n}個のTXTに分割しました。合計 ${humanBytes(sum)}。結合すれば元の本文と完全一致することを確認済みです。`;
+    resultEl.style.display='block';status(`✓ 分割完了：${n}個作成しました。下の「すべてZIPで保存」が一番簡単です。`);
+    resultEl.scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(err){resetResults();status('エラー：'+(err?.message||String(err)),true);}finally{button.disabled=!currentFile;}
+});
+zipBtn.addEventListener('click',()=>{
+  if(!files.length)return;
+  try{const base=currentFile.name.replace(/\.[^.]+$/,'')||'text';downloadBlob(zipBlob(files),`${base}_split_${files.length}files.zip`);}
+  catch(err){status('ZIP保存エラー：'+err.message,true);}
+});
+</script>
+</body>
+</html>
