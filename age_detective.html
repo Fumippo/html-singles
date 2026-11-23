@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a1021">
+<title>AGE DETECTIVE — 年齢当てゲーム</title>
+<style>
+:root{color-scheme:dark;--bg:#0a1021;--panel:#141d33;--panel2:#19243f;--border:#293653;--text:#eef3ff;--muted:#a0afca;--accent:#8d9dff;--mint:#48d6ba;--orange:#ffc680;--danger:#ff889a;--shadow:0 16px 48px rgba(0,0,0,.18)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse 1000px 600px at 15% -15%,#242752 0,transparent 65%),radial-gradient(ellipse 800px 500px at 95% 0,#10363e 0,transparent 65%),var(--bg);font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;color:var(--text);line-height:1.65;font-size:15px}
+button,input{font:inherit}button{cursor:pointer;color:inherit}button:disabled{cursor:not-allowed;opacity:.43}a{color:var(--mint)}.shell{max-width:1120px;margin:auto;padding:24px 20px 90px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:24px;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}.logo{width:45px;height:45px;display:grid;place-items:center;border-radius:15px;background:linear-gradient(130deg,#6f79ec,#1a9d9d);box-shadow:0 0 28px #626df444;font-size:24px}.brand-text{font-weight:900;letter-spacing:.12em;font-size:19px}.tiny{color:var(--muted);font-size:12px}.nav{display:flex;gap:7px;flex-wrap:wrap}.nav button{border:1px solid var(--border);background:#151e35;border-radius:12px;padding:8px 13px}.nav button.active,.nav button:hover{background:#2c365d;border-color:#7784c7}.screen{display:none}.screen.active{display:block;animation:slideIn .3s ease}@keyframes slideIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+.card{background:linear-gradient(145deg,#18213a,#111c31);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow)}.pad{padding:24px}.subcard{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:13px;padding:15px}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.09em;color:var(--mint);text-transform:uppercase}.hero{padding:38px 32px;overflow:hidden;position:relative}.hero::after{content:'?';font-size:300px;position:absolute;right:-10px;top:-120px;line-height:1;color:#8395ef10;pointer-events:none;font-weight:900}h1,h2,h3{line-height:1.35;margin:0}h1{font-size:clamp(30px,5vw,54px);letter-spacing:-.04em;margin:14px 0}h2{font-size:clamp(22px,3.6vw,30px)}h3{font-size:17px}.lead{font-size:17px;color:#c9d5f1;max-width:720px}.muted{color:var(--muted)}.accent{color:var(--mint)}.grid{display:grid;gap:14px}.grid2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}.flex{display:flex;gap:10px;align-items:center}.wrap{flex-wrap:wrap}.between{justify-content:space-between}.mt{margin-top:20px}.mb{margin-bottom:20px}.mbsm{margin-bottom:10px}.space{height:20px}.pill{display:inline-flex;gap:5px;align-items:center;padding:4px 10px;border-radius:99px;border:1px solid #3b4f65;background:#1b3040;color:#a7eddf;font-size:12px;font-weight:700}.pill.alt{color:#c5ceff;border-color:#485284;background:#282e53}.btn{border:1px solid #53629d;background:linear-gradient(135deg,#788afa,#586bd5);color:white;border-radius:12px;padding:11px 18px;font-weight:800;box-shadow:0 5px 18px #5661d228;transition:transform .14s,border .14s,background .14s}.btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.08)}.btn.secondary{background:#1d2a47;border-color:#3d5072;color:#ecf2ff;box-shadow:none}.btn.outline{background:transparent;border-color:#3b4a64;box-shadow:none}.btn.danger{background:#502737;border-color:#7a3f52}.btn.small{font-size:12px;padding:7px 12px}.metric{background:linear-gradient(145deg,#1a2742,#111b31);border:1px solid #314160;border-radius:17px;padding:17px;min-width:0}.metric .label{font-size:12px;color:var(--muted);margin-bottom:5px}.metric .value{font-weight:900;font-size:clamp(20px,3vw,30px);line-height:1.2;letter-spacing:-.025em;white-space:nowrap}.metric .detail{font-size:11px;color:#a6b5d0;margin-top:7px}.highlight{color:#a0e8e0}.big{font-size:24px;font-weight:900}.row{display:flex;gap:16px;align-items:stretch}.maincol{flex:1.75;min-width:0}.sidecol{flex:1;min-width:0}.question-header{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:17px}.question-title{font-size:clamp(19px,3vw,25px);line-height:1.55;min-height:72px;overflow-wrap:anywhere}.answers{display:grid;gap:9px;margin:23px 0 18px}.answer{width:100%;text-align:left;background:#1a2740;border:1px solid #354562;border-radius:12px;padding:13px 15px;display:flex;align-items:center;gap:12px;transition:.12s}.answer:hover{border-color:#8e9cff;background:#263455}.answer.selected{background:#25385c;border-color:#9aafff;box-shadow:inset 0 0 0 1px #8b9cff}.keycap{font-size:11px;font-weight:800;border:1px solid #53627f;color:#a6b9d2;border-radius:7px;min-width:28px;height:28px;display:grid;place-items:center;flex-shrink:0}.answer.selected .keycap{color:white;background:#6375cf;border-color:#8496ff}.answer .answer-label{flex:1}.answer .check{font-size:17px;color:#94a0b6}.answer.selected .check{color:var(--mint)}.chart{width:100%;height:230px;display:block}.tabbar{display:flex;gap:6px;align-items:center}.tab{background:transparent;border:1px solid transparent;border-radius:8px;padding:6px 11px;color:var(--muted);font-size:12px}.tab.active{background:#2b3958;border-color:#485a83;color:white}.progress-track{height:7px;border-radius:99px;background:#25334c;overflow:hidden;margin:12px 0}.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--mint),var(--accent));border-radius:99px;transition:width .3s}.statline{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid #ffffff0e}.statline:last-child{border-bottom:0}.statline span:first-child{color:var(--muted);font-size:13px}.note{border-left:3px solid #7b8bff;background:#23315165;border-radius:6px;padding:11px 14px;color:#bcc9e4;font-size:12px;line-height:1.7}.mini{font-size:12px}.empty{padding:34px 12px;text-align:center;color:var(--muted)}.answer-footer{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}.answer-footer .btn{flex:1;min-width:125px}.table-wrap{width:100%;overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:590px;font-size:13px}th,td{text-align:left;padding:12px 9px;border-bottom:1px solid #304058}th{color:#aebfe0;font-weight:700}td{color:#e9effa}tr:hover td{background:#ffffff05}input[type="number"]{width:100%;max-width:240px;border-radius:12px;background:#101b30;border:1px solid #4a5b7e;color:white;font-size:20px;padding:12px 14px;outline:0}input:focus{border-color:#93a3fa}.result-age{font-size:clamp(58px,10vw,100px);font-weight:900;letter-spacing:-.08em;line-height:1.2;color:#b3c0ff}.result-compare{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:16px}.result-compare .subcard{min-width:145px;flex:1}.big-result{font-size:28px;font-weight:900}.correct{color:var(--mint)}.bad{color:var(--danger)}.warn{color:var(--orange)}details{border:1px solid #364565;border-radius:12px;padding:13px 15px;background:#18243b}details summary{cursor:pointer;font-weight:750}details p{margin:8px 0;color:var(--muted)}.export-grid{display:flex;gap:9px;flex-wrap:wrap}.export-grid .btn{flex:1;min-width:140px}.categories{display:flex;flex-wrap:wrap;gap:8px}.categoryTag{font-size:12px;border-radius:100px;padding:6px 11px;border:1px solid #40516c;background:#192741;color:#c9d6ed}.footer{border-top:1px solid #283553;margin-top:42px;padding-top:20px;color:#8f9dba;font-size:12px}.toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,20px);z-index:20;background:#243b55;color:#eafffb;border:1px solid #56b6a9;border-radius:12px;padding:10px 18px;opacity:0;transition:.2s;pointer-events:none;box-shadow:var(--shadow);max-width:90vw}.toast.show{opacity:1;transform:translate(-50%,0)}.nav-bottom{padding:12px 0 0}.recommend{font-size:12px;color:var(--mint)}.strong-number{font-variant-numeric:tabular-nums}.info-l{list-style-position:inside;color:#cdd8eb;padding-left:10px}.info-l li{margin:7px 0}.summary-stat{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.flowstat{border-radius:13px;background:#19243d;border:1px solid #344362;padding:12px}.flowstat strong{font-size:22px;display:block}.flowstat small{font-size:11px;color:var(--muted)}.footer-access{margin-top:15px}.hidesmall{display:inline}.est-move{color:var(--mint);font-weight:700}.keyboardhint{font-size:11px;color:#8394b4}.bar-track{height:9px;border-radius:99px;background:#243653;overflow:hidden;margin-top:5px}.bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#6f88f2,#4bd6bd)}.bar-fill.negative{background:linear-gradient(90deg,#ff9296,#f7bc79)}.category-impact-row{margin:14px 0}.category-impact-top{display:flex;gap:9px;justify-content:space-between;font-size:12px;color:#cad7f0}
+@media(max-width:790px){.shell{padding:15px 12px 65px}.pad{padding:17px}.hero{padding:24px 18px}.topbar{margin-bottom:14px}.row{display:block}.sidecol{margin-top:13px}.grid3{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2{grid-template-columns:repeat(2,minmax(0,1fr))}.metric{padding:13px}.metric .value{font-size:24px}.summary-stat{grid-template-columns:repeat(2,minmax(0,1fr))}.question-title{min-height:0}.chart{height:205px}.brand-text{font-size:15px}.hidesmall{display:none}.topbar .nav{width:100%;justify-content:space-between}.nav button{flex:1;padding:7px 5px;font-size:12px}}
+@media(max-width:430px){.grid3{gap:8px}.metric .value{font-size:21px}.metric .label{font-size:11px}.grid2{grid-template-columns:1fr}.answer{padding:12px 10px}.btn{padding:10px 11px}.question-header{gap:6px}.hero .lead{font-size:15px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <a href="#" class="brand" id="brandHome"><div class="logo">🎯</div><div><div class="brand-text">AGE DETECTIVE</div><div class="tiny">年齢当てゲーム・ローカル版 Ver.1.0</div></div></a>
+    <nav class="nav" aria-label="画面切り替え"><button id="navHome">トップ</button><button id="navGame">診断</button><button id="navHistory">履歴・統計</button><button id="navAbout">仕組み</button></nav>
+  </header>
+
+  <main>
+  <section class="screen active" id="homeScreen">
+    <div class="card hero"><span class="pill">🧠 15ジャンル・450問の質問バンク</span><h1>あなたの年齢、<br><span style="color:#9fafee">回答だけで見抜けるか。</span></h1>
+      <p class="lead">テレビ、音楽、ゲーム、学校生活、ネット文化、家電、雑学クイズ。多彩な質問から、<strong>満年齢を1歳単位で推定</strong>します。年齢や生まれ年を直接尋ねる質問はありません。</p>
+      <div class="flex wrap mt"><button class="btn" id="homeStart">診断をスタート →</button><button class="btn secondary" id="homeHistory">これまでの診断を見る</button></div>
+      <p class="tiny mt">🔒 オフライン完結・外部送信なし。質問と推定モデルは試作版で、推定確率は実データで校正されていません。</p>
+    </div>
+    <div class="grid grid3 mt">
+      <div class="metric"><div class="label">推定対象</div><div class="value">8–100歳</div><div class="detail">推定は1歳刻み</div></div>
+      <div class="metric"><div class="label">出題形式</div><div class="value">11種類</div><div class="detail">頻度・体験・クイズ・複数選択など</div></div>
+      <div class="metric"><div class="label">進め方</div><div class="value">自由終了</div><div class="detail">途中終了も限界挑戦も可能</div></div>
+    </div>
+    <div class="card pad mt"><h2>どんなゲーム？</h2><div class="grid grid3 mt"><div><div class="eyebrow">01 / Answer</div><h3>選択肢を選ぶ</h3><p class="muted mini">質問に合った選択肢。「わからない」「経験なし」も区別します。</p></div><div><div class="eyebrow">02 / Estimate</div><h3>年齢分布が変わる</h3><p class="muted mini">推定年齢・モデル内確率・80%区間・情報量を随時更新。</p></div><div><div class="eyebrow">03 / Verify</div><h3>答え合わせと記録</h3><p class="muted mini">最後に実年齢を入力。全プレイを比較しJSON/CSVを出力。</p></div></div></div>
+  </section>
+
+  <section class="screen" id="gameScreen">
+    <div class="flex between wrap mb"><div><span class="eyebrow">LIVE ESTIMATION</span><h2>年齢推定中 <span id="gamePhase" class="pill alt">広域探索</span></h2></div><div class="pill" id="questionCounter">QUESTION 1</div></div>
+    <div class="grid grid3 mb" aria-live="polite">
+      <div class="metric"><div class="label">🎯 推定年齢（最頻値）</div><div id="metricAge" class="value highlight">—歳</div><div class="detail" id="metricDelta">まだ回答がありません</div></div>
+      <div class="metric"><div class="label">🔍 その年齢のモデル内確率</div><div id="metricConfidence" class="value">—%</div><div class="detail">未校正の確率・的中率ではない</div></div>
+      <div class="metric"><div class="label">📏 80%推定範囲</div><div id="metricRange" class="value">—</div><div class="detail" id="metric95">95%: —</div></div>
+      <div class="metric"><div class="label">📈 獲得情報量</div><div id="metricBits" class="value">0.00 bit</div><div class="detail">初期分布からの情報量変化</div></div>
+      <div class="metric"><div class="label">🧭 推定安定度</div><div id="metricStable" class="value">—</div><div class="detail">直近の推定年齢の変化を指標化</div></div>
+      <div class="metric"><div class="label">🧩 ジャンル網羅</div><div id="metricBreadth" class="value">0 / 15</div><div class="detail" id="metricCoherence">整合指数: —</div></div>
+    </div>
+    <div class="row">
+      <div class="maincol">
+        <div class="card pad">
+          <div class="question-header"><span class="pill" id="qCategory">📺 テレビ</span><span class="pill alt" id="qType">経験</span><span id="qNumber" class="tiny">1問目</span></div>
+          <div class="question-title" id="qTitle">質問を準備中…</div>
+          <p class="tiny" id="qHelp">当てはまるものを選んでください。</p>
+          <div class="answers" id="answerOptions" role="group" aria-label="回答の選択肢"></div>
+          <div class="answer-footer"><button id="backAnswer" class="btn outline">← 1問戻る</button><button id="skipAnswer" class="btn secondary">わからない</button><button id="submitAnswer" class="btn">この回答で進む →</button></div>
+          <div class="nav-bottom"><span class="keyboardhint">操作: 数字キーで選択、Enterで回答（単一選択）</span></div>
+        </div>
+        <div class="flex between wrap mt"><button id="finishNow" class="btn secondary">🏁 今すぐ最終判定</button><button id="startOver" class="btn outline small">別の診断を開始</button></div>
+      </div>
+      <div class="sidecol">
+        <div class="card pad"><div class="flex between wrap mbsm"><h3>年齢確率の分布</h3><div class="tabbar"><button class="tab active" data-chart="distribution">分布</button><button class="tab" data-chart="timeline">推移</button></div></div><canvas id="mainChart" class="chart" role="img" aria-label="年齢分布または推定履歴"></canvas><div class="tiny muted" id="chartLegend">横軸: 満年齢 / 縦軸: モデル内確率。薄い帯は80%推定範囲。</div></div>
+        <div class="card pad mt"><div class="flex between"><h3>診断の進み具合</h3><span id="answeredCount" class="pill alt">0問回答</span></div><div class="progress-track"><div class="progress-fill" id="progressFill"></div></div><div class="statline"><span>使用したジャンル</span><strong id="usedCategories">0 / 15</strong></div><div class="statline"><span>クイズの回答数</span><strong id="quizAnswered">0問</strong></div><div class="statline"><span>直前の情報量変化</span><strong id="lastGain">—</strong></div><div class="statline"><span>今回の推定方式</span><strong>ヒューリスティック・ベイズ型</strong></div><div class="note mt">⚠ 数値は未校正のモデル内確率です。古い文化に詳しいだけで年上と決めつけないよう、知識型や同系統の質問の影響を抑制しています。</div></div>
+        <details class="mt"><summary>いままでの回答を見る</summary><div id="miniHistory" class="mini mt"></div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="resultScreen">
+    <div class="card pad"><span class="eyebrow">FINAL RESULT</span><h2>あなたの推定年齢は…</h2><div class="result-age" id="resultAge">—歳</div><p class="muted" id="resultSub">推定結果はここで固定されます。</p><div class="summary-stat mt" id="resultStats"></div>
+      <div class="note mt">年齢の推定値は、実年齢を入力しても変更されません。確信度は未校正のモデル内確率です。</div>
+      <div class="subcard mt"><h3>🎯 答え合わせ</h3><p class="mini muted">実際の満年齢を入力してください（0〜120歳）。</p><div class="flex wrap"><input type="number" id="actualAge" min="0" max="120" step="1" inputmode="numeric" placeholder="例: 37" aria-label="実際の満年齢"><button id="verifyAge" class="btn">結果を照合する</button></div><div id="verificationResult" class="mt" aria-live="polite"></div></div>
+    </div>
+    <div class="grid grid2 mt"><div class="card pad"><h3>🔬 推定に影響した質問</h3><p class="mini muted">回答直後の推定年齢の変動幅が大きかったもの。</p><div id="impactList" class="mini"></div></div><div class="card pad"><h3>🧠 クイズの成績</h3><div id="quizSummary" class="mini mt"></div><div class="space"></div><details><summary>クイズの正答一覧</summary><div id="quizReview" class="mini mt"></div></details></div></div>
+    <div class="card pad mt"><h3>📊 ジャンルごとの情報量変化</h3><p class="mini muted">各質問の前後で起きた確率分布のエントロピー変化をジャンル別に合計しています。負の値は分布が広がったことを意味します。ジャンルの真の有効性を証明する統計ではありません。</p><div id="categoryImpact" class="mt"></div></div>
+    <div class="card pad mt"><h3>診断を終えた後も…</h3><p class="muted mini">新しい診断を始めても、過去の結果はこのタブ内に残ります。ページを再読み込みすると記録は消えます。</p><div class="flex wrap"><button id="resultNew" class="btn">もう一度診断する →</button><button id="resultHistory" class="btn secondary">全履歴と統計を見る</button><button id="resultExport" class="btn outline">全データJSONを保存</button></div></div>
+  </section>
+
+  <section class="screen" id="historyScreen"><div class="flex between wrap mb"><div><span class="eyebrow">LOCAL SESSION HISTORY</span><h2>診断履歴と精度分析</h2></div><span class="pill" id="historyCount">0回の診断</span></div>
+    <div class="card pad"><div class="summary-stat" id="historyStats"></div><p class="tiny mt" id="historyNote">まだ年齢照合の記録はありません。</p></div>
+    <div class="card pad mt"><h3>診断一覧</h3><div class="table-wrap mt"><table><thead><tr><th>回</th><th>質問</th><th>推定</th><th>実際</th><th>符号付き誤差</th><th>診断日時</th><th></th></tr></thead><tbody id="historyRows"></tbody></table></div></div>
+    <div class="grid grid2 mt"><div class="card pad"><h3>推定誤差（絶対値）</h3><canvas id="errorChart" class="chart" aria-label="各診断の絶対誤差"></canvas></div><div class="card pad"><h3>推定年齢 vs 実年齢</h3><canvas id="compareChart" class="chart" aria-label="推定年齢と実年齢の比較"></canvas></div></div>
+    <div class="card pad mt"><h3>データをダウンロード</h3><p class="muted mini">すべての完了済み診断と、現在進行中の診断を保存できます。ファイルはこの端末内で生成されます。</p><div class="export-grid mt"><button class="btn" id="downloadJson">📦 全データ JSON</button><button class="btn secondary" id="downloadSummary">📊 診断結果 CSV</button><button class="btn secondary" id="downloadAnswers">🧾 回答ログ CSV</button></div><div class="flex between wrap mt"><p class="tiny">タブを再読み込みすると保存されていない記録は消えます。</p><button class="btn danger small" id="clearHistory">全履歴を削除</button></div></div>
+  </section>
+
+  <section class="screen" id="aboutScreen"><div class="card pad"><span class="eyebrow">ABOUT THE MODEL</span><h2>このゲームの仕組み</h2><p class="lead">質問数は450問、ジャンルは15種類。各回答から年齢候補の確率を更新し、次の出題を選択します。年齢そのものや出生年を直接尋ねません。</p><div class="note mb">これは統計モデルの試作品です。各年代の実測回答率に基づく学習・校正は実施していません。「モデル内確率」は実際の的中率を保証しません。</div><div class="grid grid2"><div class="subcard"><h3>1. ベイズ型の逐次更新</h3><p class="muted mini">8〜100歳の各候補に確率を置き、回答が出るたびに年代適合度で重み付けし、確率を再正規化します。回答の独立性は仮定しきらず、同カテゴリ・類似質問の重みを小さくします。</p></div><div class="subcard"><h3>2. 情報獲得による出題</h3><p class="muted mini">現在の年齢分布を変えられそうな質問の期待情報量を見積もり、未出題ジャンルへの加点や類似質問への減点も使います。途中にクイズや複数選択も入ります。</p></div><div class="subcard"><h3>3. 経験と知識を区別</h3><p class="muted mini">昔の番組を「知っている」ことと、「当時の本放送を視聴した」ことは違います。雑学クイズは特に小さく反映し、「わからない」は原則中立とします。</p></div><div class="subcard"><h3>4. 正解判定と統計</h3><p class="muted mini">最後に実年齢を入力して誤差、的中率、MAE、RMSEを集計します。答え合わせ後の推定値は固定され、途中の推定推移や回答ログも記録します。</p></div></div>
+      <h3 class="mt">出題ジャンル内訳（実データ）</h3><div id="categoryBreakdown" class="categories mt"></div><h3 class="mt">データの扱い</h3><p class="muted mini">回答・実年齢・診断履歴はJavaScriptのメモリ上で処理され、サーバーには送信されません。localStorageにも保存しません。画面の再読み込みやタブの破棄で消えるため、必要ならJSON・CSVファイルで保存してください。</p><p class="muted mini">実年齢が8歳未満／100歳超の場合は初期推定範囲外であることを答え合わせ時に示します。さらに精度を上げるには、大量の年齢既知の回答データによる校正が必要です。</p></div></section>
+  </main>
+  <footer class="footer">AGE DETECTIVE Ver.1.0 ｜ 完全オフライン・単一HTML ｜ 実験的な推定モデル ｜ データの自動送信・永続保存なし<br>© AGE DETECTIVE prototype · Designed for curiosity, not identity verification.</footer>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script id="questionData" type="application/json">[{"id":"q001","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"8時だョ!全員集合","start":1969,"end":1985,"cluster":"テレビ・バラエティ-0"},{"id":"q002","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"ひらけ!ポンキッキ","start":1973,"end":1993,"cluster":"テレビ・バラエティ-0"},{"id":"q003","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"ザ・ベストテン","start":1978,"end":1989,"cluster":"テレビ・バラエティ-0"},{"id":"q004","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"欽ちゃんのどこまでやるの!","start":1976,"end":1986,"cluster":"テレビ・バラエティ-0"},{"id":"q005","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"ドリフ大爆笑","start":1977,"end":1998,"cluster":"テレビ・バラエティ-0"},{"id":"q006","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"オレたちひょうきん族","start":1981,"end":1989,"cluster":"テレビ・バラエティ-1"},{"id":"q007","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"笑っていいとも!","start":1982,"end":2014,"cluster":"テレビ・バラエティ-1"},{"id":"q008","category":"テレビ・バラエティ","icon":"📺","type":"familiar","title":"なるほど!ザ・ワールド","start":1981,"end":1996,"cluster":"テレビ・バラエティ-1"},{"id":"q009","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"夕やけニャンニャン","start":1985,"end":1987,"cluster":"テレビ・バラエティ-1"},{"id":"q010","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"加トちゃんケンちゃんごきげんテレビ","start":1986,"end":1992,"cluster":"テレビ・バラエティ-1"},{"id":"q011","category":"テレビ・バラエティ","icon":"📺","type":"multi","title":"ねるとん紅鯨団","start":1987,"end":1994,"cluster":"テレビ・バラエティ-multi-10","groupOptions":[{"label":"ひらけ!ポンキッキ","start":1973,"end":1993,"relatedId":"q002"},{"label":"オレたちひょうきん族","start":1981,"end":1989,"relatedId":"q006"},{"label":"マジカル頭脳パワー!!","start":1990,"end":1999,"relatedId":"q014"},{"label":"ウッチャンナンチャンのウリナリ!!","start":1996,"end":2002,"relatedId":"q020"}]},{"id":"q012","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"世界まるごとHOWマッチ","start":1983,"end":1990,"cluster":"テレビ・バラエティ-2"},{"id":"q013","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"クイズ世界はSHOW by ショーバイ!!","start":1988,"end":1996,"cluster":"テレビ・バラエティ-2"},{"id":"q014","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"マジカル頭脳パワー!!","start":1990,"end":1999,"cluster":"テレビ・バラエティ-2"},{"id":"q015","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"とんねるずのみなさんのおかげです","start":1988,"end":1997,"cluster":"テレビ・バラエティ-2"},{"id":"q016","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"ダウンタウンのごっつええ感じ","start":1991,"end":1997,"cluster":"テレビ・バラエティ-3"},{"id":"q017","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"ウッチャンナンチャンのやるならやらねば!","start":1990,"end":1993,"cluster":"テレビ・バラエティ-3"},{"id":"q018","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"たけし・逸見の平成教育委員会","start":1991,"end":1997,"cluster":"テレビ・バラエティ-3"},{"id":"q019","category":"テレビ・バラエティ","icon":"📺","type":"familiar","title":"投稿!特ホウ王国","start":1994,"end":1997,"cluster":"テレビ・バラエティ-3"},{"id":"q020","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"ウッチャンナンチャンのウリナリ!!","start":1996,"end":2002,"cluster":"テレビ・バラエティ-3"},{"id":"q021","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"ボキャブラ天国","start":1992,"end":1999,"cluster":"テレビ・バラエティ-4"},{"id":"q022","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"電波少年シリーズ","start":1992,"end":2003,"cluster":"テレビ・バラエティ-4"},{"id":"q023","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"進め!電波少年の懸賞生活企画","start":1998,"end":1999,"cluster":"テレビ・バラエティ-4"},{"id":"q024","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"SMAP×SMAP","start":1996,"end":2016,"cluster":"テレビ・バラエティ-4"},{"id":"q025","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"めちゃ×2イケてるッ!","start":1996,"end":2018,"cluster":"テレビ・バラエティ-4"},{"id":"q026","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"伊東家の食卓","start":1997,"end":2007,"cluster":"テレビ・バラエティ-5"},{"id":"q027","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"学校へ行こう!","start":1997,"end":2005,"cluster":"テレビ・バラエティ-5"},{"id":"q028","category":"テレビ・バラエティ","icon":"📺","type":"multi","title":"筋肉番付","start":1995,"end":2002,"cluster":"テレビ・バラエティ-multi-27","groupOptions":[{"label":"投稿!特ホウ王国","start":1994,"end":1997,"relatedId":"q019"},{"label":"進め!電波少年の懸賞生活企画","start":1998,"end":1999,"relatedId":"q023"},{"label":"トリビアの泉","start":2002,"end":2006,"relatedId":"q031"},{"label":"世界の果てまでイッテQ!","start":2007,"end":2026,"relatedId":"q037"}]},{"id":"q029","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"ウッチャンナンチャンの炎のチャレンジャー","start":1995,"end":2000,"cluster":"テレビ・バラエティ-5"},{"id":"q030","category":"テレビ・バラエティ","icon":"📺","type":"familiar","title":"爆笑オンエアバトル","start":1999,"end":2010,"cluster":"テレビ・バラエティ-5"},{"id":"q031","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"トリビアの泉","start":2002,"end":2006,"cluster":"テレビ・バラエティ-6"},{"id":"q032","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"エンタの神様","start":2003,"end":2010,"cluster":"テレビ・バラエティ-6"},{"id":"q033","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"はねるのトびら","start":2001,"end":2012,"cluster":"テレビ・バラエティ-6"},{"id":"q034","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"クイズ!ヘキサゴンII","start":2005,"end":2011,"cluster":"テレビ・バラエティ-6"},{"id":"q035","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"リンカーン","start":2005,"end":2013,"cluster":"テレビ・バラエティ-6"},{"id":"q036","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"ザ!鉄腕!DASH!!","start":1995,"end":2026,"cluster":"テレビ・バラエティ-7"},{"id":"q037","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"世界の果てまでイッテQ!","start":2007,"end":2026,"cluster":"テレビ・バラエティ-7"},{"id":"q038","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"アメトーーク!","start":2003,"end":2026,"cluster":"テレビ・バラエティ-7"},{"id":"q039","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"逃走中","start":2004,"end":2026,"cluster":"テレビ・バラエティ-7"},{"id":"q040","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"ピラメキーノ","start":2009,"end":2015,"cluster":"テレビ・バラエティ-7"},{"id":"q041","category":"テレビ・バラエティ","icon":"📺","type":"familiar","title":"しゃべくり007","start":2008,"end":2026,"cluster":"テレビ・バラエティ-8"},{"id":"q042","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"水曜日のダウンタウン","start":2014,"end":2026,"cluster":"テレビ・バラエティ-8"},{"id":"q043","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"チコちゃんに叱られる!","start":2018,"end":2026,"cluster":"テレビ・バラエティ-8"},{"id":"q044","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"新しいカギ","start":2021,"end":2026,"cluster":"テレビ・バラエティ-8"},{"id":"q045","category":"テレビ・バラエティ","icon":"📺","type":"media","title":"THE FIRST TAKEのテレビ紹介","start":2020,"end":2026,"cluster":"テレビ・バラエティ-8"},{"id":"q046","category":"音楽","icon":"🎵","type":"music","title":"カセットテープで好きな曲を録音","start":1975,"end":1999,"cluster":"音楽-0"},{"id":"q047","category":"音楽","icon":"🎵","type":"music","title":"レコード店のシングル盤売り場","start":1965,"end":1990,"cluster":"音楽-0"},{"id":"q048","category":"音楽","icon":"🎵","type":"music","title":"歌謡曲の歌番組を家族で視聴","start":1970,"end":1989,"cluster":"音楽-0"},{"id":"q049","category":"音楽","icon":"🎵","type":"music","title":"ピンク・レディーのヒット曲","start":1976,"end":1981,"cluster":"音楽-0"},{"id":"q050","category":"音楽","icon":"🎵","type":"music","title":"山口百恵のヒット曲","start":1973,"end":1980,"cluster":"音楽-0"},{"id":"q051","category":"音楽","icon":"🎵","type":"social","title":"松田聖子の新曲が街で流れる光景","start":1980,"end":1990,"cluster":"音楽-1"},{"id":"q052","category":"音楽","icon":"🎵","type":"music","title":"中森明菜のヒット曲","start":1982,"end":1990,"cluster":"音楽-1"},{"id":"q053","category":"音楽","icon":"🎵","type":"familiar","title":"チェッカーズのヒット曲","start":1983,"end":1992,"cluster":"音楽-1"},{"id":"q054","category":"音楽","icon":"🎵","type":"music","title":"おニャン子クラブのヒット曲","start":1985,"end":1987,"cluster":"音楽-1"},{"id":"q055","category":"音楽","icon":"🎵","type":"music","title":"光GENJIのヒット曲","start":1987,"end":1994,"cluster":"音楽-1"},{"id":"q056","category":"音楽","icon":"🎵","type":"multi","title":"8cmシングルCDの購入","start":1988,"end":2003,"cluster":"音楽-multi-10","groupOptions":[{"label":"レコード店のシングル盤売り場","start":1965,"end":1990,"relatedId":"q047"},{"label":"松田聖子の新曲が街で流れる光景","start":1980,"end":1990,"relatedId":"q051"},{"label":"B'zの初期ヒット曲","start":1989,"end":1995,"relatedId":"q059"},{"label":"L'Arc〜en〜Cielの90年代のヒット曲","start":1996,"end":2001,"relatedId":"q065"}]},{"id":"q057","category":"音楽","icon":"🎵","type":"music","title":"CDラジカセでの音楽再生","start":1987,"end":2005,"cluster":"音楽-2"},{"id":"q058","category":"音楽","icon":"🎵","type":"music","title":"CDレンタル店の利用","start":1985,"end":2015,"cluster":"音楽-2"},{"id":"q059","category":"音楽","icon":"🎵","type":"music","title":"B'zの初期ヒット曲","start":1989,"end":1995,"cluster":"音楽-2"},{"id":"q060","category":"音楽","icon":"🎵","type":"music","title":"CHAGE and ASKAのヒット曲","start":1991,"end":1995,"cluster":"音楽-2"},{"id":"q061","category":"音楽","icon":"🎵","type":"music","title":"ZARDのヒット曲","start":1991,"end":2000,"cluster":"音楽-3"},{"id":"q062","category":"音楽","icon":"🎵","type":"music","title":"小室ファミリーの楽曲","start":1994,"end":1999,"cluster":"音楽-3"},{"id":"q063","category":"音楽","icon":"🎵","type":"music","title":"Mr.Childrenの90年代のヒット曲","start":1993,"end":1999,"cluster":"音楽-3"},{"id":"q064","category":"音楽","icon":"🎵","type":"familiar","title":"GLAYの90年代のヒット曲","start":1996,"end":2000,"cluster":"音楽-3"},{"id":"q065","category":"音楽","icon":"🎵","type":"music","title":"L'Arc〜en〜Cielの90年代のヒット曲","start":1996,"end":2001,"cluster":"音楽-3"},{"id":"q066","category":"音楽","icon":"🎵","type":"music","title":"SPEEDのヒット曲","start":1996,"end":2000,"cluster":"音楽-4"},{"id":"q067","category":"音楽","icon":"🎵","type":"music","title":"モーニング娘。の初期の楽曲","start":1998,"end":2004,"cluster":"音楽-4"},{"id":"q068","category":"音楽","icon":"🎵","type":"music","title":"MDプレーヤーでの音楽再生","start":1994,"end":2010,"cluster":"音楽-4"},{"id":"q069","category":"音楽","icon":"🎵","type":"music","title":"CD-Rに音楽を焼くこと","start":1998,"end":2010,"cluster":"音楽-4"},{"id":"q070","category":"音楽","icon":"🎵","type":"music","title":"iPodを持ち歩いて音楽を聴くこと","start":2002,"end":2016,"cluster":"音楽-4"},{"id":"q071","category":"音楽","icon":"🎵","type":"music","title":"着うたで流行曲を聴くこと","start":2003,"end":2012,"cluster":"音楽-5"},{"id":"q072","category":"音楽","icon":"🎵","type":"music","title":"ORANGE RANGEのヒット曲","start":2003,"end":2007,"cluster":"音楽-5"},{"id":"q073","category":"音楽","icon":"🎵","type":"multi","title":"レミオロメンのヒット曲","start":2004,"end":2008,"cluster":"音楽-multi-27","groupOptions":[{"label":"GLAYの90年代のヒット曲","start":1996,"end":2000,"relatedId":"q064"},{"label":"MDプレーヤーでの音楽再生","start":1994,"end":2010,"relatedId":"q068"},{"label":"VOCALOIDの初期楽曲","start":2007,"end":2014,"relatedId":"q076"},{"label":"YOASOBIのヒット曲","start":2020,"end":2026,"relatedId":"q082"}]},{"id":"q074","category":"音楽","icon":"🎵","type":"music","title":"AKB48のヒット曲","start":2009,"end":2016,"cluster":"音楽-5"},{"id":"q075","category":"音楽","icon":"🎵","type":"familiar","title":"嵐のヒット曲","start":2008,"end":2020,"cluster":"音楽-5"},{"id":"q076","category":"音楽","icon":"🎵","type":"music","title":"VOCALOIDの初期楽曲","start":2007,"end":2014,"cluster":"音楽-6"},{"id":"q077","category":"音楽","icon":"🎵","type":"social","title":"YouTubeで公式MVを視聴","start":2010,"end":2026,"cluster":"音楽-6"},{"id":"q078","category":"音楽","icon":"🎵","type":"music","title":"音楽のダウンロード購入","start":2004,"end":2020,"cluster":"音楽-6"},{"id":"q079","category":"音楽","icon":"🎵","type":"music","title":"音楽サブスクのプレイリスト","start":2016,"end":2026,"cluster":"音楽-6"},{"id":"q080","category":"音楽","icon":"🎵","type":"music","title":"米津玄師のヒット曲","start":2017,"end":2026,"cluster":"音楽-6"},{"id":"q081","category":"音楽","icon":"🎵","type":"music","title":"Official髭男dismのヒット曲","start":2018,"end":2026,"cluster":"音楽-7"},{"id":"q082","category":"音楽","icon":"🎵","type":"music","title":"YOASOBIのヒット曲","start":2020,"end":2026,"cluster":"音楽-7"},{"id":"q083","category":"音楽","icon":"🎵","type":"music","title":"Adoのヒット曲","start":2020,"end":2026,"cluster":"音楽-7"},{"id":"q084","category":"音楽","icon":"🎵","type":"music","title":"TikTok発の流行曲","start":2019,"end":2026,"cluster":"音楽-7"},{"id":"q085","category":"音楽","icon":"🎵","type":"music","title":"スマホのワイヤレスイヤホンで音楽再生","start":2017,"end":2026,"cluster":"音楽-7"},{"id":"q086","category":"ゲーム","icon":"🎮","type":"game","title":"家庭用のブロック崩しゲーム","start":1977,"end":1985,"cluster":"ゲーム-0"},{"id":"q087","category":"ゲーム","icon":"🎮","type":"game","title":"ゲーム&ウオッチ","start":1980,"end":1990,"cluster":"ゲーム-0"},{"id":"q088","category":"ゲーム","icon":"🎮","type":"game","title":"ファミリーコンピュータ","start":1983,"end":1998,"cluster":"ゲーム-0"},{"id":"q089","category":"ゲーム","icon":"🎮","type":"game","title":"スーパーマリオブラザーズ","start":1985,"end":2000,"cluster":"ゲーム-0"},{"id":"q090","category":"ゲーム","icon":"🎮","type":"game","title":"ドラゴンクエストIII（初代発売当時）","start":1988,"end":1994,"cluster":"ゲーム-0"},{"id":"q091","category":"ゲーム","icon":"🎮","type":"social","title":"ゲームボーイ","start":1989,"end":2003,"cluster":"ゲーム-1"},{"id":"q092","category":"ゲーム","icon":"🎮","type":"game","title":"スーパーファミコン","start":1990,"end":2005,"cluster":"ゲーム-1"},{"id":"q093","category":"ゲーム","icon":"🎮","type":"familiar","title":"ストリートファイターIIのゲームセンター筐体","start":1991,"end":2000,"cluster":"ゲーム-1"},{"id":"q094","category":"ゲーム","icon":"🎮","type":"game","title":"ぷよぷよのアーケード版","start":1992,"end":2003,"cluster":"ゲーム-1"},{"id":"q095","category":"ゲーム","icon":"🎮","type":"game","title":"セガサターン","start":1994,"end":2005,"cluster":"ゲーム-1"},{"id":"q096","category":"ゲーム","icon":"🎮","type":"multi","title":"初代PlayStation","start":1994,"end":2007,"cluster":"ゲーム-multi-10","groupOptions":[{"label":"ゲーム&ウオッチ","start":1980,"end":1990,"relatedId":"q087"},{"label":"ゲームボーイ","start":1989,"end":2003,"relatedId":"q091"},{"label":"ポケットモンスター 赤・緑","start":1996,"end":2005,"relatedId":"q099"},{"label":"ゲームボーイの通信ケーブル","start":1989,"end":2005,"relatedId":"q105"}]},{"id":"q097","category":"ゲーム","icon":"🎮","type":"game","title":"たまごっちの初代ブーム","start":1996,"end":1998,"cluster":"ゲーム-2"},{"id":"q098","category":"ゲーム","icon":"🎮","type":"game","title":"NINTENDO64","start":1996,"end":2006,"cluster":"ゲーム-2"},{"id":"q099","category":"ゲーム","icon":"🎮","type":"game","title":"ポケットモンスター 赤・緑","start":1996,"end":2005,"cluster":"ゲーム-2"},{"id":"q100","category":"ゲーム","icon":"🎮","type":"game","title":"ドリームキャスト","start":1998,"end":2006,"cluster":"ゲーム-2"},{"id":"q101","category":"ゲーム","icon":"🎮","type":"game","title":"PlayStation 2","start":2000,"end":2012,"cluster":"ゲーム-3"},{"id":"q102","category":"ゲーム","icon":"🎮","type":"game","title":"ゲームボーイアドバンス","start":2001,"end":2010,"cluster":"ゲーム-3"},{"id":"q103","category":"ゲーム","icon":"🎮","type":"game","title":"ニンテンドー ゲームキューブ","start":2001,"end":2011,"cluster":"ゲーム-3"},{"id":"q104","category":"ゲーム","icon":"🎮","type":"familiar","title":"ポケットモンスター ルビー・サファイア","start":2002,"end":2010,"cluster":"ゲーム-3"},{"id":"q105","category":"ゲーム","icon":"🎮","type":"game","title":"ゲームボーイの通信ケーブル","start":1989,"end":2005,"cluster":"ゲーム-3"},{"id":"q106","category":"ゲーム","icon":"🎮","type":"game","title":"ニンテンドーDS","start":2004,"end":2015,"cluster":"ゲーム-4"},{"id":"q107","category":"ゲーム","icon":"🎮","type":"game","title":"PlayStation Portable","start":2004,"end":2015,"cluster":"ゲーム-4"},{"id":"q108","category":"ゲーム","icon":"🎮","type":"game","title":"脳を鍛える大人のDSトレーニング","start":2005,"end":2012,"cluster":"ゲーム-4"},{"id":"q109","category":"ゲーム","icon":"🎮","type":"game","title":"Wiiリモコンで遊ぶゲーム","start":2006,"end":2016,"cluster":"ゲーム-4"},{"id":"q110","category":"ゲーム","icon":"🎮","type":"game","title":"モンスターハンター ポータブル 2nd G","start":2008,"end":2015,"cluster":"ゲーム-4"},{"id":"q111","category":"ゲーム","icon":"🎮","type":"game","title":"マリオカートWii","start":2008,"end":2017,"cluster":"ゲーム-5"},{"id":"q112","category":"ゲーム","icon":"🎮","type":"game","title":"スマホゲームのパズル&ドラゴンズ","start":2012,"end":2026,"cluster":"ゲーム-5"},{"id":"q113","category":"ゲーム","icon":"🎮","type":"multi","title":"ニンテンドー3DS","start":2011,"end":2020,"cluster":"ゲーム-multi-27","groupOptions":[{"label":"ポケットモンスター ルビー・サファイア","start":2002,"end":2010,"relatedId":"q104"},{"label":"脳を鍛える大人のDSトレーニング","start":2005,"end":2012,"relatedId":"q108"},{"label":"スプラトゥーン","start":2015,"end":2024,"relatedId":"q116"},{"label":"PlayStation 5","start":2020,"end":2026,"relatedId":"q122"}]},{"id":"q114","category":"ゲーム","icon":"🎮","type":"game","title":"Minecraftの日本語実況動画","start":2012,"end":2026,"cluster":"ゲーム-5"},{"id":"q115","category":"ゲーム","icon":"🎮","type":"familiar","title":"スマホゲームのモンスターストライク","start":2013,"end":2026,"cluster":"ゲーム-5"},{"id":"q116","category":"ゲーム","icon":"🎮","type":"game","title":"スプラトゥーン","start":2015,"end":2024,"cluster":"ゲーム-6"},{"id":"q117","category":"ゲーム","icon":"🎮","type":"social","title":"ポケモンGOの街歩きブーム","start":2016,"end":2020,"cluster":"ゲーム-6"},{"id":"q118","category":"ゲーム","icon":"🎮","type":"game","title":"Nintendo Switch","start":2017,"end":2026,"cluster":"ゲーム-6"},{"id":"q119","category":"ゲーム","icon":"🎮","type":"game","title":"フォートナイト","start":2018,"end":2026,"cluster":"ゲーム-6"},{"id":"q120","category":"ゲーム","icon":"🎮","type":"game","title":"あつまれ どうぶつの森","start":2020,"end":2026,"cluster":"ゲーム-6"},{"id":"q121","category":"ゲーム","icon":"🎮","type":"game","title":"原神","start":2020,"end":2026,"cluster":"ゲーム-7"},{"id":"q122","category":"ゲーム","icon":"🎮","type":"game","title":"PlayStation 5","start":2020,"end":2026,"cluster":"ゲーム-7"},{"id":"q123","category":"ゲーム","icon":"🎮","type":"game","title":"スプラトゥーン3","start":2022,"end":2026,"cluster":"ゲーム-7"},{"id":"q124","category":"ゲーム","icon":"🎮","type":"game","title":"Nintendo Switch 2","start":2025,"end":2026,"cluster":"ゲーム-7"},{"id":"q125","category":"ゲーム","icon":"🎮","type":"game","title":"ゲーム配信をリアルタイムで視聴","start":2017,"end":2026,"cluster":"ゲーム-7"},{"id":"q126","category":"携帯電話","icon":"📱","type":"use","title":"ポケットベルで数字のメッセージを送る","start":1990,"end":2001,"cluster":"携帯電話-0"},{"id":"q127","category":"携帯電話","icon":"📱","type":"use","title":"自動車電話を見かける","start":1985,"end":2000,"cluster":"携帯電話-0"},{"id":"q128","category":"携帯電話","icon":"📱","type":"use","title":"ショルダーホン","start":1985,"end":1995,"cluster":"携帯電話-0"},{"id":"q129","category":"携帯電話","icon":"📱","type":"use","title":"PHSで通話する","start":1995,"end":2010,"cluster":"携帯電話-0"},{"id":"q130","category":"携帯電話","icon":"📱","type":"use","title":"アンテナを伸ばす携帯電話","start":1993,"end":2004,"cluster":"携帯電話-0"},{"id":"q131","category":"携帯電話","icon":"📱","type":"social","title":"折りたたみ式携帯電話","start":1999,"end":2015,"cluster":"携帯電話-1"},{"id":"q132","category":"携帯電話","icon":"📱","type":"use","title":"携帯電話の着信メロディを自作する","start":1997,"end":2005,"cluster":"携帯電話-1"},{"id":"q133","category":"携帯電話","icon":"📱","type":"familiar","title":"携帯電話の着信メロディを購入する","start":1999,"end":2010,"cluster":"携帯電話-1"},{"id":"q134","category":"携帯電話","icon":"📱","type":"use","title":"iモードの公式サイトを利用する","start":1999,"end":2012,"cluster":"携帯電話-1"},{"id":"q135","category":"携帯電話","icon":"📱","type":"use","title":"携帯電話のメールアドレス交換","start":1999,"end":2015,"cluster":"携帯電話-1"},{"id":"q136","category":"携帯電話","icon":"📱","type":"multi","title":"携帯電話の赤外線通信","start":2001,"end":2014,"cluster":"携帯電話-multi-10","groupOptions":[{"label":"自動車電話を見かける","start":1985,"end":2000,"relatedId":"q127"},{"label":"折りたたみ式携帯電話","start":1999,"end":2015,"relatedId":"q131"},{"label":"ストラップを大量につけた携帯電話","start":1999,"end":2010,"relatedId":"q139"},{"label":"ガラケーのテンキーで文章を打つ","start":1999,"end":2020,"relatedId":"q145"}]},{"id":"q137","category":"携帯電話","icon":"📱","type":"use","title":"携帯電話の絵文字メール","start":2000,"end":2015,"cluster":"携帯電話-2"},{"id":"q138","category":"携帯電話","icon":"📱","type":"use","title":"携帯電話の待ち受け画像を交換","start":2000,"end":2012,"cluster":"携帯電話-2"},{"id":"q139","category":"携帯電話","icon":"📱","type":"use","title":"ストラップを大量につけた携帯電話","start":1999,"end":2010,"cluster":"携帯電話-2"},{"id":"q140","category":"携帯電話","icon":"📱","type":"use","title":"写メールを送る","start":2001,"end":2015,"cluster":"携帯電話-2"},{"id":"q141","category":"携帯電話","icon":"📱","type":"use","title":"携帯電話でワンセグを見る","start":2006,"end":2016,"cluster":"携帯電話-3"},{"id":"q142","category":"携帯電話","icon":"📱","type":"use","title":"携帯電話のおサイフケータイ","start":2004,"end":2020,"cluster":"携帯電話-3"},{"id":"q143","category":"携帯電話","icon":"📱","type":"use","title":"携帯電話の着うたフル","start":2004,"end":2013,"cluster":"携帯電話-3"},{"id":"q144","category":"携帯電話","icon":"📱","type":"familiar","title":"携帯電話でデコメール","start":2004,"end":2014,"cluster":"携帯電話-3"},{"id":"q145","category":"携帯電話","icon":"📱","type":"use","title":"ガラケーのテンキーで文章を打つ","start":1999,"end":2020,"cluster":"携帯電話-3"},{"id":"q146","category":"携帯電話","icon":"📱","type":"use","title":"携帯電話のパケット通信料を気にする","start":2001,"end":2016,"cluster":"携帯電話-4"},{"id":"q147","category":"携帯電話","icon":"📱","type":"use","title":"iPhoneを初めて見かける","start":2008,"end":2016,"cluster":"携帯電話-4"},{"id":"q148","category":"携帯電話","icon":"📱","type":"use","title":"Androidスマートフォンを購入・使用","start":2010,"end":2026,"cluster":"携帯電話-4"},{"id":"q149","category":"携帯電話","icon":"📱","type":"use","title":"LINEで友人と連絡","start":2012,"end":2026,"cluster":"携帯電話-4"},{"id":"q150","category":"携帯電話","icon":"📱","type":"use","title":"スマホでQRコード決済","start":2018,"end":2026,"cluster":"携帯電話-4"},{"id":"q151","category":"携帯電話","icon":"📱","type":"use","title":"スマホの顔認証でロック解除","start":2017,"end":2026,"cluster":"携帯電話-5"},{"id":"q152","category":"携帯電話","icon":"📱","type":"use","title":"スマホのホーム画面ウィジェット","start":2011,"end":2026,"cluster":"携帯電話-5"},{"id":"q153","category":"携帯電話","icon":"📱","type":"use","title":"スマホのショート動画を閲覧","start":2018,"end":2026,"cluster":"携帯電話-5"},{"id":"q154","category":"携帯電話","icon":"📱","type":"use","title":"5G対応スマートフォン","start":2020,"end":2026,"cluster":"携帯電話-5"},{"id":"q155","category":"携帯電話","icon":"📱","type":"familiar","title":"スマホの機種変更でクラウド移行","start":2015,"end":2026,"cluster":"携帯電話-5"},{"id":"q156","category":"インターネット","icon":"🌐","type":"use","title":"パソコン通信の電子掲示板","start":1988,"end":1998,"cluster":"インターネット-0"},{"id":"q157","category":"インターネット","icon":"🌐","type":"use","title":"ダイヤルアップ接続の音","start":1994,"end":2005,"cluster":"インターネット-0"},{"id":"q158","category":"インターネット","icon":"🌐","type":"use","title":"インターネットカフェの初期利用","start":1996,"end":2005,"cluster":"インターネット-0"},{"id":"q159","category":"インターネット","icon":"🌐","type":"use","title":"Yahoo! JAPANのカテゴリ検索","start":1996,"end":2010,"cluster":"インターネット-0"},{"id":"q160","category":"インターネット","icon":"🌐","type":"use","title":"個人ホームページのキリ番","start":1998,"end":2010,"cluster":"インターネット-0"},{"id":"q161","category":"インターネット","icon":"🌐","type":"social","title":"ホームページのアクセスカウンター","start":1996,"end":2010,"cluster":"インターネット-1"},{"id":"q162","category":"インターネット","icon":"🌐","type":"use","title":"電子メールのメーリングリスト","start":1997,"end":2012,"cluster":"インターネット-1"},{"id":"q163","category":"インターネット","icon":"🌐","type":"familiar","title":"チャットルームで会話","start":1998,"end":2010,"cluster":"インターネット-1"},{"id":"q164","category":"インターネット","icon":"🌐","type":"use","title":"ICQ・MSNメッセンジャー","start":1999,"end":2012,"cluster":"インターネット-1"},{"id":"q165","category":"インターネット","icon":"🌐","type":"use","title":"2ちゃんねるのスレッド文化","start":1999,"end":2017,"cluster":"インターネット-1"},{"id":"q166","category":"インターネット","icon":"🌐","type":"multi","title":"ADSL回線の導入","start":2001,"end":2010,"cluster":"インターネット-multi-10","groupOptions":[{"label":"ダイヤルアップ接続の音","start":1994,"end":2005,"relatedId":"q157"},{"label":"ホームページのアクセスカウンター","start":1996,"end":2010,"relatedId":"q161"},{"label":"個人ブログを読む・書く","start":2003,"end":2016,"relatedId":"q169"},{"label":"Twitterを使い始める","start":2009,"end":2022,"relatedId":"q175"}]},{"id":"q167","category":"インターネット","icon":"🌐","type":"use","title":"フラッシュアニメを見て楽しむ","start":2001,"end":2012,"cluster":"インターネット-2"},{"id":"q168","category":"インターネット","icon":"🌐","type":"use","title":"Google検索を使い始めた頃の感覚","start":2000,"end":2010,"cluster":"インターネット-2"},{"id":"q169","category":"インターネット","icon":"🌐","type":"use","title":"個人ブログを読む・書く","start":2003,"end":2016,"cluster":"インターネット-2"},{"id":"q170","category":"インターネット","icon":"🌐","type":"use","title":"mixiで日記を書く","start":2004,"end":2014,"cluster":"インターネット-2"},{"id":"q171","category":"インターネット","icon":"🌐","type":"use","title":"ニコニコ動画のコメント付き視聴","start":2007,"end":2026,"cluster":"インターネット-3"},{"id":"q172","category":"インターネット","icon":"🌐","type":"use","title":"YouTubeで動画を日常的に見る","start":2007,"end":2026,"cluster":"インターネット-3"},{"id":"q173","category":"インターネット","icon":"🌐","type":"use","title":"ネット掲示板のAA文化","start":2001,"end":2017,"cluster":"インターネット-3"},{"id":"q174","category":"インターネット","icon":"🌐","type":"familiar","title":"オンラインゲームのチャット","start":2003,"end":2026,"cluster":"インターネット-3"},{"id":"q175","category":"インターネット","icon":"🌐","type":"use","title":"Twitterを使い始める","start":2009,"end":2022,"cluster":"インターネット-3"},{"id":"q176","category":"インターネット","icon":"🌐","type":"use","title":"Facebookのニュースフィード","start":2010,"end":2023,"cluster":"インターネット-4"},{"id":"q177","category":"インターネット","icon":"🌐","type":"use","title":"Instagramで写真を投稿","start":2013,"end":2026,"cluster":"インターネット-4"},{"id":"q178","category":"インターネット","icon":"🌐","type":"use","title":"スマートフォンでネット検索","start":2011,"end":2026,"cluster":"インターネット-4"},{"id":"q179","category":"インターネット","icon":"🌐","type":"use","title":"LINEのグループチャット","start":2012,"end":2026,"cluster":"インターネット-4"},{"id":"q180","category":"インターネット","icon":"🌐","type":"use","title":"YouTubeのゲーム実況","start":2012,"end":2026,"cluster":"インターネット-4"},{"id":"q181","category":"インターネット","icon":"🌐","type":"use","title":"クラウドストレージでファイル共有","start":2013,"end":2026,"cluster":"インターネット-5"},{"id":"q182","category":"インターネット","icon":"🌐","type":"use","title":"ネット通販のレビュー投稿","start":2007,"end":2026,"cluster":"インターネット-5"},{"id":"q183","category":"インターネット","icon":"🌐","type":"multi","title":"AbemaTV／ABEMAで番組を見る","start":2016,"end":2026,"cluster":"インターネット-multi-27","groupOptions":[{"label":"オンラインゲームのチャット","start":2003,"end":2026,"relatedId":"q174"},{"label":"スマートフォンでネット検索","start":2011,"end":2026,"relatedId":"q178"},{"label":"Zoomでオンライン会議・授業","start":2020,"end":2026,"relatedId":"q186"},{"label":"短尺縦型動画を毎日見る","start":2020,"end":2026,"relatedId":"q190"}]},{"id":"q184","category":"インターネット","icon":"🌐","type":"use","title":"TikTokのおすすめ動画","start":2018,"end":2026,"cluster":"インターネット-5"},{"id":"q185","category":"インターネット","icon":"🌐","type":"familiar","title":"Netflixなどの定額動画配信","start":2016,"end":2026,"cluster":"インターネット-5"},{"id":"q186","category":"インターネット","icon":"🌐","type":"use","title":"Zoomでオンライン会議・授業","start":2020,"end":2026,"cluster":"インターネット-6"},{"id":"q187","category":"インターネット","icon":"🌐","type":"social","title":"Discordのボイスチャット","start":2018,"end":2026,"cluster":"インターネット-6"},{"id":"q188","category":"インターネット","icon":"🌐","type":"use","title":"生成AIチャットを日常的に使う","start":2023,"end":2026,"cluster":"インターネット-6"},{"id":"q189","category":"インターネット","icon":"🌐","type":"use","title":"Threadsに投稿する","start":2023,"end":2026,"cluster":"インターネット-6"},{"id":"q190","category":"インターネット","icon":"🌐","type":"use","title":"短尺縦型動画を毎日見る","start":2020,"end":2026,"cluster":"インターネット-6"},{"id":"q191","category":"学校生活","icon":"🏫","type":"school","title":"教室の石炭ストーブ","start":1960,"end":1980,"cluster":"学校生活-0"},{"id":"q192","category":"学校生活","icon":"🏫","type":"school","title":"校庭の焼却炉で紙くずを焼却","start":1965,"end":1999,"cluster":"学校生活-0"},{"id":"q193","category":"学校生活","icon":"🏫","type":"school","title":"学校給食の瓶入り牛乳","start":1960,"end":2000,"cluster":"学校生活-0"},{"id":"q194","category":"学校生活","icon":"🏫","type":"school","title":"学校の連絡網が電話の伝言形式","start":1975,"end":2008,"cluster":"学校生活-0"},{"id":"q195","category":"学校生活","icon":"🏫","type":"school","title":"教室の黒板消しクリーナー","start":1980,"end":2015,"cluster":"学校生活-0"},{"id":"q196","category":"学校生活","icon":"🏫","type":"school","title":"授業でのOHP（オーバーヘッドプロジェクター）","start":1975,"end":2005,"cluster":"学校生活-1"},{"id":"q197","category":"学校生活","icon":"🏫","type":"school","title":"授業でのスライド映写機","start":1970,"end":1998,"cluster":"学校生活-1"},{"id":"q198","category":"学校生活","icon":"🏫","type":"school","title":"学校行事の写真を廊下に張り出して注文","start":1975,"end":2015,"cluster":"学校生活-1"},{"id":"q199","category":"学校生活","icon":"🏫","type":"school","title":"学校でのVHSビデオ視聴","start":1985,"end":2015,"cluster":"学校生活-1"},{"id":"q200","category":"学校生活","icon":"🏫","type":"school","title":"教室のブラウン管テレビ","start":1980,"end":2010,"cluster":"学校生活-1"},{"id":"q201","category":"学校生活","icon":"🏫","type":"multi","title":"放送室からの校内放送","start":1970,"end":2026,"cluster":"学校生活-multi-10","groupOptions":[{"label":"校庭の焼却炉で紙くずを焼却","start":1965,"end":1999,"relatedId":"q192"},{"label":"授業でのOHP（オーバーヘッドプロジェクター）","start":1975,"end":2005,"relatedId":"q196"},{"label":"文集や卒業アルバムの手書き原稿","start":1970,"end":2005,"relatedId":"q204"},{"label":"修学旅行の使い捨てカメラ","start":1990,"end":2010,"relatedId":"q210"}]},{"id":"q202","category":"学校生活","icon":"🏫","type":"school","title":"給食のソフト麺","start":1970,"end":2010,"cluster":"学校生活-2"},{"id":"q203","category":"学校生活","icon":"🏫","type":"school","title":"給食の揚げパン","start":1970,"end":2026,"cluster":"学校生活-2"},{"id":"q204","category":"学校生活","icon":"🏫","type":"school","title":"文集や卒業アルバムの手書き原稿","start":1970,"end":2005,"cluster":"学校生活-2"},{"id":"q205","category":"学校生活","icon":"🏫","type":"school","title":"ポケベルの校則に関する話題","start":1993,"end":2003,"cluster":"学校生活-2"},{"id":"q206","category":"学校生活","icon":"🏫","type":"school","title":"パソコン室の一斉授業","start":1995,"end":2020,"cluster":"学校生活-3"},{"id":"q207","category":"学校生活","icon":"🏫","type":"school","title":"小学校の授業でフロッピーディスク","start":1995,"end":2008,"cluster":"学校生活-3"},{"id":"q208","category":"学校生活","icon":"🏫","type":"school","title":"教室の地デジ対応薄型テレビ","start":2007,"end":2020,"cluster":"学校生活-3"},{"id":"q209","category":"学校生活","icon":"🏫","type":"school","title":"家庭科室のミシン実習","start":1970,"end":2026,"cluster":"学校生活-3"},{"id":"q210","category":"学校生活","icon":"🏫","type":"school","title":"修学旅行の使い捨てカメラ","start":1990,"end":2010,"cluster":"学校生活-3"},{"id":"q211","category":"学校生活","icon":"🏫","type":"school","title":"学校でMD・CDを使って音源再生","start":1995,"end":2015,"cluster":"学校生活-4"},{"id":"q212","category":"学校生活","icon":"🏫","type":"school","title":"教室の電子黒板","start":2010,"end":2026,"cluster":"学校生活-4"},{"id":"q213","category":"学校生活","icon":"🏫","type":"school","title":"体育の授業でダンス必修化を意識","start":2012,"end":2026,"cluster":"学校生活-4"},{"id":"q214","category":"学校生活","icon":"🏫","type":"school","title":"学校のコンピューターでタイピング練習","start":2000,"end":2026,"cluster":"学校生活-4"},{"id":"q215","category":"学校生活","icon":"🏫","type":"school","title":"部活動連絡に携帯メール","start":2003,"end":2017,"cluster":"学校生活-4"},{"id":"q216","category":"学校生活","icon":"🏫","type":"school","title":"部活動連絡にLINEグループ","start":2013,"end":2026,"cluster":"学校生活-5"},{"id":"q217","category":"学校生活","icon":"🏫","type":"school","title":"タブレット端末で授業を受ける","start":2015,"end":2026,"cluster":"学校生活-5"},{"id":"q218","category":"学校生活","icon":"🏫","type":"multi","title":"GIGAスクール端末の利用","start":2020,"end":2026,"cluster":"学校生活-multi-27","groupOptions":[{"label":"家庭科室のミシン実習","start":1970,"end":2026,"relatedId":"q209"},{"label":"体育の授業でダンス必修化を意識","start":2012,"end":2026,"relatedId":"q213"},{"label":"デジタル教科書や電子教材","start":2018,"end":2026,"relatedId":"q221"},{"label":"学校行事をライブ配信で見る","start":2020,"end":2026,"relatedId":"q225"}]},{"id":"q219","category":"学校生活","icon":"🏫","type":"school","title":"オンライン授業を自宅から受ける","start":2020,"end":2022,"cluster":"学校生活-5"},{"id":"q220","category":"学校生活","icon":"🏫","type":"school","title":"学校の電子連絡帳アプリ","start":2018,"end":2026,"cluster":"学校生活-5"},{"id":"q221","category":"学校生活","icon":"🏫","type":"school","title":"デジタル教科書や電子教材","start":2018,"end":2026,"cluster":"学校生活-6"},{"id":"q222","category":"学校生活","icon":"🏫","type":"school","title":"自分の学校のホームページで配布物を見る","start":2005,"end":2026,"cluster":"学校生活-6"},{"id":"q223","category":"学校生活","icon":"🏫","type":"school","title":"QRコード付きの配布プリント","start":2018,"end":2026,"cluster":"学校生活-6"},{"id":"q224","category":"学校生活","icon":"🏫","type":"school","title":"学校で生成AIの利用ルールが話題になる","start":2023,"end":2026,"cluster":"学校生活-6"},{"id":"q225","category":"学校生活","icon":"🏫","type":"school","title":"学校行事をライブ配信で見る","start":2020,"end":2026,"cluster":"学校生活-6"},{"id":"q226","category":"PC・デジタル","icon":"💻","type":"use","title":"MS-DOSのコマンド入力","start":1985,"end":2002,"cluster":"PC・デジタル-0"},{"id":"q227","category":"PC・デジタル","icon":"💻","type":"use","title":"PC-9801シリーズのパソコン","start":1982,"end":2000,"cluster":"PC・デジタル-0"},{"id":"q228","category":"PC・デジタル","icon":"💻","type":"use","title":"5インチフロッピーディスク","start":1980,"end":2000,"cluster":"PC・デジタル-0"},{"id":"q229","category":"PC・デジタル","icon":"💻","type":"use","title":"3.5インチフロッピーディスク","start":1987,"end":2010,"cluster":"PC・デジタル-0"},{"id":"q230","category":"PC・デジタル","icon":"💻","type":"use","title":"パソコンのブラウン管モニター","start":1985,"end":2006,"cluster":"PC・デジタル-0"},{"id":"q231","category":"PC・デジタル","icon":"💻","type":"social","title":"Windows 3.1","start":1993,"end":1998,"cluster":"PC・デジタル-1"},{"id":"q232","category":"PC・デジタル","icon":"💻","type":"use","title":"Windows 95の起動画面","start":1995,"end":2003,"cluster":"PC・デジタル-1"},{"id":"q233","category":"PC・デジタル","icon":"💻","type":"familiar","title":"Windows 98のパソコン","start":1998,"end":2008,"cluster":"PC・デジタル-1"},{"id":"q234","category":"PC・デジタル","icon":"💻","type":"use","title":"インターネット接続用の外付けモデム","start":1995,"end":2005,"cluster":"PC・デジタル-1"},{"id":"q235","category":"PC・デジタル","icon":"💻","type":"use","title":"CD-ROMでソフトをインストール","start":1993,"end":2015,"cluster":"PC・デジタル-1"},{"id":"q236","category":"PC・デジタル","icon":"💻","type":"multi","title":"パソコンのスクリーンセーバー","start":1995,"end":2012,"cluster":"PC・デジタル-multi-10","groupOptions":[{"label":"PC-9801シリーズのパソコン","start":1982,"end":2000,"relatedId":"q227"},{"label":"Windows 3.1","start":1993,"end":1998,"relatedId":"q231"},{"label":"光学マウスへの買い替え","start":2001,"end":2015,"relatedId":"q239"},{"label":"Windows 8のスタート画面","start":2012,"end":2018,"relatedId":"q245"}]},{"id":"q237","category":"PC・デジタル","icon":"💻","type":"use","title":"USBメモリでデータを持ち運ぶ","start":2002,"end":2020,"cluster":"PC・デジタル-2"},{"id":"q238","category":"PC・デジタル","icon":"💻","type":"use","title":"Windows XPのパソコン","start":2001,"end":2015,"cluster":"PC・デジタル-2"},{"id":"q239","category":"PC・デジタル","icon":"💻","type":"use","title":"光学マウスへの買い替え","start":2001,"end":2015,"cluster":"PC・デジタル-2"},{"id":"q240","category":"PC・デジタル","icon":"💻","type":"use","title":"DVD-Rにデータを書き込む","start":2003,"end":2018,"cluster":"PC・デジタル-2"},{"id":"q241","category":"PC・デジタル","icon":"💻","type":"use","title":"Windows Vistaのパソコン","start":2007,"end":2013,"cluster":"PC・デジタル-3"},{"id":"q242","category":"PC・デジタル","icon":"💻","type":"use","title":"ネットブックの流行","start":2008,"end":2013,"cluster":"PC・デジタル-3"},{"id":"q243","category":"PC・デジタル","icon":"💻","type":"use","title":"Windows 7のパソコン","start":2009,"end":2020,"cluster":"PC・デジタル-3"},{"id":"q244","category":"PC・デジタル","icon":"💻","type":"familiar","title":"タブレット型PCを使う","start":2011,"end":2026,"cluster":"PC・デジタル-3"},{"id":"q245","category":"PC・デジタル","icon":"💻","type":"use","title":"Windows 8のスタート画面","start":2012,"end":2018,"cluster":"PC・デジタル-3"},{"id":"q246","category":"PC・デジタル","icon":"💻","type":"use","title":"SSD搭載PCを日常的に使う","start":2013,"end":2026,"cluster":"PC・デジタル-4"},{"id":"q247","category":"PC・デジタル","icon":"💻","type":"use","title":"Windows 10の更新通知","start":2015,"end":2026,"cluster":"PC・デジタル-4"},{"id":"q248","category":"PC・デジタル","icon":"💻","type":"use","title":"クラウド同期されたデスクトップ","start":2015,"end":2026,"cluster":"PC・デジタル-4"},{"id":"q249","category":"PC・デジタル","icon":"💻","type":"use","title":"Windows 11のパソコン","start":2021,"end":2026,"cluster":"PC・デジタル-4"},{"id":"q250","category":"PC・デジタル","icon":"💻","type":"use","title":"家庭のPCで生成AIを活用","start":2023,"end":2026,"cluster":"PC・デジタル-4"},{"id":"q251","category":"家電・暮らし","icon":"🏠","type":"use","title":"白黒テレビを家庭で視聴","start":1960,"end":1975,"cluster":"家電・暮らし-0"},{"id":"q252","category":"家電・暮らし","icon":"🏠","type":"use","title":"家庭のダイヤル式電話","start":1965,"end":1990,"cluster":"家電・暮らし-0"},{"id":"q253","category":"家電・暮らし","icon":"🏠","type":"use","title":"カセット式の家庭用録音機","start":1970,"end":2000,"cluster":"家電・暮らし-0"},{"id":"q254","category":"家電・暮らし","icon":"🏠","type":"use","title":"家具調カラーテレビ","start":1970,"end":1990,"cluster":"家電・暮らし-0"},{"id":"q255","category":"家電・暮らし","icon":"🏠","type":"use","title":"家庭用VHSビデオデッキ","start":1980,"end":2015,"cluster":"家電・暮らし-0"},{"id":"q256","category":"家電・暮らし","icon":"🏠","type":"social","title":"テレビのチャンネルを本体のダイヤルで変更","start":1965,"end":1990,"cluster":"家電・暮らし-1"},{"id":"q257","category":"家電・暮らし","icon":"🏠","type":"use","title":"家庭用のファクシミリ","start":1988,"end":2015,"cluster":"家電・暮らし-1"},{"id":"q258","category":"家電・暮らし","icon":"🏠","type":"familiar","title":"固定電話の留守番電話テープ","start":1985,"end":2005,"cluster":"家電・暮らし-1"},{"id":"q259","category":"家電・暮らし","icon":"🏠","type":"use","title":"フィルムカメラで家族写真","start":1970,"end":2005,"cluster":"家電・暮らし-1"},{"id":"q260","category":"家電・暮らし","icon":"🏠","type":"use","title":"ポラロイド式インスタント写真","start":1975,"end":2005,"cluster":"家電・暮らし-1"},{"id":"q261","category":"家電・暮らし","icon":"🏠","type":"multi","title":"家庭用の電話帳で番号を調べる","start":1970,"end":2010,"cluster":"家電・暮らし-multi-10","groupOptions":[{"label":"家庭のダイヤル式電話","start":1965,"end":1990,"relatedId":"q252"},{"label":"テレビのチャンネルを本体のダイヤルで変更","start":1965,"end":1990,"relatedId":"q256"},{"label":"テレビ番組をGコードで予約録画","start":1992,"end":2008,"relatedId":"q264"},{"label":"地上デジタル放送への切り替え","start":2003,"end":2012,"relatedId":"q270"}]},{"id":"q262","category":"家電・暮らし","icon":"🏠","type":"use","title":"テレビのビデオ予約録画","start":1985,"end":2015,"cluster":"家電・暮らし-2"},{"id":"q263","category":"家電・暮らし","icon":"🏠","type":"use","title":"テレビデオ","start":1990,"end":2005,"cluster":"家電・暮らし-2"},{"id":"q264","category":"家電・暮らし","icon":"🏠","type":"use","title":"テレビ番組をGコードで予約録画","start":1992,"end":2008,"cluster":"家電・暮らし-2"},{"id":"q265","category":"家電・暮らし","icon":"🏠","type":"use","title":"ポータブルCDプレーヤー","start":1988,"end":2012,"cluster":"家電・暮らし-2"},{"id":"q266","category":"家電・暮らし","icon":"🏠","type":"use","title":"デジタルカメラの写真をPCへ取り込む","start":1998,"end":2020,"cluster":"家電・暮らし-3"},{"id":"q267","category":"家電・暮らし","icon":"🏠","type":"use","title":"DVDレコーダーで番組録画","start":2000,"end":2018,"cluster":"家電・暮らし-3"},{"id":"q268","category":"家電・暮らし","icon":"🏠","type":"use","title":"MDコンポで音楽を再生","start":1995,"end":2012,"cluster":"家電・暮らし-3"},{"id":"q269","category":"家電・暮らし","icon":"🏠","type":"familiar","title":"プラズマテレビを家庭で使用","start":2001,"end":2015,"cluster":"家電・暮らし-3"},{"id":"q270","category":"家電・暮らし","icon":"🏠","type":"use","title":"地上デジタル放送への切り替え","start":2003,"end":2012,"cluster":"家電・暮らし-3"},{"id":"q271","category":"家電・暮らし","icon":"🏠","type":"use","title":"家庭用Blu-rayレコーダー","start":2007,"end":2026,"cluster":"家電・暮らし-4"},{"id":"q272","category":"家電・暮らし","icon":"🏠","type":"use","title":"薄型液晶テレビを買い替える","start":2005,"end":2026,"cluster":"家電・暮らし-4"},{"id":"q273","category":"家電・暮らし","icon":"🏠","type":"use","title":"LED電球への交換","start":2010,"end":2026,"cluster":"家電・暮らし-4"},{"id":"q274","category":"家電・暮らし","icon":"🏠","type":"use","title":"ロボット掃除機の導入","start":2010,"end":2026,"cluster":"家電・暮らし-4"},{"id":"q275","category":"家電・暮らし","icon":"🏠","type":"use","title":"スマートスピーカー","start":2017,"end":2026,"cluster":"家電・暮らし-4"},{"id":"q276","category":"家電・暮らし","icon":"🏠","type":"use","title":"ネット対応テレビで動画を見る","start":2016,"end":2026,"cluster":"家電・暮らし-5"},{"id":"q277","category":"家電・暮らし","icon":"🏠","type":"use","title":"スマート家電をスマホで操作","start":2018,"end":2026,"cluster":"家電・暮らし-5"},{"id":"q278","category":"家電・暮らし","icon":"🏠","type":"use","title":"キャッシュレス決済対応の自動販売機","start":2015,"end":2026,"cluster":"家電・暮らし-5"},{"id":"q279","category":"家電・暮らし","icon":"🏠","type":"use","title":"家庭用プロジェクターで動画視聴","start":2015,"end":2026,"cluster":"家電・暮らし-5"},{"id":"q280","category":"家電・暮らし","icon":"🏠","type":"familiar","title":"スマートウォッチで健康管理","start":2017,"end":2026,"cluster":"家電・暮らし-5"},{"id":"q281","category":"ニュース・社会","icon":"📰","type":"news","title":"東京オリンピック（1964）のニュース","start":1964,"end":1964,"cluster":"ニュース・社会-0"},{"id":"q282","category":"ニュース・社会","icon":"📰","type":"news","title":"大阪万博（1970）のニュース","start":1970,"end":1970,"cluster":"ニュース・社会-0"},{"id":"q283","category":"ニュース・社会","icon":"📰","type":"news","title":"札幌冬季オリンピック（1972）のニュース","start":1972,"end":1972,"cluster":"ニュース・社会-0"},{"id":"q284","category":"ニュース・社会","icon":"📰","type":"news","title":"沖縄返還のニュース","start":1972,"end":1972,"cluster":"ニュース・社会-0"},{"id":"q285","category":"ニュース・社会","icon":"📰","type":"news","title":"ロッキード事件の報道","start":1976,"end":1977,"cluster":"ニュース・社会-0"},{"id":"q286","category":"ニュース・社会","icon":"📰","type":"news","title":"東北・上越新幹線の開業報道","start":1982,"end":1982,"cluster":"ニュース・社会-1"},{"id":"q287","category":"ニュース・社会","icon":"📰","type":"news","title":"日本航空123便墜落事故の報道","start":1985,"end":1985,"cluster":"ニュース・社会-1"},{"id":"q288","category":"ニュース・社会","icon":"📰","type":"news","title":"昭和から平成への改元の報道","start":1989,"end":1989,"cluster":"ニュース・社会-1"},{"id":"q289","category":"ニュース・社会","icon":"📰","type":"news","title":"ベルリンの壁崩壊のニュース","start":1989,"end":1989,"cluster":"ニュース・社会-1"},{"id":"q290","category":"ニュース・社会","icon":"📰","type":"news","title":"バブル崩壊に関する報道","start":1991,"end":1993,"cluster":"ニュース・社会-1"},{"id":"q291","category":"ニュース・社会","icon":"📰","type":"news","title":"阪神・淡路大震災の報道","start":1995,"end":1995,"cluster":"ニュース・社会-2"},{"id":"q292","category":"ニュース・社会","icon":"📰","type":"news","title":"地下鉄サリン事件の報道","start":1995,"end":1995,"cluster":"ニュース・社会-2"},{"id":"q293","category":"ニュース・社会","icon":"📰","type":"news","title":"長野冬季オリンピックのニュース","start":1998,"end":1998,"cluster":"ニュース・社会-2"},{"id":"q294","category":"ニュース・社会","icon":"📰","type":"news","title":"2000年問題への世間の反応","start":1999,"end":2000,"cluster":"ニュース・社会-2"},{"id":"q295","category":"ニュース・社会","icon":"📰","type":"news","title":"アメリカ同時多発テロ事件のニュース","start":2001,"end":2001,"cluster":"ニュース・社会-2"},{"id":"q296","category":"ニュース・社会","icon":"📰","type":"news","title":"日韓ワールドカップのニュース","start":2002,"end":2002,"cluster":"ニュース・社会-3"},{"id":"q297","category":"ニュース・社会","icon":"📰","type":"news","title":"新潟県中越地震の報道","start":2004,"end":2004,"cluster":"ニュース・社会-3"},{"id":"q298","category":"ニュース・社会","icon":"📰","type":"news","title":"リーマン・ショックのニュース","start":2008,"end":2009,"cluster":"ニュース・社会-3"},{"id":"q299","category":"ニュース・社会","icon":"📰","type":"news","title":"東日本大震災の報道","start":2011,"end":2011,"cluster":"ニュース・社会-3"},{"id":"q300","category":"ニュース・社会","icon":"📰","type":"news","title":"東京スカイツリー開業のニュース","start":2012,"end":2012,"cluster":"ニュース・社会-3"},{"id":"q301","category":"ニュース・社会","icon":"📰","type":"news","title":"平成から令和への改元の報道","start":2019,"end":2019,"cluster":"ニュース・社会-4"},{"id":"q302","category":"ニュース・社会","icon":"📰","type":"news","title":"新型コロナウイルスの感染拡大報道","start":2020,"end":2022,"cluster":"ニュース・社会-4"},{"id":"q303","category":"ニュース・社会","icon":"📰","type":"news","title":"東京2020オリンピック（2021年開催）のニュース","start":2021,"end":2021,"cluster":"ニュース・社会-4"},{"id":"q304","category":"ニュース・社会","icon":"📰","type":"news","title":"生成AIの急速な普及に関するニュース","start":2023,"end":2026,"cluster":"ニュース・社会-4"},{"id":"q305","category":"ニュース・社会","icon":"📰","type":"news","title":"2025年大阪・関西万博のニュース","start":2025,"end":2025,"cluster":"ニュース・社会-4"},{"id":"q306","category":"映画・アニメ","icon":"🎬","type":"media","title":"テレビアニメの鉄腕アトム","start":1963,"end":1980,"cluster":"映画・アニメ-0"},{"id":"q307","category":"映画・アニメ","icon":"🎬","type":"media","title":"アニメのサザエさん初期放送","start":1969,"end":1985,"cluster":"映画・アニメ-0"},{"id":"q308","category":"映画・アニメ","icon":"🎬","type":"media","title":"宇宙戦艦ヤマトのテレビ放送","start":1974,"end":1983,"cluster":"映画・アニメ-0"},{"id":"q309","category":"映画・アニメ","icon":"🎬","type":"media","title":"映画のスター・ウォーズ旧三部作","start":1978,"end":1986,"cluster":"映画・アニメ-0"},{"id":"q310","category":"映画・アニメ","icon":"🎬","type":"media","title":"アニメの機動戦士ガンダム","start":1979,"end":1985,"cluster":"映画・アニメ-0"},{"id":"q311","category":"映画・アニメ","icon":"🎬","type":"media","title":"ドラえもん（大山のぶ代版）","start":1979,"end":2005,"cluster":"映画・アニメ-1"},{"id":"q312","category":"映画・アニメ","icon":"🎬","type":"media","title":"アニメのDr.スランプ アラレちゃん","start":1981,"end":1986,"cluster":"映画・アニメ-1"},{"id":"q313","category":"映画・アニメ","icon":"🎬","type":"familiar","title":"映画のE.T.","start":1982,"end":1990,"cluster":"映画・アニメ-1"},{"id":"q314","category":"映画・アニメ","icon":"🎬","type":"media","title":"風の谷のナウシカ","start":1984,"end":1995,"cluster":"映画・アニメ-1"},{"id":"q315","category":"映画・アニメ","icon":"🎬","type":"media","title":"ドラゴンボールのテレビアニメ","start":1986,"end":1996,"cluster":"映画・アニメ-1"},{"id":"q316","category":"映画・アニメ","icon":"🎬","type":"multi","title":"となりのトトロ","start":1988,"end":2000,"cluster":"映画・アニメ-multi-10","groupOptions":[{"label":"アニメのサザエさん初期放送","start":1969,"end":1985,"relatedId":"q307"},{"label":"ドラえもん（大山のぶ代版）","start":1979,"end":2005,"relatedId":"q311"},{"label":"クレヨンしんちゃんの初期放送","start":1992,"end":2003,"relatedId":"q319"},{"label":"ONE PIECEのアニメ初期放送","start":1999,"end":2007,"relatedId":"q325"}]},{"id":"q317","category":"映画・アニメ","icon":"🎬","type":"media","title":"魔女の宅急便","start":1989,"end":2000,"cluster":"映画・アニメ-2"},{"id":"q318","category":"映画・アニメ","icon":"🎬","type":"media","title":"美少女戦士セーラームーン","start":1992,"end":1997,"cluster":"映画・アニメ-2"},{"id":"q319","category":"映画・アニメ","icon":"🎬","type":"media","title":"クレヨンしんちゃんの初期放送","start":1992,"end":2003,"cluster":"映画・アニメ-2"},{"id":"q320","category":"映画・アニメ","icon":"🎬","type":"media","title":"SLAM DUNKのテレビアニメ","start":1993,"end":1996,"cluster":"映画・アニメ-2"},{"id":"q321","category":"映画・アニメ","icon":"🎬","type":"media","title":"新世紀エヴァンゲリオン初期ブーム","start":1995,"end":1998,"cluster":"映画・アニメ-3"},{"id":"q322","category":"映画・アニメ","icon":"🎬","type":"media","title":"名探偵コナンのアニメ初期放送","start":1996,"end":2005,"cluster":"映画・アニメ-3"},{"id":"q323","category":"映画・アニメ","icon":"🎬","type":"media","title":"ポケットモンスターのアニメ初期放送","start":1997,"end":2005,"cluster":"映画・アニメ-3"},{"id":"q324","category":"映画・アニメ","icon":"🎬","type":"familiar","title":"もののけ姫の劇場公開","start":1997,"end":1998,"cluster":"映画・アニメ-3"},{"id":"q325","category":"映画・アニメ","icon":"🎬","type":"media","title":"ONE PIECEのアニメ初期放送","start":1999,"end":2007,"cluster":"映画・アニメ-3"},{"id":"q326","category":"映画・アニメ","icon":"🎬","type":"media","title":"千と千尋の神隠しの劇場公開","start":2001,"end":2002,"cluster":"映画・アニメ-4"},{"id":"q327","category":"映画・アニメ","icon":"🎬","type":"media","title":"ハリー・ポッター映画シリーズ","start":2001,"end":2011,"cluster":"映画・アニメ-4"},{"id":"q328","category":"映画・アニメ","icon":"🎬","type":"media","title":"プリキュアシリーズの初期放送","start":2004,"end":2010,"cluster":"映画・アニメ-4"},{"id":"q329","category":"映画・アニメ","icon":"🎬","type":"media","title":"涼宮ハルヒの憂鬱のブーム","start":2006,"end":2010,"cluster":"映画・アニメ-4"},{"id":"q330","category":"映画・アニメ","icon":"🎬","type":"media","title":"アナと雪の女王のブーム","start":2014,"end":2016,"cluster":"映画・アニメ-4"},{"id":"q331","category":"映画・アニメ","icon":"🎬","type":"media","title":"君の名は。の劇場公開","start":2016,"end":2017,"cluster":"映画・アニメ-5"},{"id":"q332","category":"映画・アニメ","icon":"🎬","type":"media","title":"鬼滅の刃のテレビアニメ","start":2019,"end":2026,"cluster":"映画・アニメ-5"},{"id":"q333","category":"映画・アニメ","icon":"🎬","type":"media","title":"劇場版 鬼滅の刃 無限列車編","start":2020,"end":2022,"cluster":"映画・アニメ-5"},{"id":"q334","category":"映画・アニメ","icon":"🎬","type":"media","title":"THE FIRST SLAM DUNKの劇場公開","start":2022,"end":2024,"cluster":"映画・アニメ-5"},{"id":"q335","category":"映画・アニメ","icon":"🎬","type":"familiar","title":"推しの子のテレビアニメ","start":2023,"end":2026,"cluster":"映画・アニメ-5"},{"id":"q336","category":"買い物・商業","icon":"🛍️","type":"use","title":"商店街の個人商店での買い物","start":1965,"end":2005,"cluster":"買い物・商業-0"},{"id":"q337","category":"買い物・商業","icon":"🛍️","type":"use","title":"食品スーパーの紙のポイント券","start":1980,"end":2010,"cluster":"買い物・商業-0"},{"id":"q338","category":"買い物・商業","icon":"🛍️","type":"use","title":"商店の手書きレジ帳・伝票","start":1965,"end":2000,"cluster":"買い物・商業-0"},{"id":"q339","category":"買い物・商業","icon":"🛍️","type":"use","title":"レコード店の試聴コーナー","start":1975,"end":1995,"cluster":"買い物・商業-0"},{"id":"q340","category":"買い物・商業","icon":"🛍️","type":"use","title":"コンビニの店頭で公衆電話を使う","start":1985,"end":2005,"cluster":"買い物・商業-0"},{"id":"q341","category":"買い物・商業","icon":"🛍️","type":"social","title":"レンタルビデオ店でVHSを借りる","start":1985,"end":2005,"cluster":"買い物・商業-1"},{"id":"q342","category":"買い物・商業","icon":"🛍️","type":"use","title":"デパートの屋上遊園地","start":1965,"end":1999,"cluster":"買い物・商業-1"},{"id":"q343","category":"買い物・商業","icon":"🛍️","type":"familiar","title":"CDショップで新譜を予約","start":1988,"end":2015,"cluster":"買い物・商業-1"},{"id":"q344","category":"買い物・商業","icon":"🛍️","type":"use","title":"雑誌の応募券を切り取って送付","start":1970,"end":2010,"cluster":"買い物・商業-1"},{"id":"q345","category":"買い物・商業","icon":"🛍️","type":"use","title":"テレホンカードを購入","start":1985,"end":2005,"cluster":"買い物・商業-1"},{"id":"q346","category":"買い物・商業","icon":"🛍️","type":"multi","title":"コンビニでゲームソフトを予約","start":1995,"end":2012,"cluster":"買い物・商業-multi-10","groupOptions":[{"label":"食品スーパーの紙のポイント券","start":1980,"end":2010,"relatedId":"q337"},{"label":"レンタルビデオ店でVHSを借りる","start":1985,"end":2005,"relatedId":"q341"},{"label":"インターネット通販の初期利用","start":2000,"end":2012,"relatedId":"q349"},{"label":"無人店舗やスマートレジの利用","start":2020,"end":2026,"relatedId":"q355"}]},{"id":"q347","category":"買い物・商業","icon":"🛍️","type":"use","title":"百貨店の歳末セールのチラシ","start":1975,"end":2020,"cluster":"買い物・商業-2"},{"id":"q348","category":"買い物・商業","icon":"🛍️","type":"use","title":"レンタルDVD店で作品を借りる","start":2000,"end":2020,"cluster":"買い物・商業-2"},{"id":"q349","category":"買い物・商業","icon":"🛍️","type":"use","title":"インターネット通販の初期利用","start":2000,"end":2012,"cluster":"買い物・商業-2"},{"id":"q350","category":"買い物・商業","icon":"🛍️","type":"use","title":"オークションサイトで個人売買","start":2000,"end":2020,"cluster":"買い物・商業-2"},{"id":"q351","category":"買い物・商業","icon":"🛍️","type":"use","title":"コンビニのマルチコピー機でチケット発券","start":2005,"end":2026,"cluster":"買い物・商業-3"},{"id":"q352","category":"買い物・商業","icon":"🛍️","type":"use","title":"フリマアプリで売買","start":2014,"end":2026,"cluster":"買い物・商業-3"},{"id":"q353","category":"買い物・商業","icon":"🛍️","type":"use","title":"QRコード決済のポイント還元","start":2018,"end":2026,"cluster":"買い物・商業-3"},{"id":"q354","category":"買い物・商業","icon":"🛍️","type":"familiar","title":"セルフレジで食品を精算","start":2016,"end":2026,"cluster":"買い物・商業-3"},{"id":"q355","category":"買い物・商業","icon":"🛍️","type":"use","title":"無人店舗やスマートレジの利用","start":2020,"end":2026,"cluster":"買い物・商業-3"},{"id":"q356","category":"交通・旅行","icon":"🚃","type":"use","title":"駅員が切符に改札鋏を入れる","start":1965,"end":1998,"cluster":"交通・旅行-0"},{"id":"q357","category":"交通・旅行","icon":"🚃","type":"use","title":"硬券の乗車券を購入する","start":1965,"end":1998,"cluster":"交通・旅行-0"},{"id":"q358","category":"交通・旅行","icon":"🚃","type":"use","title":"旅行時の紙の時刻表の持ち歩き","start":1970,"end":2010,"cluster":"交通・旅行-0"},{"id":"q359","category":"交通・旅行","icon":"🚃","type":"use","title":"駅の伝言板にメッセージを書く","start":1975,"end":1998,"cluster":"交通・旅行-0"},{"id":"q360","category":"交通・旅行","icon":"🚃","type":"use","title":"オレンジカードを使用する","start":1985,"end":2005,"cluster":"交通・旅行-0"},{"id":"q361","category":"交通・旅行","icon":"🚃","type":"social","title":"JR発足に関する報道や駅の変化","start":1987,"end":1988,"cluster":"交通・旅行-1"},{"id":"q362","category":"交通・旅行","icon":"🚃","type":"use","title":"切符を買うために有人窓口へ並ぶ","start":1970,"end":2026,"cluster":"交通・旅行-1"},{"id":"q363","category":"交通・旅行","icon":"🚃","type":"familiar","title":"新幹線の指定席券を窓口で購入","start":1970,"end":2020,"cluster":"交通・旅行-1"},{"id":"q364","category":"交通・旅行","icon":"🚃","type":"use","title":"自動改札機への磁気切符投入","start":1980,"end":2026,"cluster":"交通・旅行-1"},{"id":"q365","category":"交通・旅行","icon":"🚃","type":"use","title":"交通系ICカードの改札利用","start":2001,"end":2026,"cluster":"交通・旅行-1"},{"id":"q366","category":"交通・旅行","icon":"🚃","type":"multi","title":"旅行代理店で紙のパンフレットを集める","start":1980,"end":2020,"cluster":"交通・旅行-multi-10","groupOptions":[{"label":"硬券の乗車券を購入する","start":1965,"end":1998,"relatedId":"q357"},{"label":"JR発足に関する報道や駅の変化","start":1987,"end":1988,"relatedId":"q361"},{"label":"駅でQRコード乗車券を利用","start":2020,"end":2026,"relatedId":"q369"},{"label":"配車アプリでタクシーを呼ぶ","start":2016,"end":2026,"relatedId":"q370"}]},{"id":"q367","category":"交通・旅行","icon":"🚃","type":"use","title":"携帯電話で乗換案内を検索","start":2001,"end":2026,"cluster":"交通・旅行-2"},{"id":"q368","category":"交通・旅行","icon":"🚃","type":"use","title":"スマホで飛行機の搭乗券を表示","start":2010,"end":2026,"cluster":"交通・旅行-2"},{"id":"q369","category":"交通・旅行","icon":"🚃","type":"use","title":"駅でQRコード乗車券を利用","start":2020,"end":2026,"cluster":"交通・旅行-2"},{"id":"q370","category":"交通・旅行","icon":"🚃","type":"use","title":"配車アプリでタクシーを呼ぶ","start":2016,"end":2026,"cluster":"交通・旅行-2"},{"id":"q371","category":"ラジオ・雑誌","icon":"📻","type":"use","title":"ラジカセで深夜ラジオを録音","start":1975,"end":2005,"cluster":"ラジオ・雑誌-0"},{"id":"q372","category":"ラジオ・雑誌","icon":"📻","type":"use","title":"ラジオのリクエストはがきを送る","start":1970,"end":2005,"cluster":"ラジオ・雑誌-0"},{"id":"q373","category":"ラジオ・雑誌","icon":"📻","type":"use","title":"テレビ番組表の週間雑誌を購入","start":1975,"end":2015,"cluster":"ラジオ・雑誌-0"},{"id":"q374","category":"ラジオ・雑誌","icon":"📻","type":"use","title":"少年ジャンプの紙媒体を毎週買う","start":1970,"end":2026,"cluster":"ラジオ・雑誌-0"},{"id":"q375","category":"ラジオ・雑誌","icon":"📻","type":"use","title":"アイドル雑誌の切り抜きを集める","start":1975,"end":2005,"cluster":"ラジオ・雑誌-0"},{"id":"q376","category":"ラジオ・雑誌","icon":"📻","type":"social","title":"FM雑誌の番組表を見る","start":1970,"end":2000,"cluster":"ラジオ・雑誌-1"},{"id":"q377","category":"ラジオ・雑誌","icon":"📻","type":"use","title":"ラジオでエアチェックをする","start":1975,"end":1995,"cluster":"ラジオ・雑誌-1"},{"id":"q378","category":"ラジオ・雑誌","icon":"📻","type":"familiar","title":"カセットテープのラベルに曲名を書く","start":1975,"end":2005,"cluster":"ラジオ・雑誌-1"},{"id":"q379","category":"ラジオ・雑誌","icon":"📻","type":"use","title":"漫画雑誌の懸賞に応募する","start":1975,"end":2026,"cluster":"ラジオ・雑誌-1"},{"id":"q380","category":"ラジオ・雑誌","icon":"📻","type":"use","title":"雑誌付録のポスターを貼る","start":1970,"end":2020,"cluster":"ラジオ・雑誌-1"},{"id":"q381","category":"ラジオ・雑誌","icon":"📻","type":"multi","title":"ファミ通などのゲーム雑誌を読む","start":1986,"end":2020,"cluster":"ラジオ・雑誌-multi-10","groupOptions":[{"label":"ラジオのリクエストはがきを送る","start":1970,"end":2005,"relatedId":"q372"},{"label":"FM雑誌の番組表を見る","start":1970,"end":2000,"relatedId":"q376"},{"label":"ラジオ番組にFAXを送る","start":1990,"end":2015,"relatedId":"q384"},{"label":"ネットラジオをアーカイブで聴く","start":2015,"end":2026,"relatedId":"q390"}]},{"id":"q382","category":"ラジオ・雑誌","icon":"📻","type":"use","title":"テレビガイド誌で出演者を確認","start":1980,"end":2015,"cluster":"ラジオ・雑誌-2"},{"id":"q383","category":"ラジオ・雑誌","icon":"📻","type":"use","title":"雑誌の文通コーナーを見る","start":1970,"end":2000,"cluster":"ラジオ・雑誌-2"},{"id":"q384","category":"ラジオ・雑誌","icon":"📻","type":"use","title":"ラジオ番組にFAXを送る","start":1990,"end":2015,"cluster":"ラジオ・雑誌-2"},{"id":"q385","category":"ラジオ・雑誌","icon":"📻","type":"use","title":"CD付き音楽情報誌","start":1994,"end":2010,"cluster":"ラジオ・雑誌-2"},{"id":"q386","category":"ラジオ・雑誌","icon":"📻","type":"use","title":"携帯電話でFMラジオを聴く","start":2001,"end":2016,"cluster":"ラジオ・雑誌-3"},{"id":"q387","category":"ラジオ・雑誌","icon":"📻","type":"use","title":"ポッドキャストを聴く","start":2005,"end":2026,"cluster":"ラジオ・雑誌-3"},{"id":"q388","category":"ラジオ・雑誌","icon":"📻","type":"use","title":"電子版の漫画雑誌を読む","start":2014,"end":2026,"cluster":"ラジオ・雑誌-3"},{"id":"q389","category":"ラジオ・雑誌","icon":"📻","type":"familiar","title":"radikoでラジオを聴く","start":2010,"end":2026,"cluster":"ラジオ・雑誌-3"},{"id":"q390","category":"ラジオ・雑誌","icon":"📻","type":"use","title":"ネットラジオをアーカイブで聴く","start":2015,"end":2026,"cluster":"ラジオ・雑誌-3"},{"id":"q391","category":"言葉・流行","icon":"🗣️","type":"slang","title":"ナウいという言葉","start":1980,"end":1990,"cluster":"言葉・流行-0"},{"id":"q392","category":"言葉・流行","icon":"🗣️","type":"slang","title":"新人類という言葉","start":1985,"end":1990,"cluster":"言葉・流行-0"},{"id":"q393","category":"言葉・流行","icon":"🗣️","type":"slang","title":"バブル景気という言葉","start":1987,"end":1993,"cluster":"言葉・流行-0"},{"id":"q394","category":"言葉・流行","icon":"🗣️","type":"slang","title":"トレンディドラマという言葉","start":1988,"end":1996,"cluster":"言葉・流行-0"},{"id":"q395","category":"言葉・流行","icon":"🗣️","type":"slang","title":"アッシーくんという言葉","start":1989,"end":1995,"cluster":"言葉・流行-0"},{"id":"q396","category":"言葉・流行","icon":"🗣️","type":"slang","title":"チョベリバという言葉","start":1995,"end":1998,"cluster":"言葉・流行-1"},{"id":"q397","category":"言葉・流行","icon":"🗣️","type":"slang","title":"プリクラを撮って交換する文化","start":1995,"end":2010,"cluster":"言葉・流行-1"},{"id":"q398","category":"言葉・流行","icon":"🗣️","type":"familiar","title":"ポケベルで愛を伝えるという流行","start":1994,"end":2000,"cluster":"言葉・流行-1"},{"id":"q399","category":"言葉・流行","icon":"🗣️","type":"slang","title":"だっちゅーのという流行語","start":1998,"end":1999,"cluster":"言葉・流行-1"},{"id":"q400","category":"言葉・流行","icon":"🗣️","type":"slang","title":"なんでだろうというフレーズの流行","start":2003,"end":2004,"cluster":"言葉・流行-1"},{"id":"q401","category":"言葉・流行","icon":"🗣️","type":"multi","title":"萌えというネットスラング","start":2002,"end":2015,"cluster":"言葉・流行-multi-10","groupOptions":[{"label":"新人類という言葉","start":1985,"end":1990,"relatedId":"q392"},{"label":"チョベリバという言葉","start":1995,"end":1998,"relatedId":"q396"},{"label":"リア充というネットスラング","start":2007,"end":2020,"relatedId":"q404"},{"label":"タピるという若者言葉","start":2018,"end":2020,"relatedId":"q410"}]},{"id":"q402","category":"言葉・流行","icon":"🗣️","type":"slang","title":"KYという若者言葉","start":2007,"end":2011,"cluster":"言葉・流行-2"},{"id":"q403","category":"言葉・流行","icon":"🗣️","type":"slang","title":"アラフォーという言葉","start":2008,"end":2018,"cluster":"言葉・流行-2"},{"id":"q404","category":"言葉・流行","icon":"🗣️","type":"slang","title":"リア充というネットスラング","start":2007,"end":2020,"cluster":"言葉・流行-2"},{"id":"q405","category":"言葉・流行","icon":"🗣️","type":"slang","title":"なうというSNS表現","start":2009,"end":2015,"cluster":"言葉・流行-2"},{"id":"q406","category":"言葉・流行","icon":"🗣️","type":"slang","title":"じぇじぇじぇという流行語","start":2013,"end":2014,"cluster":"言葉・流行-3"},{"id":"q407","category":"言葉・流行","icon":"🗣️","type":"slang","title":"壁ドンという流行語","start":2013,"end":2018,"cluster":"言葉・流行-3"},{"id":"q408","category":"言葉・流行","icon":"🗣️","type":"slang","title":"神ってるという流行語","start":2016,"end":2017,"cluster":"言葉・流行-3"},{"id":"q409","category":"言葉・流行","icon":"🗣️","type":"familiar","title":"インスタ映えという言葉","start":2017,"end":2020,"cluster":"言葉・流行-3"},{"id":"q410","category":"言葉・流行","icon":"🗣️","type":"slang","title":"タピるという若者言葉","start":2018,"end":2020,"cluster":"言葉・流行-3"},{"id":"q411","category":"言葉・流行","icon":"🗣️","type":"slang","title":"ぴえんというネットスラング","start":2019,"end":2022,"cluster":"言葉・流行-4"},{"id":"q412","category":"言葉・流行","icon":"🗣️","type":"slang","title":"黙食という言葉","start":2020,"end":2022,"cluster":"言葉・流行-4"},{"id":"q413","category":"言葉・流行","icon":"🗣️","type":"slang","title":"推し活という言葉","start":2020,"end":2026,"cluster":"言葉・流行-4"},{"id":"q414","category":"言葉・流行","icon":"🗣️","type":"slang","title":"タイパという言葉","start":2021,"end":2026,"cluster":"言葉・流行-4"},{"id":"q415","category":"言葉・流行","icon":"🗣️","type":"slang","title":"生成AIという言葉の一般化","start":2023,"end":2026,"cluster":"言葉・流行-4"},{"id":"q416","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"『8時だョ!全員集合』の中心となったコントグループは？","options":["クレージーキャッツ","コント55号","ザ・ドリフターズ","てんぷくトリオ"],"correct":2,"start":1972,"end":1978,"cluster":"quiz-0"},{"id":"q417","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"『ザ・ベストテン』の司会者として知られる組み合わせは？","options":["芳村真理と井上順","黒柳徹子と久米宏","タモリと笑福亭鶴瓶","小堺一機と関根勤"],"correct":1,"start":1979,"end":1985,"cluster":"quiz-0"},{"id":"q418","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"『オレたちひょうきん族』で明石家さんまが演じたキャラクターは？","options":["ブラックデビル","バカ殿様","デストロイヤー","仮面ノリダー"],"correct":0,"start":1982,"end":1988,"cluster":"quiz-0"},{"id":"q419","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"『笑っていいとも!』の司会者は？","options":["みのもんた","島田紳助","ビートたけし","タモリ"],"correct":3,"start":1987,"end":1993,"cluster":"quiz-0"},{"id":"q420","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"『マジカル頭脳パワー!!』でおなじみのゲームは？","options":["フレンドパークのホッケー","ヘキサゴンドリル","マジカルバナナ","ミリオネアのファイナルアンサー"],"correct":2,"start":1992,"end":1998,"cluster":"quiz-1"},{"id":"q421","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"『トリビアの泉』で知識の単位として用いられた呼び方は？","options":["ドン","へぇ","ガッテン","ポイント"],"correct":1,"start":2000,"end":2006,"cluster":"quiz-1"},{"id":"q422","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"『学校へ行こう!』に出演していたグループは？","options":["V6","嵐","TOKIO","KAT-TUN"],"correct":0,"start":1997,"end":2003,"cluster":"quiz-1"},{"id":"q423","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"『クイズ!ヘキサゴンII』の司会者として知られる人物は？","options":["タモリ","所ジョージ","古舘伊知郎","島田紳助"],"correct":3,"start":2005,"end":2011,"cluster":"quiz-1"},{"id":"q424","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"初代ファミリーコンピュータの発売元は？","options":["セガ","ソニー","任天堂","NEC"],"correct":2,"start":1982,"end":1988,"cluster":"quiz-2"},{"id":"q425","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"『スーパーマリオブラザーズ』の主人公は？","options":["リンク","マリオ","カービィ","ソニック"],"correct":1,"start":1982,"end":1988,"cluster":"quiz-2"},{"id":"q426","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"『ドラゴンクエスト』の開発で知られるゲームデザイナーは？","options":["堀井雄二","宮本茂","小島秀夫","坂口博信"],"correct":0,"start":1987,"end":1993,"cluster":"quiz-2"},{"id":"q427","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"『ポケットモンスター 赤・緑』が最初に登場した機種は？","options":["ゲームボーイアドバンス","ニンテンドーDS","NINTENDO64","ゲームボーイ"],"correct":3,"start":1993,"end":1999,"cluster":"quiz-2"},{"id":"q428","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"初代PlayStationの発売元は？","options":["任天堂","セガ","ソニー・コンピュータエンタテインメント","バンダイナムコ"],"correct":2,"start":1993,"end":1999,"cluster":"quiz-3"},{"id":"q429","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"『Wii Sports』で使用する基本的なコントローラーは？","options":["デュアルショック","Wiiリモコン","Joy-Con","ゲームパッド"],"correct":1,"start":2004,"end":2010,"cluster":"quiz-3"},{"id":"q430","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"『あつまれ どうぶつの森』の舞台は？","options":["無人島","宇宙船","地下都市","魔法学校"],"correct":0,"start":2017,"end":2023,"cluster":"quiz-3"},{"id":"q431","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"CDを読み取る仕組みで利用するものは？","options":["磁気ヘッド","レコード針","インクジェット","レーザー光"],"correct":3,"start":1992,"end":1998,"cluster":"quiz-3"},{"id":"q432","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"MDは何という媒体の略称？","options":["MicroDrive","MusicDevice","MiniDisc","MediaDisk"],"correct":2,"start":1997,"end":2003,"cluster":"quiz-4"},{"id":"q433","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"音楽の「サブスク」は一般的に何を指す？","options":["一曲ごとの現金購入","定額制サービス","ラジオの周波数","物理CDの所有権"],"correct":1,"start":2017,"end":2023,"cluster":"quiz-4"},{"id":"q434","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"B'zのギタリストとして知られる人物は？","options":["松本孝弘","稲葉浩志","桜井和寿","TERU"],"correct":0,"start":1992,"end":1998,"cluster":"quiz-4"},{"id":"q435","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"L'Arc〜en〜Cielのボーカルとして知られる人物は？","options":["TERU","TOSHI","TAKURO","hyde"],"correct":3,"start":1995,"end":2001,"cluster":"quiz-4"},{"id":"q436","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"『世界に一つだけの花』を歌ったグループは？","options":["TOKIO","V6","SMAP","嵐"],"correct":2,"start":2000,"end":2006,"cluster":"quiz-5"},{"id":"q437","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"アニメ『ドラえもん』の主人公・ドラえもんは何型のロボット？","options":["イヌ型","ネコ型","ウサギ型","タヌキ型"],"correct":1,"start":1992,"end":1998,"cluster":"quiz-5"},{"id":"q438","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"『となりのトトロ』を制作したスタジオは？","options":["スタジオジブリ","東映動画","サンライズ","タツノコプロ"],"correct":0,"start":1987,"end":1993,"cluster":"quiz-5"},{"id":"q439","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"『美少女戦士セーラームーン』の主人公の変身後の名前は？","options":["キュアブラック","キューティーハニー","魔法騎士レイアース","セーラームーン"],"correct":3,"start":1991,"end":1997,"cluster":"quiz-5"},{"id":"q440","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"『名探偵コナン』の主人公が名乗る名前は？","options":["工藤新一","金田一一","江戸川コナン","服部平次"],"correct":2,"start":1997,"end":2003,"cluster":"quiz-6"},{"id":"q441","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"映画『千と千尋の神隠し』の監督は？","options":["高畑勲","宮崎駿","細田守","新海誠"],"correct":1,"start":1999,"end":2005,"cluster":"quiz-6"},{"id":"q442","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"アニメ『鬼滅の刃』の主人公は？","options":["竈門炭治郎","我妻善逸","嘴平伊之助","冨岡義勇"],"correct":0,"start":2017,"end":2023,"cluster":"quiz-6"},{"id":"q443","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"インターネット上の「URL」は何を識別するために使う？","options":["画面の解像度","ファイルの容量","通信料金の上限","ネット上の資源の位置など"],"correct":3,"start":1997,"end":2003,"cluster":"quiz-6"},{"id":"q444","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"「HTTP」は主に何の通信に利用される？","options":["Bluetoothでの音声転送","テレビの地上波放送","Webのデータ転送","駅の自動改札"],"correct":2,"start":2002,"end":2008,"cluster":"quiz-7"},{"id":"q445","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"「QRコード」の特徴として正しいものは？","options":["音声を直接録音する媒体である","二次元コードである","光ディスクの規格である","磁気テープの名称である"],"correct":1,"start":2012,"end":2018,"cluster":"quiz-7"},{"id":"q446","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"「Wi-Fi」は何に関係する技術？","options":["無線LAN","テレビの音声多重放送","フィルム写真の現像","固定電話の番号案内"],"correct":0,"start":2015,"end":2021,"cluster":"quiz-7"},{"id":"q447","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"「GIGAスクール構想」で特に重視されたのは？","options":["校庭の拡張","給食費の統一","制服デザインの全国統一","児童生徒の端末と通信環境"],"correct":3,"start":2018,"end":2024,"cluster":"quiz-7"},{"id":"q448","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"「radiko」の中心的なサービスは？","options":["雑誌の紙面印刷","ゲーム機の修理受付","ラジオ番組のインターネット配信","CDの貸し出し"],"correct":2,"start":2012,"end":2018,"cluster":"quiz-8"},{"id":"q449","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"「生成AI」が行う代表的な処理は？","options":["フロッピーディスクの物理修復","文章や画像などの生成","地上波の電波増幅","硬貨の自動選別"],"correct":1,"start":2021,"end":2027,"cluster":"quiz-8"},{"id":"q450","category":"雑学・時代クイズ","icon":"🧠","type":"quiz","question":"『平成』の次の日本の元号は？","options":["令和","昭和","大正","明治"],"correct":0,"start":2017,"end":2023,"cluster":"quiz-8"}]</script>
+<script>
+'use strict';
+(() => {
+  const $ = id => document.getElementById(id);
+  const QUESTIONS = JSON.parse($('questionData').textContent);
+  const BY_ID = new Map(QUESTIONS.map(q => [q.id, q]));
+  const CAT_NAMES = [...new Set(QUESTIONS.map(q => q.category))];
+  const CURRENT_YEAR = new Date().getFullYear();
+  const MIN_AGE = 8, MAX_AGE = 100, N = MAX_AGE - MIN_AGE + 1;
+  const AGES = Array.from({length:N},(_,i)=>MIN_AGE+i);
+  const MODEL_VERSION = '1.0 / uncalibrated-heuristic';
+  const TYPES = {
+    media: ['放送・公開当時に直接見た','再放送や後日のテレビ放送で見た','録画・配信・動画などで後から見た','名前・内容だけ知っている','知らない・見たことがない','覚えていない・わからない'],
+    music: ['流行していた当時によく触れた','流行していた当時に少し触れた','後年になって自分で触れた','名前・存在だけ知っている','知らない・経験がない','覚えていない・わからない'],
+    game: ['当時よく遊んだ・使った','当時たまに遊んだ・使った','後年になって遊んだ・使った','周囲で見た・名前を知っている','知らない・遊んだことがない','覚えていない・わからない'],
+    use: ['自分で頻繁に利用・経験した','自分で時々利用・経験した','自分で1〜数回だけ経験した','見聞きしたが自分ではほぼ経験なし','知らない・経験がない','覚えていない・わからない'],
+    school: ['自分の学校で日常的に経験した','自分の学校で時々経験した','学校で1〜数回だけ経験した','見聞きしたが自分の学校では未経験','知らない・経験がない','覚えていない・わからない'],
+    news: ['当時の報道を具体的に覚えている','当時の報道を少し覚えている','後年にニュースや資料で知った','出来事の名前・概要だけ知っている','知らない','覚えていない・わからない'],
+    slang: ['流行していた当時に自分も使った','流行していた当時に周囲で見聞きした','後年になって知った','言葉は知っているが経緯は不明','知らない','覚えていない・わからない'],
+    familiar: ['流行・普及していた当時から身近だった','当時の周囲で時々見聞きした','後年になって触れた','名前や存在を知っているだけ','知らない・経験がない','覚えていない・わからない'],
+    social: ['当時、周囲で非常によく見聞きした','当時、周囲で時々見聞きした','後年になって見聞きした','存在や名称は知っている','知らない','覚えていない・わからない']
+  };
+  const TYPE_NAMES = {media:'視聴経路',music:'音楽・文化',game:'ゲーム経験',use:'使用頻度',school:'学校経験',news:'社会的記憶',slang:'言葉の経験',familiar:'認知経路',social:'周辺環境',quiz:'4択クイズ',multi:'複数選択'};
+  const BASE_WEIGHTS={media:.52,music:.48,game:.56,use:.64,school:.74,news:.65,slang:.42,familiar:.26,social:.35,quiz:.16,multi:.62};
+  const UNIFORM=Array(N).fill(1/N);
+  const ENTROPY_INITIAL=Math.log2(N);
+  let sessions=[], abandoned=[], active=null, viewingId=null, currentScreen='home', chartMode='distribution';
+  let selected=null, toastTimer=null, lastDisplayYear=null;
+
+  function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+  function fmt(x,d=1){return Number(x).toFixed(d)}
+  function roundPct(x){return fmt(x*100,1)+'%'}
+  function qText(q){
+    const x='「'+q.title+'」';
+    switch(q.type){
+      case 'media': return x+'を、どのような形で見たことがありますか？';
+      case 'music': return x+'は、あなたにとってどのような経験でしたか？';
+      case 'game': return x+'について、自分で遊んだ・使った経験はどの程度ありますか？';
+      case 'use': return x+'を、自分で利用・経験したことはどの程度ありますか？';
+      case 'school': return '学校生活で'+x+'を経験したことがありますか？';
+      case 'news': return x+'について、どの程度当時の報道を覚えていますか？';
+      case 'slang': return x+'という言葉・文化は、どのような形で身近でしたか？';
+      case 'familiar': return x+'を知ったり経験したりした経緯に最も近いものは？';
+      case 'social': return x+'は、あなたの周囲でどの程度身近でしたか？';
+      case 'multi': return '次のうち、あなた自身が見た・使った・経験したことがあるものをすべて選んでください。';
+      case 'quiz': return q.question;
+      default: return x+'を経験したことはありますか？';
+    }
+  }
+  function opts(q){if(q.type==='quiz')return [...q.options,'わからない'];if(q.type==='multi')return q.groupOptions.map(o=>o.label);return TYPES[q.type]}
+  function isUnknown(q,v){return q.type==='multi'?v==='unknown':Number(v)===(opts(q).length-1)}
+
+  // Relevance of an anchor to a candidate age. Windows are approximate heuristics.
+  function ageActivity(at,typ){
+    if(typ==='school') return 1/(1+Math.exp(-(at-5.7)/1.8))*1/(1+Math.exp((at-18.3)/2.5));
+    if(typ==='news') return 1/(1+Math.exp(-(at-10)/2.5))*1/(1+Math.exp((at-77)/12));
+    if(typ==='game') return 1/(1+Math.exp(-(at-6)/2.2))*1/(1+Math.exp((at-53)/15));
+    if(typ==='slang') return 1/(1+Math.exp(-(at-8)/2))*1/(1+Math.exp((at-53)/14));
+    if(typ==='media'||typ==='music') return 1/(1+Math.exp(-(at-7)/2.3))*1/(1+Math.exp((at-66)/18));
+    return 1/(1+Math.exp(-(at-9)/2.6))*1/(1+Math.exp((at-75)/17));
+  }
+  function exposure(start,end,age,type){
+    const begin=Math.max(1950,start),finish=Math.min(CURRENT_YEAR,end);
+    if(finish<begin)return 0.01;
+    let sum=0, weight=0;
+    const mid=(begin+finish)/2,scale=Math.max(2,(finish-begin)/3);
+    const jump=Math.max(1,Math.ceil((finish-begin)/12));
+    for(let year=begin;year<=finish;year+=jump){
+      const aw=age-(CURRENT_YEAR-year);
+      const w=0.65+0.35*Math.exp(-Math.pow((year-mid)/scale,2)/2);
+      sum += w*ageActivity(aw,type); weight+=w;
+    }
+    return clamp(sum/Math.max(0.001,weight),0.008,0.995);
+  }
+  function rawScores(q,t){
+    if(q.type==='quiz'){
+      let p=.245+.205*t;
+      return q.options.map((_,j)=>j===q.correct?p:(.84-p)/3).concat([.16]);
+    }
+    if(q.type==='news')return [.025+1.0*t,.13+.34*t,.27+.08*(1-t),.34,.19+.25*(1-t),.16];
+    if(q.type==='media')return [.025+.95*t,.13+.18*t,.23+.10*(1-t),.31,.25+.24*(1-t),.16];
+    if(q.type==='school')return [.045+.93*t,.12+.35*t,.13+.12*t,.21+.13*(1-t),.26+.32*(1-t),.16];
+    if(q.type==='music')return [.035+.86*t,.13+.30*t,.20+.11*(1-t),.28,.26+.25*(1-t),.16];
+    if(q.type==='game')return [.035+.80*t,.12+.30*t,.21+.12*(1-t),.29,.24+.29*(1-t),.16];
+    if(q.type==='slang')return [.035+.81*t,.14+.36*t,.20+.13*(1-t),.28,.24+.28*(1-t),.16];
+    if(q.type==='familiar')return [.04+.76*t,.16+.25*t,.24+.08*(1-t),.32,.22+.18*(1-t),.16];
+    if(q.type==='social')return [.045+.8*t,.14+.3*t,.2+.11*(1-t),.31,.23+.26*(1-t),.16];
+    return [.045+.86*t,.12+.34*t,.14+.15*t,.21+.12*(1-t),.24+.34*(1-t),.16];
+  }
+  // Cache likelihood profiles. Never treat them as empirically calibrated probabilities.
+  QUESTIONS.forEach(q=>{
+    if(q.type==='multi'){
+      q._multiYes=q.groupOptions.map(o=>Float64Array.from(AGES.map(a=>.07+.70*exposure(o.start,o.end,a,q.category==='学校生活'?'school':'use'))));
+    }else{
+      const count=opts(q).length;
+      q._probs=Array.from({length:count},()=>new Float64Array(N));
+      AGES.forEach((a,ai)=>{
+        const t=exposure(q.start,q.end,a,q.type);
+        const raw=rawScores(q,t), total=raw.reduce((s,v)=>s+v,0);
+        for(let oi=0;oi<count;oi++)q._probs[oi][ai]=raw[oi]/total;
+      });
+    }
+  });
+  const entropy = arr=>-arr.reduce((s,p)=>s+(p>0?p*Math.log2(p):0),0);
+  function makePrior(){return UNIFORM.slice()}
+  function getLikelihood(q,v,ai){
+    if(q.type==='multi'){
+      if(v==='unknown')return 1;
+      const picks=v==='none'?[]:v.split(',').map(Number);
+      let p=1;
+      for(let k=0;k<q._multiYes.length;k++){
+        const prob=q._multiYes[k][ai];p*=picks.includes(k)?prob:(1-prob);
+      }
+      return Math.max(p,1e-10);
+    }
+    const index=Number(v);
+    if(!Number.isInteger(index)||index<0||index>=q._probs.length)return 1;
+    if(isUnknown(q,v))return 1;
+    return Math.max(q._probs[index][ai],1e-10);
+  }
+  function qWeight(q,catCount,clusterCount){
+    return BASE_WEIGHTS[q.type]/(1+.16*catCount+.55*clusterCount);
+  }
+  function probabilityUpdate(prior,q,response,weight){
+    if(isUnknown(q,response))return prior.slice();
+    const logs=prior.map((p,i)=>Math.log(Math.max(p,1e-240))+weight*Math.log(getLikelihood(q,response,i)));
+    const mx=Math.max(...logs), exps=logs.map(v=>Math.exp(v-mx)), total=exps.reduce((a,b)=>a+b,0);
+    return exps.map(v=>v/total);
+  }
+  function pointEstimate(dist){
+    const mx=Math.max(...dist);
+    const ties=AGES.filter((_,i)=>Math.abs(dist[i]-mx)<1e-12);
+    return Math.round(ties.reduce((s,a)=>s+a,0)/ties.length);
+  }
+  function credibleInterval(dist,threshold){
+    let best={lo:MIN_AGE,hi:MAX_AGE,width:Infinity,mass:1};
+    let left=0,sum=0;
+    for(let right=0;right<N;right++){
+      sum+=dist[right];
+      while(left<=right && sum-dist[left]>=threshold)sum-=dist[left++];
+      if(sum>=threshold && right-left<best.width){best={lo:AGES[left],hi:AGES[right],width:right-left,mass:sum}}
+    }
+    return best;
+  }
+  function profileFeatures(dist){
+    const mode=pointEstimate(dist), index=mode-MIN_AGE;
+    return {mode,conf:dist[index],range80:credibleInterval(dist,.80),range95:credibleInterval(dist,.95),bits:ENTROPY_INITIAL-entropy(dist)};
+  }
+  function describeAnswer(q,value){
+    if(q.type==='multi'){
+      if(value==='unknown')return '覚えていない・わからない';
+      if(value==='none')return 'どれも経験がない';
+      return value.split(',').map(i=>q.groupOptions[Number(i)]?.label||'?').join('／');
+    }
+    return opts(q)[Number(value)]||'わからない';
+  }
+  function replay(session){
+    let dist=makePrior();let catCount={},clusterCount={};const records=[];
+    for(const r of session.answers){
+      const q=BY_ID.get(r.qId);if(!q)continue;
+      const before=profileFeatures(dist);
+      const w=qWeight(q,catCount[q.category]||0,clusterCount[q.cluster]||0);
+      const next=probabilityUpdate(dist,q,r.value,w);
+      const after=profileFeatures(next);
+      records.push({...r,question:qText(q),category:q.category,answerText:describeAnswer(q,r.value),beforeAge:before.mode,afterAge:after.mode,bitDelta:after.bits-before.bits,posterior:next.slice(),weight:w});
+      dist=next;catCount[q.category]=(catCount[q.category]||0)+1;clusterCount[q.cluster]=(clusterCount[q.cluster]||0)+1;
+    }
+    session.dist=dist;session.records=records;session.feat=profileFeatures(dist);session.catCount=catCount;session.clusterCount=clusterCount;
+    session.quizAnswers=records.filter(r=>BY_ID.get(r.qId)?.type==='quiz');
+    return session;
+  }
+  function newSession(){return replay({id:'age-'+new Date().toISOString().replace(/[^0-9]/g,'').slice(0,17)+'-'+Math.floor(Math.random()*10000).toString().padStart(4,'0'),startedAt:new Date().toISOString(),finishedAt:null,actualAge:null,answers:[],nextId:null,final:null})}
+  function effectiveQuestion(q){
+    let count=active.catCount[q.category]||0, same=active.clusterCount[q.cluster]||0;
+    return qWeight(q,count,same);
+  }
+  function infoForQuestion(q,dist){
+    const w=effectiveQuestion(q);
+    if(q.type==='multi'){
+      let sum=0;
+      for(const yes of q._multiYes){
+        let avg=0;for(let ai=0;ai<N;ai++)avg+=dist[ai]*yes[ai];
+        const outcomeYes=dist.map((p,i)=>p*Math.pow(yes[i],w/4));
+        const outcomeNo=dist.map((p,i)=>p*Math.pow(1-yes[i],w/4));
+        let a=outcomeYes.reduce((x,y)=>x+y,0),b=outcomeNo.reduce((x,y)=>x+y,0);
+        sum+=entropy(dist)-avg*entropy(outcomeYes.map(p=>p/a))-(1-avg)*entropy(outcomeNo.map(p=>p/b));
+      }
+      return Math.max(0,sum/2);
+    }
+    const H=entropy(dist),total=(q._probs.length-1);let postEntropy=0;
+    for(let oi=0;oi<total;oi++){
+      let pr=0;for(let ai=0;ai<N;ai++)pr+=dist[ai]*q._probs[oi][ai];
+      if(pr<1e-10)continue;
+      const updated=probabilityUpdate(dist,q,String(oi),w);
+      postEntropy+=pr*entropy(updated);
+    }
+    let unknownPr=0;for(let ai=0;ai<N;ai++)unknownPr+=dist[ai]*q._probs[total][ai];
+    postEntropy+=unknownPr*H;
+    // Tempered posterior is not a Bayes-predictive update; clamp negative approximation.
+    return Math.max(0,H-postEntropy);
+  }
+  function pickNext(){
+    if(!active)return null;
+    if(active.answers.length===0)return BY_ID.get('q255'); // approachable VHS opener
+    const completed=new Set(active.answers.map(r=>r.qId)),n=active.answers.length;
+    let pool=QUESTIONS.filter(q=>!completed.has(q.id));
+    if(pool.length===0)return null;
+    // Curated beats ensure variety but do not use age as a literal filter.
+    if(n%10===7){const quizzes=pool.filter(q=>q.type==='quiz');if(quizzes.length)pool=quizzes;}
+    if(n%13===5){const multi=pool.filter(q=>q.type==='multi');if(multi.length)pool=multi;}
+    const maxQ=Math.min(pool.length,450);
+    let best=null,bestScore=-Infinity;
+    const dist=active.dist;
+    // Diversification is most important in the first dozen answers.
+    for(let k=0;k<maxQ;k++){
+      const q=pool[k];
+      const ig=infoForQuestion(q,dist);
+      const same=active.catCount[q.category]||0;
+      const priorExposure=active.answers.reduce((s,r)=>s+(BY_ID.get(r.qId)?.title===q.title?1:0),0);
+      const fresh=(same===0?.12/(1+Math.max(0,n-22)/25):.01/(1+same));
+      const repetition=.021*Math.sqrt(same)+.06*priorExposure;
+      const early=(n<4 && q.type==='quiz')?-.6:0;
+      const score=ig*6+fresh-repetition+early+(Math.sin((Number(q.id.slice(1))+1)*47.31+n*6.3)*.005);
+      if(score>bestScore){bestScore=score;best=q;}
+    }
+    return best;
+  }
+  function phase(n){return n<12?'広域探索':n<30?'世代の絞り込み':n<50?'精密推定':'限界挑戦'}
+  function toast(msg){const el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2800)}
+  function showScreen(name){
+    currentScreen=name;for(const nm of ['home','game','result','history','about']){$(nm+'Screen').classList.toggle('active',nm===name)}
+    for(const [nm,id] of [['home','navHome'],['game','navGame'],['history','navHistory'],['about','navAbout']]){$(id).classList.toggle('active',nm===name)}
+    window.scrollTo({top:0,behavior:'instant'});
+    if(name==='game'){renderGame();}
+    if(name==='history')renderHistory();
+    if(name==='result')renderResult();
+  }
+  function beginNew(){
+    if(active && active.answers.length>0){
+      if(!confirm('進行中の診断を途中終了として保存し、新しい診断を始めますか？\n途中の回答もJSON/CSVに含めます。'))return;
+      active.abortedAt=new Date().toISOString();abandoned.push(active);
+    }
+    active=newSession();selected=null;active.nextId=pickNext()?.id||null;
+    lastDisplayYear=null;showScreen('game');toast('新しい診断を開始しました');
+  }
+  function finish(){
+    if(!active)return toast('診断を開始してください');
+    if(!active.answers.length)return toast('少なくとも1問に回答してください');
+    if(!active.records.some(r=>!isUnknown(BY_ID.get(r.qId),r.value)))return toast('まだ推定材料がありません。「わからない」以外の回答を1問以上してください');
+    if(!confirm('ここまでの回答で最終判定しますか？\n判定後の推定年齢は固定されます。'))return;
+    active.finishedAt=new Date().toISOString();
+    active.final={...active.feat,dist:active.dist.slice(),answerCount:active.answers.length,calibration:false};
+    sessions.push(active);viewingId=active.id;active=null;selected=null;showScreen('result');
+  }
+  function answerCurrent(value){
+    if(!active||!active.nextId)return;
+    const q=BY_ID.get(active.nextId);
+    const before=active.feat.mode;
+    active.answers.push({qId:q.id,value,at:new Date().toISOString()});
+    replay(active);
+    active.nextId=pickNext()?.id||null;
+    selected=null;lastDisplayYear=before;
+    if(!active.nextId){
+      active.finishedAt=new Date().toISOString();active.final={...active.feat,dist:active.dist.slice(),answerCount:active.answers.length,calibration:false};sessions.push(active);viewingId=active.id;active=null;showScreen('result');toast('全450問を使い切りました');return;
+    }
+    renderGame();
+  }
+  function back(){
+    if(!active||!active.answers.length)return toast('戻れる回答がありません');
+    const past=active.answers.pop();active.nextId=past.qId;selected=null;lastDisplayYear=null;replay(active);renderGame();toast('前の回答を取り消しました');
+  }
+  function renderOptions(q){
+    const root=$('answerOptions');root.replaceChildren();
+    if(q.type==='multi'){
+      const picks=selected&&selected.type==='multi'?selected.picks:new Set();
+      q.groupOptions.forEach((item,i)=>{
+        const btn=makeAnswerButton(item.label,i,picks.has(i),()=>{
+          const newSet=new Set(selected?.type==='multi'?selected.picks:[]);
+          if(newSet.has(i))newSet.delete(i);else newSet.add(i);
+          selected={type:'multi',picks:newSet,mode:'picked'};renderOptions(q);
+        });root.appendChild(btn);
+      });
+      for(const [key,label] of [['none','どれも経験したことがない'],['unknown','覚えていない・わからない']]){
+        const sel=selected?.type==='multi'&&selected.mode===key;
+        const btn=makeAnswerButton(label,'—',sel,()=>{selected={type:'multi',picks:new Set(),mode:key};renderOptions(q)});root.appendChild(btn);
+      }
+      $('submitAnswer').disabled=!(selected&&(selected.mode!=='picked'||selected.picks.size>0));
+      $('qHelp').textContent='複数選択可能です。該当項目をすべて選ぶか、「どれもない」「わからない」を選んでください。';
+    }else{
+      opts(q).forEach((option,i)=>{
+        const sel=selected?.type==='single'&&selected.value===String(i);
+        root.appendChild(makeAnswerButton(option,i+1,sel,()=>{selected={type:'single',value:String(i)};renderOptions(q)}));
+      });
+      $('submitAnswer').disabled=!selected;
+      $('qHelp').textContent=q.type==='quiz'?'正しいと思う選択肢を1つ選んでください。正答は最終判定後に表示します。':'いちばん近いものを選んでください。「知らない」と「わからない」は別の回答です。';
+    }
+  }
+  function makeAnswerButton(text,key,isSelected,click){
+    const btn=document.createElement('button');btn.type='button';btn.className='answer'+(isSelected?' selected':'');btn.setAttribute('aria-pressed',String(!!isSelected));
+    const k=document.createElement('span');k.className='keycap';k.textContent=String(key);const lbl=document.createElement('span');lbl.className='answer-label';lbl.textContent=text;const ck=document.createElement('span');ck.className='check';ck.textContent=isSelected?'●':'○';btn.append(k,lbl,ck);btn.addEventListener('click',click);return btn;
+  }
+  function getStability(r){
+    if(r.length<3)return null;const recent=r.slice(-6).map(x=>x.afterAge);
+    const variations=recent.slice(1).map((x,i)=>Math.abs(x-recent[i]));
+    const avg=variations.reduce((a,b)=>a+b,0)/Math.max(1,variations.length);
+    return clamp(Math.round(100*Math.exp(-avg/8)),0,100);
+  }
+  function getCoherence(s){
+    if(!s.records.length)return null;
+    // Interpret as a heuristic compatibility index, not truthfulness or actual calibration.
+    const modeIdx=s.feat.mode-MIN_AGE;
+    const vals=s.records.filter(r=>!isUnknown(BY_ID.get(r.qId),r.value)).map(r=>-Math.log(getLikelihood(BY_ID.get(r.qId),r.value,modeIdx)));
+    if(!vals.length)return null;
+    const avg=vals.reduce((a,b)=>a+b,0)/vals.length;
+    return Math.round(100*Math.exp(-Math.max(0,avg-1.0)/3));
+  }
+  function renderGame(){
+    if(!active){$('gameScreen').classList.remove('active');currentScreen='home';$('homeScreen').classList.add('active');return}
+    const q=BY_ID.get(active.nextId);if(!q){toast('質問バンクを使い切りました');return}
+    const f=active.feat,n=active.answers.length;
+    $('gamePhase').textContent=phase(n);$('questionCounter').textContent=`QUESTION ${n+1} / ${QUESTIONS.length}`;
+    const hasEvidence=active.records.some(r=>!isUnknown(BY_ID.get(r.qId),r.value));
+    $('metricAge').textContent=!hasEvidence?'未確定':f.mode+'歳';$('metricConfidence').textContent=!hasEvidence?'—':roundPct(f.conf);
+    $('metricRange').textContent=!hasEvidence?'未絞り込み':f.range80.lo+'–'+f.range80.hi+'歳';$('metric95').textContent=!hasEvidence?'95%: —':`95%: ${f.range95.lo}–${f.range95.hi}歳`;
+    $('metricBits').textContent=fmt(Math.max(0,f.bits),2)+' bit';const stab=getStability(active.records);$('metricStable').textContent=stab===null?'集計中':stab+'/ 100';
+    $('metricBreadth').textContent=Object.keys(active.catCount).length+' / '+CAT_NAMES.length;
+    const coh=getCoherence(active);$('metricCoherence').textContent='整合指数: '+(coh===null?'—':coh+'/100');
+    const delta=lastDisplayYear===null?'':f.mode-lastDisplayYear;
+    $('metricDelta').textContent=n===0?'広い年齢範囲からスタート':delta===0?'直前から推定年齢の変化なし':delta>0?`直前より +${delta}歳`:`直前より ${delta}歳`;
+    $('qCategory').textContent=q.icon+' '+q.category;$('qType').textContent=TYPE_NAMES[q.type];$('qNumber').textContent=n+1+'問目';$('qTitle').textContent=qText(q);
+    $('backAnswer').disabled=n===0;$('answeredCount').textContent=n+'問回答';$('progressFill').style.width=Math.min(100,n/50*100)+'%';
+    $('usedCategories').textContent=Object.keys(active.catCount).length+' / '+CAT_NAMES.length;
+    $('quizAnswered').textContent=active.quizAnswers.length+'問';
+    const gain=active.records.length?active.records[active.records.length-1].bitDelta:null;
+    $('lastGain').textContent=gain===null?'—':(gain>=0?'+':'')+fmt(gain,3)+' bit';
+    renderOptions(q);renderMiniHistory();drawMainChart();
+  }
+  function renderMiniHistory(){
+    const root=$('miniHistory');root.replaceChildren();
+    if(!active?.records.length){root.textContent='まだ回答はありません。';return}
+    [...active.records].slice(-12).reverse().forEach((r,k)=>{
+      const d=document.createElement('div');d.className='statline';
+      const left=document.createElement('span');left.textContent=`Q${active.records.length-k} ${r.question.slice(0,19)}…`;
+      const right=document.createElement('strong');right.textContent=`${r.afterAge}歳 (${r.answerText.slice(0,9)})`;
+      d.append(left,right);root.appendChild(d);
+    });
+  }
+  function setChartMode(mode){chartMode=mode;document.querySelectorAll('[data-chart]').forEach(b=>b.classList.toggle('active',b.dataset.chart===mode));drawMainChart()}
+  function prepCanvas(el){
+    const rect=el.getBoundingClientRect();const w=Math.max(300,rect.width||460),h=Math.max(170,rect.height||230),dpr=Math.min(2,window.devicePixelRatio||1);
+    el.width=Math.round(w*dpr);el.height=Math.round(h*dpr);const ctx=el.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+    return {ctx,w,h};
+  }
+  function drawEmptyChart(el,label){const {ctx,w,h}=prepCanvas(el);ctx.fillStyle='#9baac8';ctx.font='13px sans-serif';ctx.textAlign='center';ctx.fillText(label,w/2,h/2)}
+  function drawMainChart(){
+    const el=$('mainChart');if(!el||!active)return;
+    const dist=active.dist;
+    if(chartMode==='timeline'){
+      const vals=active.records.map(r=>r.afterAge);
+      lineChart(el,vals,{min:MIN_AGE,max:MAX_AGE,color:'#6fe3d0',showRaw:true});
+      $('chartLegend').textContent='横軸: 回答順 / 縦軸: 推定年齢（歳）。';
+      return;
+    }
+    const hasEvidence=active.records.some(r=>!isUnknown(BY_ID.get(r.qId),r.value));
+    $('chartLegend').textContent=hasEvidence?'横軸: 満年齢 / 縦軸: モデル内確率。薄い帯は80%推定範囲。':'まだ推定材料がありません。8〜100歳の全候補が同率です。';
+    const {ctx,w,h}=prepCanvas(el),L=36,R=12,T=17,B=34,plotW=w-L-R,plotH=h-T-B;
+    const mx=Math.max(...dist)*1.17;
+    const xx=i=>L+i/(N-1)*plotW,yy=p=>T+plotH-p/mx*plotH;
+    const ci=active.feat.range80;
+    if(hasEvidence){ctx.fillStyle='rgba(112,152,245,.11)';ctx.fillRect(xx(ci.lo-MIN_AGE),T,xx(ci.hi-MIN_AGE)-xx(ci.lo-MIN_AGE),plotH);}
+    ctx.strokeStyle='#354562';ctx.lineWidth=1;for(let k=0;k<=4;k++){const y=T+plotH*k/4;ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke()}
+    ctx.beginPath();ctx.moveTo(xx(0),yy(0));dist.forEach((v,i)=>ctx.lineTo(xx(i),yy(v)));ctx.lineTo(xx(N-1),yy(0));ctx.closePath();
+    const grad=ctx.createLinearGradient(0,T,0,T+plotH);grad.addColorStop(0,'rgba(105,209,215,.52)');grad.addColorStop(1,'rgba(105,209,215,.02)');ctx.fillStyle=grad;ctx.fill();
+    ctx.beginPath();dist.forEach((v,i)=>i?ctx.lineTo(xx(i),yy(v)):ctx.moveTo(xx(i),yy(v)));ctx.strokeStyle='#80e6d2';ctx.lineWidth=2.8;ctx.stroke();
+    const mi=active.feat.mode-MIN_AGE;if(hasEvidence){ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(xx(mi),yy(dist[mi]),4,0,2*Math.PI);ctx.fill();}
+    ctx.textAlign='center';ctx.font='11px sans-serif';ctx.fillStyle='#a3b1ce';
+    for(let age=10;age<=100;age+=15){ctx.fillText(age+'',xx(age-MIN_AGE),h-11)}
+    ctx.textAlign='left';ctx.fillText((mx*100).toFixed(0)+'%',3,T+8);ctx.fillText('0%',10,T+plotH);
+    if(hasEvidence){ctx.fillStyle='#f2f6ff';ctx.font='bold 12px sans-serif';ctx.fillText(active.feat.mode+'歳',clamp(xx(mi)-8,L,w-65),Math.max(12,yy(dist[mi])-12));}
+  }
+  function lineChart(el,values,options={}){
+    if(!values.length)return drawEmptyChart(el,'データがありません');
+    const {ctx,w,h}=prepCanvas(el),L=37,R=15,T=18,B=34,W=w-L-R,H=h-T-B;
+    const min=options.min??Math.min(...values),max=options.max??Math.max(...values),span=Math.max(1,max-min);
+    const xx=i=>L+(values.length===1?.5:i/(values.length-1))*W, yy=v=>T+H-(v-min)/span*H;
+    ctx.strokeStyle='#34445c';ctx.lineWidth=1;ctx.font='11px sans-serif';ctx.fillStyle='#98a9c4';ctx.textAlign='right';
+    for(let k=0;k<=4;k++){const y=T+H*k/4;ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke();ctx.fillText(fmt(max-span*k/4,0),L-6,y+3)}
+    ctx.textAlign='center';ctx.fillText('1',L,h-9);ctx.fillText(String(Math.max(1,values.length-1)),w-R,h-9);
+    ctx.beginPath();values.forEach((v,i)=>i?ctx.lineTo(xx(i),yy(v)):ctx.moveTo(xx(i),yy(v)));ctx.strokeStyle=options.color||'#92a5ff';ctx.lineWidth=2.8;ctx.stroke();
+    if(values.length<=85)values.forEach((v,i)=>{if(values.length>35&&i%3) return;ctx.fillStyle='#a7eddf';ctx.beginPath();ctx.arc(xx(i),yy(v),2.6,0,Math.PI*2);ctx.fill()});
+  }
+  function drawBars(el,values,maxVal){
+    if(!values.length)return drawEmptyChart(el,'実年齢を入力した診断がありません');
+    const {ctx,w,h}=prepCanvas(el),L=37,R=13,T=17,B=34,W=w-L-R,H=h-T-B;
+    maxVal=Math.max(maxVal||1,...values,1);
+    ctx.strokeStyle='#34445c';ctx.font='11px sans-serif';ctx.fillStyle='#9faccc';
+    for(let k=0;k<5;k++){const y=T+H*k/4;ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke();ctx.textAlign='right';ctx.fillText(fmt(maxVal*(1-k/4),0),L-5,y+4)}
+    const barW=Math.max(3,Math.min(30,W/values.length*.65));
+    values.forEach((v,i)=>{const x=L+(i+.5)*W/values.length;const bh=v/maxVal*H;ctx.fillStyle=v<=1?'#48d6ba':'#8999fd';ctx.fillRect(x-barW/2,T+H-bh,barW,bh)});
+    ctx.fillStyle='#a3b1ce';ctx.textAlign='center';const step=Math.max(1,Math.ceil(values.length/8));values.forEach((_,i)=>{if(i%step===0)ctx.fillText(String(i+1),L+(i+.5)*W/values.length,h-9)});
+  }
+  function drawCompareChart(el,data){
+    const {ctx,w,h}=prepCanvas(el),L=38,R=13,T=25,B=34,W=w-L-R,H=h-T-B;
+    const maxV=Math.max(10,...data.flatMap(s=>[s.final.mode,s.actualAge]))+4;
+    ctx.font='11px sans-serif';ctx.textAlign='right';ctx.fillStyle='#a1b0c8';
+    for(let k=0;k<=4;k++){
+      const v=maxV*(1-k/4),y=T+H*k/4;
+      ctx.strokeStyle='#34445c';ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke();ctx.fillText(fmt(v,0),L-5,y+4);
+    }
+    const band=W/data.length,bar=Math.max(2,Math.min(18,band*.28));
+    data.forEach((s,i)=>{
+      const x=L+(i+.5)*band;
+      [[s.final.mode,'#99aaff',-bar],[s.actualAge,'#48d6ba',0]].forEach(([val,color,shift])=>{
+        const height=H*val/maxV;ctx.fillStyle=color;ctx.fillRect(x+shift,T+H-height,bar-1,height);
+      });
+      if(i%Math.max(1,Math.ceil(data.length/8))===0){ctx.fillStyle='#a1b0c8';ctx.textAlign='center';ctx.fillText(String(i+1),x,h-9)}
+    });
+    ctx.textAlign='left';ctx.fillStyle='#99aaff';ctx.fillRect(L+3,5,10,8);ctx.fillStyle='#d3def8';ctx.fillText('推定',L+17,13);
+    ctx.fillStyle='#48d6ba';ctx.fillRect(L+58,5,10,8);ctx.fillStyle='#d3def8';ctx.fillText('実際',L+72,13);
+  }
+  function findSession(id){return sessions.find(s=>s.id===id)}
+  function renderResult(){
+    const s=findSession(viewingId);if(!s?.final){return toast('確定した診断結果がありません')}
+    const f=s.final;
+    $('resultAge').textContent=f.mode+'歳';
+    $('resultSub').textContent=`${f.answerCount}問の回答をもとに最終推定を固定しました。`;
+    const st=[['その年齢のモデル内確率',roundPct(f.conf)],['80%推定範囲',f.range80.lo+'–'+f.range80.hi+'歳'],['95%推定範囲',f.range95.lo+'–'+f.range95.hi+'歳'],['獲得情報量',fmt(f.bits,2)+' bit']];
+    const root=$('resultStats');root.replaceChildren();for(const [k,v] of st){const d=document.createElement('div');d.className='flowstat';const big=document.createElement('strong');big.textContent=v;const small=document.createElement('small');small.textContent=k;d.append(big,small);root.appendChild(d)}
+    $('actualAge').value=s.actualAge===null?'':String(s.actualAge);
+    renderVerify(s);renderImpact(s);renderQuizReview(s);renderCategoryImpact(s);
+  }
+  function submitActual(){
+    const s=findSession(viewingId);if(!s)return;
+    const raw=$('actualAge').value.trim(),age=Number(raw);
+    if(raw===''||!Number.isInteger(age)||age<0||age>120)return toast('0〜120の整数で実年齢を入力してください');
+    s.actualAge=age;renderVerify(s);toast('答え合わせの結果を保存しました（推定値は固定）');
+  }
+  function renderVerify(s){
+    const root=$('verificationResult');root.replaceChildren();
+    if(s.actualAge===null){const p=document.createElement('p');p.className='muted mini';p.textContent='実年齢を入力すると誤差・的中判定を表示します。';root.appendChild(p);return}
+    const age=s.actualAge,diff=s.final.mode-age,absolute=Math.abs(diff);
+    const tag=absolute===0?'🎉 完全的中！':absolute<=1?'✨ ±1歳以内':absolute<=3?'👍 ±3歳以内':absolute<=5?'📍 ±5歳以内':'🔎 推定が外れました';
+    const area=document.createElement('div');area.className='result-compare';
+    for(const [label,value] of [['実年齢',age+'歳'],['推定との差',(diff>0?'+':'')+diff+'歳'],['絶対誤差',absolute+'歳']]){
+      const d=document.createElement('div');d.className='subcard';const l=document.createElement('div');l.className='tiny';l.textContent=label;const v=document.createElement('div');v.className='big-result';v.textContent=value;d.append(l,v);area.appendChild(d)
+    }
+    root.appendChild(area);
+    const p=document.createElement('p');p.className='big '+(absolute<=1?'correct':absolute>5?'warn':'');p.textContent=tag;root.appendChild(p);
+    const inModel=age>=MIN_AGE&&age<=MAX_AGE;
+    const inf=document.createElement('p');inf.className='muted mini';
+    inf.textContent=inModel?`実年齢${age}歳のモデル内確率: ${roundPct(s.final.dist[age-MIN_AGE])} ／ 80%区間内: ${age>=s.final.range80.lo&&age<=s.final.range80.hi?'はい':'いいえ'} ／ 95%区間内: ${age>=s.final.range95.lo&&age<=s.final.range95.hi?'はい':'いいえ'}`:`実年齢${age}歳はモデルの初期対象範囲（${MIN_AGE}〜${MAX_AGE}歳）の外です。誤差の集計には含めますが、モデル内確率は算出できません。`;
+    root.appendChild(inf);
+  }
+  function renderImpact(s){
+    const root=$('impactList');root.replaceChildren();
+    const data=s.records.map((r,i)=>({...r,index:i+1,delta:r.afterAge-r.beforeAge})).sort((a,b)=>Math.abs(b.delta)-Math.abs(a.delta)||Math.abs(b.bitDelta)-Math.abs(a.bitDelta)).slice(0,8);
+    for(const r of data){const d=document.createElement('div');d.className='statline';const text=document.createElement('span');text.textContent=`Q${r.index} ${r.question.slice(0,29)}…`;const val=document.createElement('strong');val.textContent=(r.delta>0?'+':'')+r.delta+'歳';d.append(text,val);root.appendChild(d)}
+    if(!data.length)root.textContent='まだ分析できる回答がありません。';
+  }
+  function renderQuizReview(s){
+    const root=$('quizReview');root.replaceChildren();const arr=s.records.filter(r=>BY_ID.get(r.qId).type==='quiz');
+    const correct=arr.filter(r=>Number(r.value)===BY_ID.get(r.qId).correct).length;
+    $('quizSummary').textContent=arr.length?`${arr.length}問中 ${correct}問正解（正解率 ${fmt(correct/arr.length*100,1)}%）。クイズの正誤は年齢判定への影響を弱くしています。`:'今回はクイズへの回答がありません。';
+    for(const r of arr){const q=BY_ID.get(r.qId),d=document.createElement('div');d.className='statline';
+      const left=document.createElement('span');left.textContent=q.question;
+      const right=document.createElement('strong');right.textContent=(Number(r.value)===q.correct?'✅':'❌')+' 正答: '+q.options[q.correct];
+      d.append(left,right);root.appendChild(d);
+    }
+    if(!arr.length)root.textContent='クイズ回答なし';
+  }
+  function renderCategoryImpact(s){
+    const root=$('categoryImpact');root.replaceChildren();
+    const values=new Map();
+    s.records.forEach(r=>values.set(r.category,(values.get(r.category)||0)+r.bitDelta));
+    const entries=[...values].sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]));
+    const maxVal=Math.max(.01,...entries.map(x=>Math.abs(x[1])));
+    for(const [cat,v] of entries){
+      const outer=document.createElement('div');outer.className='category-impact-row';
+      const head=document.createElement('div');head.className='category-impact-top';
+      const name=document.createElement('span');name.textContent=cat;
+      const number=document.createElement('strong');number.textContent=(v>0?'+':'')+fmt(v,3)+' bit';
+      head.append(name,number);
+      const track=document.createElement('div');track.className='bar-track';
+      const fill=document.createElement('div');fill.className='bar-fill'+(v<0?' negative':'');fill.style.width=fmt(Math.abs(v)/maxVal*100,1)+'%';
+      track.appendChild(fill);outer.append(head,track);root.appendChild(outer);
+    }
+  }
+  function verifiedSessions(){return sessions.filter(s=>Number.isInteger(s.actualAge))}
+  function mean(xs){return xs.reduce((s,x)=>s+x,0)/Math.max(1,xs.length)}
+  function histStats(){
+    const verified=verifiedSessions();const diffs=verified.map(s=>s.final.mode-s.actualAge);
+    const mae=mean(diffs.map(Math.abs)),rmse=Math.sqrt(mean(diffs.map(d=>d*d)));
+    return {verified,diffs,mae,rmse,complete:diffs.filter(d=>d===0).length,within1:diffs.filter(d=>Math.abs(d)<=1).length,within3:diffs.filter(d=>Math.abs(d)<=3).length,bias:mean(diffs)};
+  }
+  function renderHistory(){
+    $('historyCount').textContent=sessions.length+'回の確定診断／'+abandoned.length+'回の中断';
+    const st=histStats(),k=st.verified.length;
+    const boxes=[['確定診断',sessions.length+'回'],['年齢入力済み',k+'回'],['平均絶対誤差',k?fmt(st.mae,2)+'歳':'—'],['RMSE',k?fmt(st.rmse,2)+'歳':'—'],['完全的中率',k?fmt(st.complete/k*100,1)+'%':'—'],['±1歳以内',k?fmt(st.within1/k*100,1)+'%':'—'],['±3歳以内',k?fmt(st.within3/k*100,1)+'%':'—'],['平均符号付き誤差',k?(st.bias>0?'+':'')+fmt(st.bias,2)+'歳':'—']];
+    const root=$('historyStats');root.replaceChildren();for(const [label,val] of boxes){const div=document.createElement('div');div.className='flowstat';const b=document.createElement('strong');b.textContent=val;const small=document.createElement('small');small.textContent=label;div.append(b,small);root.appendChild(div)}
+    $('historyNote').textContent=k?`※ 年齢入力済みの${k}診断を集計。人数ではなく試行単位の統計です。小標本では結果が大きく変動します。`:'実年齢を照合した診断がないため、誤差統計はまだ表示できません。';
+    const rows=$('historyRows');rows.replaceChildren();
+    if(!sessions.length&&!abandoned.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=7;td.className='empty';td.textContent='まだ診断はありません。';tr.appendChild(td);rows.appendChild(tr)}
+    for(let i=sessions.length-1;i>=0;i--){const s=sessions[i],tr=document.createElement('tr');
+      const diff=s.actualAge===null?null:s.final.mode-s.actualAge;
+      const vals=[String(i+1),s.answers.length+'問',s.final.mode+'歳',s.actualAge===null?'未入力':s.actualAge+'歳',diff===null?'—':(diff>0?'+':'')+diff+'歳',new Date(s.finishedAt).toLocaleString('ja-JP')];
+      vals.forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.appendChild(td)});
+      const td=document.createElement('td'),btn=document.createElement('button');btn.className='btn secondary small';btn.textContent='詳細';btn.addEventListener('click',()=>{viewingId=s.id;showScreen('result')});td.appendChild(btn);tr.appendChild(td);rows.appendChild(tr);
+    }
+    abandoned.forEach((s,i)=>{
+      const tr=document.createElement('tr');
+      [String(sessions.length+i+1),s.answers.length+'問（中断）',s.feat.mode+'歳','—','—',new Date(s.abortedAt).toLocaleString('ja-JP'),'保存済み'].forEach(t=>{const td=document.createElement('td');td.textContent=t;tr.appendChild(td)});
+      rows.appendChild(tr);
+    });
+    drawBars($('errorChart'),st.diffs.map(Math.abs),Math.max(5,...st.diffs.map(Math.abs)));
+    if(!st.verified.length)drawEmptyChart($('compareChart'),'実年齢を入力した診断がありません');
+    else drawCompareChart($('compareChart'),st.verified);
+  }
+  function exportData(){
+    const compact=s=>({id:s.id,startedAt:s.startedAt,finishedAt:s.finishedAt,actualAge:s.actualAge,estimatedAge:s.final?s.final.mode:s.feat.mode,modelConfidence:s.final?s.final.conf:s.feat.conf,range80:s.final?s.final.range80:s.feat.range80,range95:s.final?s.final.range95:s.feat.range95,answered:s.answers.length,status:s.final?'finished':s.abortedAt?'aborted':'in_progress',answers:s.records.map(r=>({qId:r.qId,question:r.question,category:r.category,answer:r.answerText,rawAnswer:r.value,answeredAt:r.at,beforeAge:r.beforeAge,afterAge:r.afterAge,informationChangeBits:r.bitDelta,weight:r.weight,agePosterior:r.posterior})),finalPosterior:s.final?s.final.dist:s.dist});
+    return {app:'AGE DETECTIVE',modelVersion:MODEL_VERSION,exportedAt:new Date().toISOString(),ageRange:[MIN_AGE,MAX_AGE],disclaimer:'Uncalibrated heuristic; probabilities are not validated real-world accuracy.',questionCount:QUESTIONS.length,questionBank:QUESTIONS.map(q=>{const {id,category,icon,type,title,start,end,cluster,groupOptions,question,options,correct}=q;return {id,category,icon,type,title,start,end,cluster,groupOptions,question,options,correct}}),sessions:sessions.map(compact),abandoned:abandoned.map(compact),inProgress:active?compact(active):null};
+  }
+  function saveFile(data,filename,mime){
+    const blob=new Blob([data],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);toast(filename+' を保存しました');
+  }
+  function csvCell(x){
+    let s=x===null||x===undefined?'':String(x);if(/^[=+@\-\t\r]/.test(s)&&!/^[-+]?\d+(?:\.\d+)?$/.test(s))s="'"+s;
+    return '"'+s.replace(/"/g,'""')+'"';
+  }
+  function csv(rows){return '\ufeff'+rows.map(row=>row.map(csvCell).join(',')).join('\r\n')}
+  function fileStamp(){return new Date().toISOString().slice(0,19).replace(/[T:]/g,'-')}
+  function saveAllJSON(){saveFile(JSON.stringify(exportData(),null,2),'age_detective_all_'+fileStamp()+'.json','application/json;charset=utf-8')}
+  function saveSummary(){
+    const header=['session_id','status','started_at','finished_at','answer_count','estimated_age','actual_age','signed_error','absolute_error','model_probability','range_80_lo','range_80_hi','range_95_lo','range_95_hi'];
+    const all=[...sessions,...abandoned,...(active?[active]:[])];
+    const rows=all.map(s=>{const f=s.final||s.feat,actual=s.actualAge;return [s.id,s.final?'finished':s.abortedAt?'aborted':'in_progress',s.startedAt,s.finishedAt,s.answers.length,f.mode,actual,actual===null?'':f.mode-actual,actual===null?'':Math.abs(f.mode-actual),f.conf,f.range80.lo,f.range80.hi,f.range95.lo,f.range95.hi]});
+    saveFile(csv([header,...rows]),'age_detective_sessions_'+fileStamp()+'.csv','text/csv;charset=utf-8');
+  }
+  function saveAnswers(){
+    const all=[...sessions,...abandoned,...(active?[active]:[])];const header=['session_id','answer_no','question_id','category','question','answer','raw_value','answered_at','estimated_before','estimated_after','age_change','information_change_bits','model_weight'];
+    const rows=all.flatMap(s=>s.records.map((r,i)=>[s.id,i+1,r.qId,r.category,r.question,r.answerText,r.value,r.at,r.beforeAge,r.afterAge,r.afterAge-r.beforeAge,r.bitDelta,r.weight]));
+    saveFile(csv([header,...rows]),'age_detective_answers_'+fileStamp()+'.csv','text/csv;charset=utf-8');
+  }
+  function clearAll(){if(!confirm('すべての診断結果・進行中の回答を削除しますか？\n削除した内容は元に戻せません。'))return;sessions=[];abandoned=[];active=null;viewingId=null;renderHistory();toast('履歴を削除しました')}
+
+  // Events
+  $('brandHome').addEventListener('click',e=>{e.preventDefault();showScreen('home')});
+  $('navHome').onclick=()=>showScreen('home');$('navAbout').onclick=()=>showScreen('about');$('navHistory').onclick=()=>showScreen('history');
+  $('navGame').onclick=()=>active?showScreen('game'):beginNew();
+  $('homeStart').onclick=beginNew;$('homeHistory').onclick=()=>showScreen('history');
+  $('submitAnswer').onclick=()=>{
+    if(!active||selected===null)return;
+    const q=BY_ID.get(active.nextId);
+    if(q.type==='multi'){
+      const value=selected.mode==='picked'?[...selected.picks].sort((a,b)=>a-b).join(','):selected.mode;
+      if(!value)return toast('選択肢を選んでください');answerCurrent(value)
+    }else answerCurrent(selected.value);
+  };
+  $('skipAnswer').onclick=()=>{if(!active)return;const q=BY_ID.get(active.nextId);answerCurrent(q.type==='multi'?'unknown':String(opts(q).length-1))};
+  $('backAnswer').onclick=back;$('finishNow').onclick=finish;$('startOver').onclick=beginNew;
+  $('verifyAge').onclick=submitActual;$('actualAge').addEventListener('keydown',e=>{if(e.key==='Enter')submitActual()});
+  $('resultNew').onclick=beginNew;$('resultHistory').onclick=()=>showScreen('history');$('resultExport').onclick=saveAllJSON;
+  $('downloadJson').onclick=saveAllJSON;$('downloadSummary').onclick=saveSummary;$('downloadAnswers').onclick=saveAnswers;$('clearHistory').onclick=clearAll;
+  document.querySelectorAll('[data-chart]').forEach(b=>b.onclick=()=>setChartMode(b.dataset.chart));
+  document.addEventListener('keydown',e=>{
+    if(currentScreen!=='game'||!active||e.ctrlKey||e.altKey||e.metaKey||['INPUT','TEXTAREA'].includes(document.activeElement?.tagName))return;
+    const q=BY_ID.get(active.nextId);
+    if(/^\d$/.test(e.key)&&q.type!=='multi'){const i=Number(e.key)-1;if(i>=0&&i<opts(q).length){selected={type:'single',value:String(i)};renderOptions(q)}}
+    if(e.key==='Enter'&&!$('submitAnswer').disabled){e.preventDefault();$('submitAnswer').click()}
+  });
+  const counts=CAT_NAMES.map(c=>[c,QUESTIONS.filter(q=>q.category===c).length]);
+  for(const [cat,num] of counts){const el=document.createElement('span');el.className='categoryTag';el.textContent=cat+' '+num+'問';$('categoryBreakdown').appendChild(el)}
+  window.addEventListener('resize',()=>{if(currentScreen==='game')drawMainChart();if(currentScreen==='history')renderHistory()});
+  // Expose a read-only status for manual testing; no remote communications or storage.
+  window.AGE_DETECTIVE_INFO=Object.freeze({version:MODEL_VERSION,questions:QUESTIONS.length,categories:CAT_NAMES.length});
+})();
+</script>
+</body>
+</html>
